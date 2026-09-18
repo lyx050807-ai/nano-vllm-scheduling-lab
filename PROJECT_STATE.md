@@ -1,10 +1,10 @@
 # PROJECT_STATE.md
 
-Last updated: 2026-09-18
+Last updated: 2026-09-19
 
 ## Current Phase
 
-Environment requirements inspected (ENV-001 complete); setup not started.
+ENV-001 and ENV-002 complete; isolated Python environment validated.
 
 ## Current Git Branch
 
@@ -69,15 +69,17 @@ Ubuntu 24.04
 - upstream nano-vLLM commit recorded.
 - initial project directory structure created.
 - ENV-001 completed: repository requirements and local environment inspected.
+- ENV-002 completed: recreated and activated the project-local .venv using Python 3.12.3.
+- Verified Python and pip resolve from .venv, isolation is enabled, and Git ignores .venv.
+- ENV-002 evidence, including the earlier failed attempt, is in artifacts/environment/venv-info.txt.
 - Environment evidence recorded in docs/environment.md and artifacts/environment/system-info.txt.
 
 ## In Progress
 
-Environment setup planning; no installation or virtual environment creation performed.
+Planning runtime dependency compatibility; no runtime dependencies installed.
 
 ## Not Started
 
-- isolated Python environment
 - PyTorch installation
 - CUDA runtime validation from PyTorch
 - nano-vLLM dependency installation
@@ -98,7 +100,12 @@ Environment setup planning; no installation or virtual environment creation perf
 
 System Python is Python 3.12.3.
 
-No project Python environment has been created yet.
+The missing ensurepip prerequisite was resolved by the user installing
+python3.12-venv (3.12.3-1ubuntu0.17). The incomplete environment was removed
+and recreated at /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv.
+Activated Python and pip resolve to .venv/bin/python and .venv/bin/pip.
+Only the bootstrapped pip distribution is installed; no runtime dependencies
+were installed. System site-packages are excluded.
 
 Python 3.12.3 satisfies the pinned repository requirement >=3.10,<3.13.
 The complete PyTorch/CUDA/Triton/FlashAttention combination remains unvalidated.
@@ -110,7 +117,8 @@ Ubuntu reports 24.04.5 LTS on WSL2 kernel 6.18.33.2-microsoft-standard-WSL2.
 GPU query reports RTX 4050 Laptop GPU, 6141 MiB VRAM, driver 616.64.
 nvidia-smi reports CUDA UMD Version 13.4; this does not establish a CUDA
 Toolkit installation or a future PyTorch CUDA runtime version.
-pip3, nvcc, python3.11, and python3.10 are not available on the inspected PATH.
+At ENV-001, pip3, nvcc, python3.11, and python3.10 were unavailable on PATH.
+ENV-002 now provides pip inside .venv; other commands were not rechecked.
 The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
@@ -120,13 +128,17 @@ Repository is currently based on the recorded upstream nano-vLLM commit.
 ENV-001 command outputs and exit codes are recorded. Python version and path
 were inspected; no dependency imports or GPU inference validation was performed.
 Upstream source and dependency declarations remain unchanged.
+ENV-002 activation, Python 3.12.3, Python/pip paths, environment isolation,
+package inventory, and Git ignore checks passed. Runtime/GPU validation is
+still pending.
 
 ## Next Task
 
-Prepare an isolated Python 3.12.3 setup plan using the pinned local checkout.
-Resolve the PyTorch CUDA build, Triton/FlashAttention compatibility, pip/venv
-availability, and any Toolkit/build requirements before a separately authorized
-installation task. No evidence currently requires another Python version.
+Plan a compatible PyTorch CUDA/Triton/FlashAttention dependency combination
+for the validated Python 3.12.3 environment and pinned local checkout.
+Resolve binary/build and Toolkit requirements before a separately authorized
+runtime dependency installation task. Do not infer Toolkit availability from
+the NVIDIA driver CUDA report.
 
 ## Important Constraints
 

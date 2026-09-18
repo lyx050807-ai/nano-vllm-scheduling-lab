@@ -1,0 +1,155 @@
+ENV-002 attempt: incomplete / blocked
+Initial command: python3 -m venv .venv
+Exit status: 1
+The virtual environment was not created successfully because ensurepip is not
+available. The command recommended installing python3.12-venv and recreating
+the environment. Only .venv/bin/python, python3 and python3.12 were created;
+activation and pip are unavailable. No package installation was attempted.
+
+
+$ date --iso-8601=seconds
+2026-09-19T07:42:01+08:00
+[exit 0]
+
+$ python3 --version
+Python 3.12.3
+[exit 0]
+
+$ apt-cache policy python3.12-venv
+python3.12-venv:
+  Installed: (none)
+  Candidate: 3.12.3-1ubuntu0.17
+  Version table:
+     3.12.3-1ubuntu0.17 500
+        500 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages
+        500 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages
+     3.12.3-1 500
+        500 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages
+[exit 0]
+
+$ sudo -n true
+sudo: a password is required
+[exit 1]
+
+$ ls -la .venv/bin
+total 8
+drwxr-xr-x 2 luoyuxuan luoyuxuan 4096 Sep 19 07:41 .
+drwxr-xr-x 5 luoyuxuan luoyuxuan 4096 Sep 19 07:41 ..
+lrwxrwxrwx 1 luoyuxuan luoyuxuan    7 Sep 19 07:41 python -> python3
+lrwxrwxrwx 1 luoyuxuan luoyuxuan   16 Sep 19 07:41 python3 -> /usr/bin/python3
+lrwxrwxrwx 1 luoyuxuan luoyuxuan    7 Sep 19 07:41 python3.12 -> python3
+[exit 0]
+
+$ cat .venv/pyvenv.cfg
+home = /usr/bin
+include-system-site-packages = false
+version = 3.12.3
+executable = /usr/bin/python3.12
+command = /usr/bin/python3 -m venv /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv
+[exit 0]
+
+$ test -f .venv/bin/activate
+[exit 1]
+
+$ .venv/bin/python --version
+Python 3.12.3
+[exit 0]
+
+$ .venv/bin/python -m pip --version
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python: No module named pip
+[exit 1]
+
+$ git check-ignore -v .venv
+.gitignore:7:.venv/	.venv
+[exit 0]
+
+$ git diff --check
+[exit 0]
+
+$ git status --short
+ M CURRENT_TASK.md
+[exit 0]
+
+$ git diff --exit-code HEAD -- nanovllm/
+[exit 0]
+
+Required activated-shell checks (python --version, which python, pip --version, which pip) could not be performed: .venv/bin/activate is absent. No runtime dependencies were installed. Partial .venv retained for recovery; it is ignored by Git.
+
+Final validation after documentation updates:
+$ git diff --check
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/venv-info.txt
+[exit 0]
+$ git check-ignore -v .venv
+.gitignore:7:.venv/	.venv
+[exit 0]
+$ git diff --exit-code HEAD -- nanovllm/
+[exit 0]
+$ git status --short --untracked-files=all -- nanovllm/
+[exit 0]
+
+ENV-002 continuation after user installed python3.12-venv:
+$ date --iso-8601=seconds
+2026-09-19T07:47:48+08:00
+[exit 0]
+$ python3 --version
+Python 3.12.3
+[exit 0]
+$ dpkg-query -W python3.12-venv
+python3.12-venv	3.12.3-1ubuntu0.17
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/venv-info.txt
+[exit 0]
+Removed user-authorized incomplete environment after verifying absolute target: /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv
+$ python3 -m venv .venv
+[exit 0]
+
+Activated-shell verification script:
+set -e
+source .venv/bin/activate
+python --version
+which python
+pip --version
+which pip
+python -c 'import sys, pathlib, importlib.metadata as m; root=pathlib.Path.cwd()/".venv"; assert sys.version_info[:3]==(3,12,3); assert sys.prefix==str(root); assert sys.prefix!=sys.base_prefix; assert sys.executable==str(root/"bin/python"); packages=sorted((d.metadata["Name"], d.version) for d in m.distributions()); print("Installed distributions:", packages); assert {n.lower() for n,v in packages}=={"pip"}'
+test "$(which python)" = "$PWD/.venv/bin/python"
+test "$(which pip)" = "$PWD/.venv/bin/pip"
+cat .venv/pyvenv.cfg
+git check-ignore -v .venv
+
+Output:
+Python 3.12.3
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python
+pip 24.0 from /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/lib/python3.12/site-packages/pip (python 3.12)
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/pip
+Installed distributions: [('pip', '24.0')]
+home = /usr/bin
+include-system-site-packages = false
+version = 3.12.3
+executable = /usr/bin/python3.12
+command = /usr/bin/python3 -m venv /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv
+.gitignore:7:.venv/	.venv
+[exit 0]
+
+ENV-002 final validation:
+$ git diff --check
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/venv-info.txt
+[exit 0]
+$ git check-ignore -v .venv
+.gitignore:7:.venv/	.venv
+[exit 0]
+$ git diff --exit-code HEAD -- nanovllm/
+[exit 0]
+$ git status --short --untracked-files=all -- nanovllm/
+[exit 0]
+ENV-002 completed. No runtime dependencies installed; no Git commit created.
