@@ -2,29 +2,38 @@
 
 ## Task ID
 
-BOOTSTRAP-001
+ENV-001
 
 ## Title
 
-Verify project repository bootstrap.
+Inspect nano-vLLM environment and dependency requirements.
 
 ## Goal
 
-Inspect the current repository and verify that the project bootstrap and Git
-structure are correct before any development environment is installed.
+Determine the software environment required by the currently pinned nano-vLLM
+revision before installing anything.
 
-This is an inspection and documentation task.
+This is an inspection-only task.
 
-Do not modify nano-vLLM source code.
+Do not install, upgrade, downgrade, or remove any software or Python package.
 
 ## Context
 
-This repository is based on nano-vLLM and will be used for a reproducible
-single-GPU scheduling experiment.
+Current environment already known:
 
-The local Git repository is the source of truth.
+- WSL2
+- Ubuntu 24.04
+- NVIDIA GeForce RTX 4050 Laptop GPU
+- approximately 6 GB VRAM
+- system Python 3.12.3
+- Git repository is based on the pinned nano-vLLM upstream revision
 
-The repository should currently be in bootstrap state only.
+The upstream revision is recorded in:
+
+artifacts/environment/upstream-commit.txt
+
+We need to determine whether the existing system environment is suitable and
+what isolated Python environment should be created later.
 
 ## Required Reads
 
@@ -32,118 +41,205 @@ Before doing anything:
 
 1. Read AGENTS.md.
 2. Read PROJECT_STATE.md.
-3. Read this CURRENT_TASK.md.
+3. Read CURRENT_TASK.md.
+4. Inspect repository files that define installation and dependencies.
 
-## Required Checks
+## Repository Inspection
 
-Verify:
+Inspect all relevant files that exist, including where applicable:
 
-1. The repository is located in the Linux filesystem rather than /mnt/c.
-2. The current branch is:
+- pyproject.toml
+- setup.py
+- setup.cfg
+- requirements.txt
+- requirements/*.txt
+- README.md
+- README files
+- package metadata
+- installation instructions
+- dependency declarations
 
-   codex/scheduling-lab
+Do not assume files exist. Inspect the repository first.
 
-3. The upstream remote points to:
+## Questions To Answer
 
-   GeeeekExplorer/nano-vllm
+Determine from repository evidence:
 
-4. The upstream commit file exists:
+1. What Python version or version range is supported or expected?
+2. What PyTorch version is declared or recommended?
+3. Is torchvision required?
+4. Is transformers required, and which version?
+5. Is triton required?
+6. Is flash-attn required, optional, or not used?
+7. Are there any other important runtime dependencies?
+8. Does the repository assume Linux?
+9. Are there CUDA-specific installation requirements?
+10. Does the repository provide a recommended installation command?
+11. Is system Python 3.12.3 clearly supported, clearly unsupported, or unclear?
 
-   artifacts/environment/upstream-commit.txt
+Do not guess.
 
-5. The upstream commit file contains a valid Git commit hash.
+If the repository does not provide enough evidence, explicitly mark the answer
+as unclear.
 
-6. These project files exist:
+## Local Environment Inspection
 
-   - AGENTS.md
-   - PROJECT_STATE.md
-   - CURRENT_TASK.md
-   - .gitignore
+Run and record the relevant output of:
 
-7. These project directories exist:
+python3 --version
+which python3
+pip3 --version || true
+nvidia-smi
+nvcc --version || true
+uname -a
+cat /etc/os-release
 
-   - docs
-   - scripts
-   - lab
-   - tests
-   - workloads
-   - results
-   - artifacts/environment
+Also inspect whether these commands currently exist:
 
-8. .gitignore excludes:
+python3.11 --version || true
+python3.10 --version || true
 
-   - virtual environments
-   - Python caches
-   - model files/caches
-   - temporary files
-   - large raw results
+Do not install missing versions.
 
-9. No nano-vLLM source file has been modified.
+## Important CUDA Interpretation
 
-10. Run:
+Do not treat the CUDA version reported by nvidia-smi as proof that the CUDA
+Toolkit of that version is installed.
 
-   git diff --check
+Clearly distinguish:
 
-11. Inspect:
+- NVIDIA driver
+- CUDA compatibility reported by nvidia-smi
+- CUDA Toolkit / nvcc
+- future PyTorch CUDA runtime
 
-   git status --short
+## Output File
 
-## Allowed Changes
+Create:
 
-You may only correct problems in:
+docs/environment.md
 
-- AGENTS.md
-- PROJECT_STATE.md
-- CURRENT_TASK.md
-- .gitignore
-- .gitkeep files
-- artifacts/environment metadata
+The document should contain:
 
-Do not modify files under nanovllm/.
+### 1. Local System
 
-Do not install any software or Python package.
+- OS
+- WSL version/context
+- GPU
+- VRAM
+- NVIDIA driver
+- nvidia-smi CUDA compatibility version
+- nvcc status/version
+- Python versions currently available
 
-## Out of Scope
+### 2. nano-vLLM Requirements
+
+For every important requirement, include the repository file that provides the
+evidence.
+
+Summarize:
+
+- Python requirement
+- PyTorch requirement
+- transformers requirement
+- triton requirement
+- flash-attn requirement
+- other important dependencies
+
+### 3. Compatibility Assessment
+
+State whether the current system Python 3.12.3 should be used for this project.
+
+Classify it as one of:
+
+- supported
+- unsupported
+- unclear
+
+Explain briefly based only on repository evidence.
+
+### 4. Recommended Next Environment Step
+
+Recommend the next environment setup step, but do not execute it.
+
+If a different Python version is recommended, explain why.
+
+Do not recommend arbitrary package versions without evidence.
+
+## Raw Environment Records
+
+Save useful raw environment information under:
+
+artifacts/environment/
+
+For example:
+
+artifacts/environment/system-info.txt
+
+Do not store large logs.
+
+## Restrictions
 
 Do not:
 
-- create a Python virtual environment
+- install packages
+- run apt install
+- run pip install
+- create a virtual environment
 - install Python
-- install PyTorch
 - install CUDA
+- install PyTorch
 - install FlashAttention
-- install nano-vLLM dependencies
 - download a model
-- run inference
-- change scheduler code
-- change any file under nanovllm/
+- run nano-vLLM inference
+- modify files under nanovllm/
+- modify upstream dependency declarations
+
+## Validation
+
+Run:
+
+git diff --check
+
+Inspect:
+
+git status --short
+git diff --name-only
+
+Confirm that no file under nanovllm/ has changed.
 
 ## Acceptance Criteria
 
 The task passes only if:
 
-- repository path is inside the WSL Linux filesystem
-- branch is codex/scheduling-lab
-- upstream commit is recorded
-- required project files/directories exist
-- no upstream nano-vLLM source file is modified
+- local environment information is recorded
+- repository dependency requirements are documented from actual evidence
+- Python 3.12.3 compatibility is assessed without guessing
+- CUDA driver compatibility and CUDA Toolkit are correctly distinguished
+- no package was installed
+- no virtual environment was created
+- no nano-vLLM source file was modified
 - git diff --check passes
-- repository status is fully understood
 
 ## Completion Requirements
 
-Update PROJECT_STATE.md only if a bootstrap fact needs correction.
+Update PROJECT_STATE.md with:
+
+- ENV-001 completion status
+- important environment findings
+- current known compatibility issues
+- recommended next task
 
 Do not create a Git commit.
 
 At completion report:
 
-- repository path
-- current branch
-- upstream commit
-- remote configuration
 - files inspected
-- files modified, if any
-- git status
-- git diff --check result
-- any detected problems
+- local environment summary
+- declared Python requirement
+- declared PyTorch requirement
+- other important dependency requirements
+- Python 3.12.3 assessment
+- files created/modified
+- validation results
+- recommended next step
