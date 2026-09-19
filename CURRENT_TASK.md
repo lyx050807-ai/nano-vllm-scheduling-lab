@@ -2,67 +2,95 @@
 
 ## Task ID
 
-ENV-002
+ENV-003
 
 ## Title
 
-Create and validate the project Python virtual environment.
+Determine the PyTorch and CUDA installation plan.
 
 ## Goal
 
-Create a project-local Python virtual environment using Python 3.12.3.
+Determine a concrete and compatible GPU software stack for this project
+before installing runtime dependencies.
 
-Do not install nano-vLLM runtime dependencies yet.
+Do not install PyTorch or other runtime dependencies in this task.
 
 ## Context
 
-ENV-001 confirmed:
+Current environment:
 
-- system Python: 3.12.3
-- nano-vLLM requires Python >=3.10,<3.13
-- Python 3.12.3 is supported
+- WSL2
+- Ubuntu 24.04
+- RTX 4050 Laptop GPU
+- approximately 6 GB VRAM
+- NVIDIA driver works in WSL
+- Python 3.12.3
+- project virtual environment: .venv
+
+Pinned nano-vLLM requirements found in ENV-001 include:
+
+- torch >=2.4.0
+- transformers >=4.51.0
+- triton >=3.0.0
+- flash-attn is required but not pinned to an exact version
 
 ## Required Work
 
-1. Read AGENTS.md and PROJECT_STATE.md.
-2. Confirm:
+1. Read AGENTS.md, PROJECT_STATE.md, and docs/environment.md.
 
-   python3 --version
+2. Inspect the pinned repository's dependency declarations again where needed.
 
-3. Create:
+3. Determine a recommended concrete PyTorch installation for:
+   - Linux / WSL2
+   - Python 3.12
+   - NVIDIA RTX 4050
+   - current NVIDIA driver
 
-   .venv
+4. Clearly distinguish:
+   - NVIDIA driver
+   - nvidia-smi CUDA compatibility version
+   - PyTorch bundled CUDA runtime
+   - CUDA Toolkit / nvcc
 
-4. Activate .venv.
+5. Assess compatibility concerns involving:
+   - PyTorch
+   - Triton
+   - flash-attn
+   - Python 3.12
 
-5. Record:
+6. Do not choose versions only because they are the newest.
+   Prefer a combination justified by compatibility with this project.
 
-   python --version
-   which python
-   pip --version
-   which pip
+## Output
 
-6. Confirm python and pip resolve from .venv.
+Create:
 
-7. Confirm .venv is ignored by Git.
+docs/gpu-stack-plan.md
 
-8. Save evidence to:
+Include:
 
-   artifacts/environment/venv-info.txt
+- recommended PyTorch version
+- recommended PyTorch CUDA build/runtime
+- whether system CUDA Toolkit is needed at this stage
+- expected Triton relationship
+- expected flash-attn compatibility considerations
+- proposed installation order
+- commands proposed for the next task
+
+Do not execute the installation commands.
 
 ## Restrictions
 
-Do not install:
+Do not:
 
-- PyTorch
-- transformers
-- triton
-- flash-attn
-- nano-vLLM
-- CUDA Toolkit
-- models
-
-Do not modify nanovllm/.
+- install PyTorch
+- install CUDA Toolkit
+- install Triton
+- install flash-attn
+- install transformers
+- install nano-vLLM
+- download a model
+- modify nanovllm/
 
 ## Validation
 
@@ -70,28 +98,20 @@ Run:
 
 git diff --check
 git status --short
-git check-ignore -v .venv
 
-Confirm no file under nanovllm/ changed.
+Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with:
-
-- ENV-002 completion
-- Python version
-- virtual environment path
-- recommended next task
+Update PROJECT_STATE.md with ENV-003 findings and the recommended next task.
 
 ## Acceptance Criteria
 
-- .venv exists
-- Python version is 3.12.3
-- python resolves from .venv
-- pip resolves from .venv
-- .venv is ignored by Git
-- no runtime dependencies were installed
-- no nano-vLLM source was modified
+- a concrete GPU stack plan exists
+- CUDA terminology is correctly distinguished
+- proposed versions are justified
+- no runtime dependency was installed
+- nanovllm/ is unchanged
 - git diff --check passes
 
 Do not create a Git commit.
@@ -100,10 +120,10 @@ Do not create a Git commit.
 
 Report:
 
-- Python version
-- venv path
-- python executable
-- pip executable
+- proposed PyTorch version
+- proposed CUDA runtime/build
+- CUDA Toolkit requirement
+- Triton consideration
+- flash-attn consideration
+- proposed installation order
 - files modified
-- validation results
-- recommended next step

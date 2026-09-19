@@ -4,7 +4,7 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 and ENV-002 complete; isolated Python environment validated.
+ENV-001 through ENV-003 complete; GPU stack planned, runtime installation pending.
 
 ## Current Git Branch
 
@@ -68,6 +68,7 @@ Ubuntu 24.04
 - development branch created.
 - upstream nano-vLLM commit recorded.
 - initial project directory structure created.
+- ENV-003 completed: concrete GPU stack plan documented in docs/gpu-stack-plan.md.
 - ENV-001 completed: repository requirements and local environment inspected.
 - ENV-002 completed: recreated and activated the project-local .venv using Python 3.12.3.
 - Verified Python and pip resolve from .venv, isolation is enabled, and Git ignores .venv.
@@ -76,7 +77,7 @@ Ubuntu 24.04
 
 ## In Progress
 
-Planning runtime dependency compatibility; no runtime dependencies installed.
+GPU stack installation is planned; no runtime dependencies installed.
 
 ## Not Started
 
@@ -108,7 +109,12 @@ Only the bootstrapped pip distribution is installed; no runtime dependencies
 were installed. System site-packages are excluded.
 
 Python 3.12.3 satisfies the pinned repository requirement >=3.10,<3.13.
-The complete PyTorch/CUDA/Triton/FlashAttention combination remains unvalidated.
+The proposed stack is PyTorch 2.6.0+cu124 (CUDA 12.4), its required Triton
+3.2.0, and FlashAttention 2.7.4.post1 via the official cp312 Linux wheel matching
+the measured Torch C++ ABI. The complete combination remains unvalidated.
+No system CUDA Toolkit is needed for the initial prebuilt-wheel path.
+Official package metadata and release assets justify the plan, not GPU tests.
+Source-build fallback requires a separate Toolkit/compiler assessment.
 Declared dependencies are torch>=2.4.0, triton>=3.0.0,
 transformers>=4.51.0, flash-attn (required, unpinned), and xxhash (unpinned).
 NumPy, tqdm, and safetensors are imported directly but not separately declared.
@@ -134,11 +140,12 @@ still pending.
 
 ## Next Task
 
-Plan a compatible PyTorch CUDA/Triton/FlashAttention dependency combination
-for the validated Python 3.12.3 environment and pinned local checkout.
-Resolve binary/build and Toolkit requirements before a separately authorized
-runtime dependency installation task. Do not infer Toolkit availability from
-the NVIDIA driver CUDA report.
+Install only PyTorch 2.6.0+cu124 and its declared dependencies in .venv in a
+separately authorized task, using the official cu124 index. Follow the proposed
+commands in docs/gpu-stack-plan.md to check Torch/Triton versions, CUDA runtime,
+GPU tensor execution and C++ ABI. Do not install Toolkit or FlashAttention in
+that initial step. Resolve FlashAttention and remaining project dependencies
+in later tasks, preserving the selected Torch/Triton versions.
 
 ## Important Constraints
 
