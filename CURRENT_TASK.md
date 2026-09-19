@@ -2,119 +2,136 @@
 
 ## Task ID
 
-ENV-005
+ENV-006
 
 ## Title
 
-Install and validate ordinary runtime dependencies.
+Install and validate FlashAttention safely.
 
 ## Goal
 
-Install the ordinary Python runtime dependencies required by the pinned
-nano-vLLM repository while preserving the already validated PyTorch/Triton
-GPU stack.
+Install a FlashAttention build compatible with the already validated project
+environment without changing the working PyTorch/Triton stack.
 
-Do not install flash-attn yet.
+Prefer a compatible prebuilt wheel.
 
-## Context
+Do not install CUDA Toolkit or perform an uncontrolled source build.
 
-Validated environment:
+## Current Validated Environment
 
 - Python 3.12.3
 - torch 2.6.0+cu124
 - PyTorch CUDA runtime 12.4
 - Triton 3.2.0
-- RTX 4050 GPU computation works
+- RTX 4050 Laptop GPU
+- torch CUDA computation works
+- nvcc is not currently installed
 
-These versions must not be changed during this task.
+These validated versions must remain unchanged.
 
 ## Required Work
 
-1. Read AGENTS.md, PROJECT_STATE.md, docs/environment.md, and
-   docs/gpu-stack-plan.md.
+1. Read:
+   - AGENTS.md
+   - PROJECT_STATE.md
+   - docs/environment.md
+   - docs/gpu-stack-plan.md
 
-2. Inspect the pinned repository dependency declarations.
+2. Inspect the pinned nano-vLLM dependency declaration for flash-attn.
 
-3. Identify runtime dependencies other than:
+3. Determine whether a compatible prebuilt FlashAttention package exists for:
+   - Linux x86_64
+   - Python 3.12
+   - torch 2.6.0
+   - CUDA 12.x / cu124-compatible environment
 
-   - torch
-   - triton
-   - flash-attn
+4. Prefer a prebuilt wheel when available.
 
-4. Install the required ordinary dependencies into .venv.
+5. If a compatible prebuilt wheel is available:
+   - install it only inside .venv
+   - do not allow torch or triton to be replaced
 
-5. Preserve:
+6. If no compatible prebuilt wheel is available and installation would require
+   CUDA Toolkit/nvcc or a source build:
+   - STOP
+   - do not install CUDA Toolkit
+   - do not start a source build
+   - document the blocker and recommended next action
 
-   - torch 2.6.0+cu124
-   - triton 3.2.0
+## Validation If Installation Succeeds
 
-6. Do not allow pip to silently replace the validated torch or triton versions.
+Verify:
 
-7. Verify imports for the important installed packages.
+- import flash_attn succeeds
+- flash-attn version
+- torch remains 2.6.0+cu124
+- triton remains 3.2.0
+- torch.cuda.is_available() remains True
+- RTX 4050 is still detected
+- pip check passes
 
-8. Run:
-
-   pip check
-
-9. Re-run a small PyTorch CUDA validation to confirm GPU operation still works.
+If practical, run a minimal FlashAttention import/API smoke test that does not
+require downloading a model.
 
 ## Output
 
 Create:
 
-artifacts/environment/runtime-deps-info.txt
+artifacts/environment/flash-attn-info.txt
 
 Record:
 
-- packages installed
-- important versions
-- import validation
-- pip check result
+- installation path chosen
+- whether a prebuilt wheel was used
+- flash-attn version
+- import result
 - torch version after installation
 - triton version after installation
-- CUDA availability after installation
+- CUDA availability
+- pip check result
+- any warnings or blockers
 
 ## Restrictions
 
 Do not:
 
-- install flash-attn
 - install CUDA Toolkit
-- download models
-- run model inference
-- modify nanovllm/
+- install or invoke nvcc
 - change torch version
 - change triton version
+- download model weights
+- modify nanovllm/
+- perform a long source build without explicit approval
 
-## Validation
+## PROJECT_STATE
+
+Update PROJECT_STATE.md with:
+
+- ENV-006 status
+- FlashAttention installation result or blocker
+- next recommended task
+
+## Acceptance Criteria
+
+Success path:
+
+- compatible FlashAttention installs and imports
+- torch remains 2.6.0+cu124
+- triton remains 3.2.0
+- CUDA still works
+- pip check passes
+- nanovllm/ unchanged
+
+Blocked path is also acceptable if:
+
+- no safe compatible prebuilt wheel is available
+- no CUDA Toolkit/source build was attempted
+- blocker is clearly documented
 
 Run:
 
 git diff --check
 git status --short
-
-Confirm:
-
-- ordinary dependencies import successfully
-- pip check passes
-- torch remains 2.6.0+cu124
-- triton remains 3.2.0
-- torch.cuda.is_available() remains True
-- nanovllm/ is unchanged
-
-## PROJECT_STATE
-
-Update PROJECT_STATE.md with ENV-005 completion and the next recommended task.
-
-## Acceptance Criteria
-
-- required ordinary runtime dependencies are installed
-- torch/triton versions remain unchanged
-- imports succeed
-- pip check passes
-- CUDA still works
-- no nano-vLLM source was modified
-- git diff --check passes
 
 Do not create a Git commit.
 
@@ -122,10 +139,12 @@ Do not create a Git commit.
 
 Report:
 
-- packages installed
-- important package versions
-- torch/triton versions
+- installed or blocked
+- FlashAttention version if installed
+- wheel or source-build requirement
+- torch version
+- triton version
+- CUDA status
 - pip check result
-- CUDA validation result
 - files modified
 - recommended next step

@@ -4,7 +4,7 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-005 complete; ordinary runtime dependencies and preserved GPU stack validated.
+ENV-001 through ENV-006 complete; prebuilt FlashAttention installed and minimal GPU API tests passed.
 
 ## Current Git Branch
 
@@ -68,6 +68,9 @@ Ubuntu 24.04
 - development branch created.
 - upstream nano-vLLM commit recorded.
 - initial project directory structure created.
+- ENV-006 completed: FlashAttention 2.7.4.post1 official cp312/cu12/torch2.6/cxx11abiFALSE wheel installed in .venv, with einops 0.8.2.
+- ENV-006 imports, pip check and two small FlashAttention GPU API tests passed; Torch/Triton preserved.
+- ENV-006 source URL, wheel SHA256, installation and validation evidence: artifacts/environment/flash-attn-info.txt.
 - ENV-005 completed: ordinary runtime dependencies installed in .venv with torch/triton constraints.
 - ENV-005 imports, offline Qwen3 config dtype, pip check, and GPU matmul validation passed.
 - ENV-005 evidence and resolved versions: artifacts/environment/runtime-deps-info.txt.
@@ -82,11 +85,11 @@ Ubuntu 24.04
 
 ## In Progress
 
-Ordinary runtime dependencies are installed; FlashAttention setup and validation remain pending.
+Runtime dependencies and FlashAttention are installed; full nano-vLLM integration validation remains pending.
 
 ## Not Started
 
-- FlashAttention installation and full nano-vLLM dependency validation
+- full nano-vLLM integration validation
 - model setup
 - nano-vLLM smoke test
 - architecture analysis
@@ -119,12 +122,14 @@ with compute capability 8.9 was detected. A 4x4 CUDA matrix multiplication
 (A @ 2I == 2A) passed after synchronization, with result on cuda:0.
 PyTorch reported total memory 6438780928 bytes and free memory 5272240128
 bytes at the validation snapshot; these are not workload capacity guarantees.
-FlashAttention 2.7.4.post1 remains a planned, uninstalled dependency, using the
-cp312/cu12/torch2.6/cxx11abiFALSE Linux wheel after later validation.
+FlashAttention 2.7.4.post1 is installed from the official
+cp312/cu12/torch2.6/cxx11abiFALSE Linux wheel; einops 0.8.2 was its only
+new dependency. All pre-existing packages were constrained during installation.
 The complete nano-vLLM dependency combination remains unvalidated.
 No system CUDA Toolkit is needed for the initial prebuilt-wheel path.
 No CUDA Toolkit was installed. Basic PyTorch GPU computation is now validated;
-FlashAttention, Triton kernel execution and NCCL operation remain untested.
+FlashAttention contiguous-cache API smoke tests passed. Paged-cache integration,
+Triton kernel execution and NCCL operation remain untested.
 Source-build fallback requires a separate Toolkit/compiler assessment.
 ENV-005 installed transformers 4.57.6, xxhash 4.0.1, numpy 2.5.3,
 tqdm 4.70.1 and safetensors 0.8.0 plus their resolved dependencies.
@@ -134,8 +139,9 @@ Qwen3Config.dtype == torch.bfloat16; no model configuration was downloaded.
 The prior missing-NumPy warning is resolved. NumPy/Torch interoperability,
 in-memory safetensors round-trip and xxhash checks passed before GPU validation.
 Torch 2.6.0+cu124 and Triton 3.2.0 were protected by pip constraints and remained
-unchanged. FlashAttention, nano-vLLM, torchvision and torchaudio were not
-installed. No model was downloaded and no inference was run.
+unchanged. FlashAttention was subsequently installed in ENV-006; nano-vLLM,
+torchvision and torchaudio were not installed. No model was downloaded and no
+inference was run.
 Declared dependencies are torch>=2.4.0, triton>=3.0.0,
 transformers>=4.51.0, flash-attn (required, unpinned), and xxhash (unpinned).
 NumPy, tqdm, and safetensors are imported directly but not separately declared.
@@ -162,18 +168,22 @@ multiplication passed. Full package versions and memory statistics are recorded
 in artifacts/environment/pytorch-gpu-info.txt. No inference was run.
 ENV-005 ordinary-package imports and pip check passed. CUDA availability and
 4x4 matrix multiplication were revalidated on the RTX 4050 with unchanged
-Torch/Triton versions. flash_attn remains absent. Evidence and the post-install
+Torch/Triton versions. flash_attn was absent at ENV-005. Evidence and the post-install
 package inventory are in artifacts/environment/runtime-deps-info.txt.
+ENV-006 confirmed flash_attn import, version 2.7.4.post1, torch 2.6.0+cu124,
+Triton 3.2.0, CUDA runtime 12.4 and RTX 4050 availability. FP16 varlen causal
+attention and one-token KV-cache decode passed against FP32 PyTorch SDPA
+(atol=rtol=0.003); max absolute errors were 0.0005553 and 0.0005496.
+pip check passed without warnings/errors. No Toolkit installation, nvcc
+invocation, source build or model download was performed.
 
 ## Next Task
 
-Plan and execute a separately scoped FlashAttention installation/validation
-task, preserving torch 2.6.0+cu124 and Triton 3.2.0. Use the measured
-CXX11 ABI=False for the planned FlashAttention 2.7.4.post1 cp312 Linux wheel;
-check its prerequisites and dependency resolution before installation.
-Then validate attention/Triton kernels and NCCL before model setup. ENV-005
-validates ordinary dependencies and basic CUDA, not nano-vLLM inference or
-scheduling performance.
+Validate the pinned nano-vLLM integration without changing the resolved stack:
+project imports, paged-cache attention, Triton cache-store kernel and single-GPU
+NCCL initialization. Then separately plan model setup and a constrained inference
+smoke test for the 6 GB GPU. ENV-006 API tests do not establish model inference
+correctness or scheduling performance.
 
 ## Important Constraints
 
