@@ -4,7 +4,7 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-007 and MODEL-001 complete; Qwen3-0.6B downloaded and locally validated.
+ENV-001 through ENV-007, MODEL-001 and SMOKE-001 complete; first single-request GPU inference passed.
 
 ## Current Git Branch
 
@@ -68,6 +68,8 @@ Ubuntu 24.04
 - development branch created.
 - upstream nano-vLLM commit recorded.
 - initial project directory structure created.
+- SMOKE-001 completed on attempt 3 after user-installed host compiler and Python development headers; same model/config/script, one request passed.
+- Previous failed attempts and successful output preserved in artifacts/environment/smoke-single-request.txt.
 - MODEL-001 completed: Qwen/Qwen3-0.6B downloaded to models/Qwen3-0.6B.
 - Model revision: c1899de289a04d12100db370d81485cdf75e47ca.
 - Local config/tokenizer encode-decode and weight/tokenizer SHA256 validation passed; evidence in artifacts/environment/model-info.txt.
@@ -91,12 +93,14 @@ Ubuntu 24.04
 
 ## In Progress
 
-Model files and tokenizer are ready; full GPU integration and inference validation remain pending.
+Initial single-request inference is validated; architecture analysis and broader
+integration coverage remain pending. No formal performance experiment has run.
+Evidence: artifacts/environment/smoke-single-request.txt.
+Reusable entry point: scripts/smoke_single_request.py.
 
 ## Not Started
 
 - full nano-vLLM integration validation
-- nano-vLLM smoke test
 - architecture analysis
 - trace generator
 - replay driver
@@ -130,11 +134,18 @@ bytes at the validation snapshot; these are not workload capacity guarantees.
 FlashAttention 2.7.4.post1 is installed from the official
 cp312/cu12/torch2.6/cxx11abiFALSE Linux wheel; einops 0.8.2 was its only
 new dependency. All pre-existing packages were constrained during installation.
-The complete nano-vLLM dependency combination remains unvalidated.
+The dependency combination passed one conservative single-request inference;
+broader workload/configuration compatibility remains unvalidated.
+The initial missing C compiler and subsequent missing Python.h blockers were
+resolved by user-installed gcc/g++ 13.3.0 and python3.12-dev 3.12.3-1ubuntu0.17.
+Attempt 3 completed normally with no runtime warnings or errors. Historical
+constructor failures and NCCL cleanup warnings remain in the runtime record.
+No Python dependency or source changes were required.
 No system CUDA Toolkit is needed for the initial prebuilt-wheel path.
 No CUDA Toolkit was installed. Basic PyTorch GPU computation is now validated;
-FlashAttention contiguous-cache API smoke tests passed. Paged-cache integration,
-Triton kernel execution and NCCL operation remain untested.
+FlashAttention API tests passed. SMOKE-001 exercised the engine warmup,
+Triton execution, single-GPU NCCL setup/cleanup and cached decoding on this
+one-request path; this is not comprehensive kernel/integration validation.
 Source-build fallback requires a separate Toolkit/compiler assessment.
 ENV-005 installed transformers 4.57.6, xxhash 4.0.1, numpy 2.5.3,
 tqdm 4.70.1 and safetensors 0.8.0 plus their resolved dependencies.
@@ -146,7 +157,8 @@ in-memory safetensors round-trip and xxhash checks passed before GPU validation.
 Torch 2.6.0+cu124 and Triton 3.2.0 were protected by pip constraints and remained
 unchanged. FlashAttention was installed in ENV-006 and nano-vllm 0.2.0 was
 installed in editable mode in ENV-007. torchvision and torchaudio remain absent.
-MODEL-001 subsequently downloaded Qwen3-0.6B; no inference has been run.
+MODEL-001 downloaded Qwen3-0.6B. SMOKE-001 attempt 3 completed one user
+request after two preserved warmup failures.
 Declared dependencies are torch>=2.4.0, triton>=3.0.0,
 transformers>=4.51.0, flash-attn (required, unpinned), and xxhash (unpinned).
 NumPy, tqdm, and safetensors are imported directly but not separately declared.
@@ -202,17 +214,59 @@ local download metadata; payload files total 1519209243 bytes.
 Qwen3Config loaded locally: bfloat16, 28 layers, hidden size 1024.
 Qwen2TokenizerFast loaded locally and round-tripped 'Hello, nano-vLLM!'.
 Weight and tokenizer.json SHA256 values match the pinned Hub LFS metadata.
-Safetensors header lists 311 tensors; no model instance was created and no
-model weights were loaded onto GPU. Model directory is ignored by Git.
+MODEL-001 inspected a safetensors header listing 311 tensors without loading
+a model. SMOKE-001 subsequently loaded it on cuda:0 and generated a response
+on attempt 3, after two failed warmup attempts.
+Model directory is ignored by Git.
 
 ## Next Task
 
-Plan a constrained nano-vLLM smoke test for the local pinned Qwen3-0.6B model
-on the 6 GB GPU. Explicitly set conservative context/batch/memory limits and
-validate the remaining paged-cache, Triton and NCCL integration as appropriate
-in that separately authorized task. Preserve all dependency versions and the
-model revision. MODEL-001 establishes file/config/tokenizer readiness only,
-not successful inference or scheduling performance.
+Perform architecture analysis of the pinned nano-vLLM request lifecycle,
+scheduler and execution path to prepare trace/replay/telemetry work. Preserve
+the now-working stack and conservative smoke script. Define additional tests
+and formal workload configuration separately; smoke timings do not establish
+throughput, latency improvements or scheduling-policy performance.
+
+## SMOKE-001 Attempt
+
+Configuration: local Qwen3-0.6B, enforce_eager=True, tensor_parallel_size=1,
+max_model_len=256, max_num_batched_tokens=256, max_num_seqs=1,
+gpu_memory_utilization=0.6. Sampling: temperature=0.6, max_tokens=32,
+ignore_eos=False, seed=42; local chat template enable_thinking=False.
+Prompt: 'Say hello in one short sentence.' (19 tokens after chat formatting).
+Initial attempt: one process; zero user requests completed and no output tokens
+were produced. Upstream warmup precedes generate and is not a user request.
+Process wall time: 9.315443 seconds including failure, not generation latency.
+Pre-load CUDA free/total memory: 5318377472 / 6438780928 bytes; peak memory
+was not captured because initialization failed. The reported error was a
+compiler failure, not an out-of-memory error. Full traceback is preserved.
+
+### Continuation after user-installed C/C++ compiler
+
+Same script (unchanged SHA256 recorded), model and configuration; one retry.
+gcc and g++ 13.3.0 are available at /usr/bin. Initialization failed during
+upstream warmup because Python.h was missing. No user request was submitted,
+no output generated. Process wall time: 8.905485 seconds including failure.
+Pre-load free/total CUDA bytes: 5318377472 / 6438780928; peak not captured.
+NCCL cleanup warning followed constructor failure. Both complete error records
+are preserved in artifacts/environment/smoke-single-request.txt.
+
+### Successful continuation after user-installed Python development headers
+
+Attempt 3 used the exact same script/model/configuration and completed one
+request normally (process exit 0). Python.h and python3.12-config were verified;
+python3.12-dev version is 3.12.3-1ubuntu0.17. No package changes by the agent.
+Output: 'Hello! How can I assist you today?<|im_end|>'.
+Prompt tokens: 19; output tokens: 10, including EOS token 151645.
+Model device: cuda:0 on NVIDIA GeForce RTX 4050 Laptop GPU.
+Load/warmup: 11.072971 s; generation: 7.158313 s; script through cleanup:
+18.900762 s; whole process including Python imports/startup/exit: 25.007268 s.
+Timings include first-run compilation effects and are not benchmark results.
+PyTorch peak allocated/reserved bytes since upstream warmup's statistics reset:
+2606195712 / 2678063104 (about 2.43 / 2.49 GiB). These are allocator statistics,
+not total device/process residency. Post-generation free/total CUDA bytes:
+2610954240 / 6438780928. No warnings/errors observed on this successful attempt.
+The first two complete failure records are preserved verbatim in the log.
 
 ## Important Constraints
 

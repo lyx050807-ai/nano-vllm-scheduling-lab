@@ -2,85 +2,108 @@
 
 ## Task ID
 
-MODEL-001
+SMOKE-001
 
 ## Title
 
-Prepare and validate the Qwen3-0.6B model files.
+Run the first single-request nano-vLLM GPU inference.
 
 ## Goal
 
-Download the planned small model for nano-vLLM experiments and validate its
-configuration and tokenizer without running full model inference yet.
+Load the local Qwen3-0.6B model with the pinned nano-vLLM repository and
+successfully generate a short response on the RTX 4050.
 
-## Model
+This is a single-request smoke test, not a performance experiment.
 
-Use:
+## Current Environment
 
-Qwen/Qwen3-0.6B
+- Qwen3-0.6B is available locally
+- RTX 4050 Laptop GPU
+- approximately 6 GB VRAM
+- Python 3.12.3
+- torch 2.6.0+cu124
+- Triton 3.2.0
+- FlashAttention 2.7.4.post1
+- nano-vLLM installed editable from this repository
 
-Store the model under the repository-local ignored model directory:
+## Required Inspection
 
-models/Qwen3-0.6B
+Before running inference:
 
-Do not add model files to Git.
+1. Read AGENTS.md and PROJECT_STATE.md.
+2. Inspect the pinned nano-vLLM README and examples.
+3. Inspect the public LLM/inference API used by the existing examples.
+4. Identify the relevant configuration options affecting:
+   - model path
+   - max model length / context length
+   - GPU memory use
+   - maximum generated tokens
+5. Do not guess API names.
 
 ## Required Work
 
-1. Read:
-   - AGENTS.md
-   - PROJECT_STATE.md
-   - docs/environment.md
-
-2. Inspect the nano-vLLM README/examples to understand how model paths are
-   supplied to the engine.
-
-3. Confirm the current validated environment is still healthy.
-
-4. Download Qwen/Qwen3-0.6B into:
+1. Use the local model:
 
    models/Qwen3-0.6B
 
-5. Record the Hugging Face model repository and exact downloaded revision or
-   snapshot commit when available.
+2. Design a conservative configuration suitable for approximately 6 GB VRAM.
 
-6. Validate locally:
+3. Use one short prompt.
 
-   - model config loads
-   - tokenizer loads
-   - tokenizer can encode a short sentence
-   - tokenizer can decode the resulting tokens
-   - model path is usable by Transformers locally
+4. Request a small number of output tokens.
 
-7. Do not instantiate the full model on GPU yet.
+5. Run exactly one request first.
 
-8. Confirm models/ is ignored by Git.
+6. Record:
+   - prompt
+   - prompt token count if available
+   - generated text
+   - generated token count if available
+   - wall-clock runtime
+   - peak or observed GPU memory when practical
+   - important engine configuration
+
+7. Confirm the generated output is non-empty and the request completes normally.
+
+## Failure Handling
+
+If the run fails because of GPU memory:
+
+- stop
+- do not modify source code
+- report the observed memory error and configuration
+- propose a smaller safe configuration
+
+If the run fails because of an import/kernel/runtime error:
+
+- preserve the full relevant error
+- do not change dependency versions automatically
+- stop and report the blocker
 
 ## Output
 
 Create:
 
-artifacts/environment/model-info.txt
+artifacts/environment/smoke-single-request.txt
 
-Record:
+Record the configuration, command/script used, important runtime output,
+generated result, and any warnings.
 
-- model repository
-- local model path
-- revision/snapshot if available
-- config validation result
-- tokenizer validation result
-- a small tokenization example
-- model directory size
+If a temporary smoke-test script is useful, place it under scripts/.
+
+Keep it minimal and reusable.
 
 ## Restrictions
 
 Do not:
 
-- run full model inference
-- load model weights onto GPU
 - modify nanovllm/
-- change torch/triton/flash-attn versions
-- commit model weights to Git
+- implement scheduling policies
+- run multiple concurrent requests
+- run performance benchmarks
+- change dependency versions
+- install CUDA Toolkit
+- download another model
 
 ## Validation
 
@@ -88,28 +111,31 @@ Run:
 
 git diff --check
 git status --short
-git check-ignore -v models/Qwen3-0.6B
 
-Confirm model files do not appear as Git changes.
+Confirm:
+
+- one request completed successfully
+- generated text is non-empty
+- CUDA execution was used
+- nanovllm/ source is unchanged
 
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- MODEL-001 completion
-- selected model
-- local path
-- revision/snapshot if known
+- SMOKE-001 status
+- configuration used
+- model load/inference result
+- GPU memory observations
 - next recommended task
 
 ## Acceptance Criteria
 
-- Qwen3-0.6B is available locally
-- config loads successfully
-- tokenizer encode/decode works
-- model directory is ignored by Git
-- no inference was performed
-- nanovllm/ remains unchanged
+- nano-vLLM loads Qwen3-0.6B
+- RTX 4050 is used
+- one prompt completes successfully
+- output text is produced
+- no source modification was required
 - git diff --check passes
 
 Do not create a Git commit.
@@ -118,11 +144,12 @@ Do not create a Git commit.
 
 Report:
 
-- model source
-- local path
-- downloaded revision
-- directory size
-- config result
-- tokenizer result
-- files modified
+- prompt
+- important engine configuration
+- prompt/output token counts if available
+- generated output
+- runtime
+- GPU memory observation
+- warnings/errors
+- files created/modified
 - recommended next step
