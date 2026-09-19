@@ -1,0 +1,274 @@
+ENV-005 ordinary runtime dependencies
+Evidence: pyproject.toml; nanovllm/engine/block_manager.py (numpy, xxhash), engine/llm_engine.py (tqdm, transformers), utils/loader.py (safetensors), models/qwen3.py (Qwen3Config).
+Transformers 4.57.6 selected within the existing 4.x API family, satisfying >=4.51.0 and supporting config.dtype. Source: https://raw.githubusercontent.com/huggingface/transformers/v4.57.6/src/transformers/configuration_utils.py
+
+$ date --iso-8601=seconds
+2026-09-19T09:23:04+08:00
+[exit 0]
+
+$ git rev-parse HEAD
+b0c2347f0b4caeca3fdd3fe8bb77bdd756d639b0
+[exit 0]
+
+$ .venv/bin/python -c import sys,importlib.metadata as m; print(sys.executable); assert sys.prefix.endswith("/nano-vllm-scheduling-lab/.venv"); assert m.version("torch")=="2.6.0+cu124"; assert m.version("triton")=="3.2.0"
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python
+[exit 0]
+
+$ .venv/bin/python -m pip list --format=freeze --disable-pip-version-check
+filelock==3.32.3
+fsspec==2026.7.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+mpmath==1.3.0
+networkx==3.6.1
+nvidia-cublas-cu12==12.4.5.8
+nvidia-cuda-cupti-cu12==12.4.127
+nvidia-cuda-nvrtc-cu12==12.4.127
+nvidia-cuda-runtime-cu12==12.4.127
+nvidia-cudnn-cu12==9.1.0.70
+nvidia-cufft-cu12==11.2.1.3
+nvidia-curand-cu12==10.3.5.147
+nvidia-cusolver-cu12==11.6.1.9
+nvidia-cusparse-cu12==12.3.1.170
+nvidia-cusparselt-cu12==0.6.2
+nvidia-nccl-cu12==2.21.5
+nvidia-nvjitlink-cu12==12.4.127
+nvidia-nvtx-cu12==12.4.127
+pip==24.0
+setuptools==78.1.0
+sympy==1.13.1
+torch==2.6.0+cu124
+triton==3.2.0
+typing_extensions==4.16.0
+[exit 0]
+
+$ .venv/bin/python -m pip install --index-url https://pypi.org/simple --constraint /tmp/env005-lcvdnjph/constraints.txt --disable-pip-version-check --no-cache-dir --progress-bar off --dry-run --report /tmp/env005-lcvdnjph/resolve.json transformers==4.57.6 xxhash numpy tqdm safetensors
+Collecting transformers==4.57.6
+  Downloading transformers-4.57.6-py3-none-any.whl.metadata (43 kB)
+Collecting xxhash
+  Downloading xxhash-4.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (17 kB)
+Collecting numpy
+  Downloading numpy-2.5.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting tqdm
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+Collecting safetensors
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Requirement already satisfied: filelock in ./.venv/lib/python3.12/site-packages (from transformers==4.57.6) (3.32.3)
+Collecting huggingface-hub<1.0,>=0.34.0 (from transformers==4.57.6)
+  Downloading huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)
+Collecting packaging>=20.0 (from transformers==4.57.6)
+  Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting pyyaml>=5.1 (from transformers==4.57.6)
+  Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting regex!=2019.12.17 (from transformers==4.57.6)
+  Downloading regex-2026.9.10-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting requests (from transformers==4.57.6)
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers==4.57.6)
+  Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+Requirement already satisfied: fsspec>=2023.5.0 in ./.venv/lib/python3.12/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers==4.57.6) (2026.7.0)
+Collecting hf-xet<2.0.0,>=1.1.3 (from huggingface-hub<1.0,>=0.34.0->transformers==4.57.6)
+  Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in ./.venv/lib/python3.12/site-packages (from huggingface-hub<1.0,>=0.34.0->transformers==4.57.6) (4.16.0)
+Collecting charset_normalizer<4,>=2 (from requests->transformers==4.57.6)
+  Downloading charset_normalizer-3.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (45 kB)
+Collecting idna<4,>=2.5 (from requests->transformers==4.57.6)
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting urllib3<3,>=1.26 (from requests->transformers==4.57.6)
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting certifi>=2023.5.7 (from requests->transformers==4.57.6)
+  Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Downloading transformers-4.57.6-py3-none-any.whl (12.0 MB)
+Downloading xxhash-4.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (261 kB)
+Downloading numpy-2.5.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading huggingface_hub-0.36.2-py3-none-any.whl (566 kB)
+Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+Downloading regex-2026.9.10-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (804 kB)
+Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading charset_normalizer-3.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (248 kB)
+Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Would install PyYAML-6.0.3 certifi-2026.7.22 charset-normalizer-3.5.1 hf-xet-1.6.0 huggingface_hub-0.36.2 idna-3.20 numpy-2.5.3 packaging-26.3 regex-2026.9.10 requests-2.34.2 safetensors-0.8.0 tokenizers-0.22.2 tqdm-4.70.1 transformers-4.57.6 urllib3-2.8.0 xxhash-4.0.1
+[exit 0]
+Dry-run verified: no torch/triton replacement, no flash-attn. Installing exact resolved ordinary packages: transformers==4.57.6, xxhash==4.0.1, numpy==2.5.3, tqdm==4.70.1, safetensors==0.8.0, huggingface_hub==0.36.2, packaging==26.3, PyYAML==6.0.3, regex==2026.9.10, tokenizers==0.22.2, requests==2.34.2, certifi==2026.7.22, charset-normalizer==3.5.1, hf-xet==1.6.0, idna==3.20, urllib3==2.8.0
+
+$ .venv/bin/python -m pip install --index-url https://pypi.org/simple --constraint /tmp/env005-lcvdnjph/constraints.txt --disable-pip-version-check --no-cache-dir --progress-bar off transformers==4.57.6 xxhash==4.0.1 numpy==2.5.3 tqdm==4.70.1 safetensors==0.8.0 huggingface_hub==0.36.2 packaging==26.3 PyYAML==6.0.3 regex==2026.9.10 tokenizers==0.22.2 requests==2.34.2 certifi==2026.7.22 charset-normalizer==3.5.1 hf-xet==1.6.0 idna==3.20 urllib3==2.8.0
+Collecting transformers==4.57.6
+  Downloading transformers-4.57.6-py3-none-any.whl.metadata (43 kB)
+Collecting xxhash==4.0.1
+  Downloading xxhash-4.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (17 kB)
+Collecting numpy==2.5.3
+  Downloading numpy-2.5.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting tqdm==4.70.1
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+Collecting safetensors==0.8.0
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Collecting huggingface_hub==0.36.2
+  Downloading huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)
+Collecting packaging==26.3
+  Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Collecting PyYAML==6.0.3
+  Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting regex==2026.9.10
+  Downloading regex-2026.9.10-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers==0.22.2
+  Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+Collecting requests==2.34.2
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Collecting certifi==2026.7.22
+  Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting charset-normalizer==3.5.1
+  Downloading charset_normalizer-3.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (45 kB)
+Collecting hf-xet==1.6.0
+  Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting idna==3.20
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting urllib3==2.8.0
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Requirement already satisfied: filelock in ./.venv/lib/python3.12/site-packages (from transformers==4.57.6) (3.32.3)
+Requirement already satisfied: fsspec>=2023.5.0 in ./.venv/lib/python3.12/site-packages (from huggingface_hub==0.36.2) (2026.7.0)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in ./.venv/lib/python3.12/site-packages (from huggingface_hub==0.36.2) (4.16.0)
+Downloading transformers-4.57.6-py3-none-any.whl (12.0 MB)
+Downloading xxhash-4.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (261 kB)
+Downloading numpy-2.5.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading huggingface_hub-0.36.2-py3-none-any.whl (566 kB)
+Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+Downloading regex-2026.9.10-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (804 kB)
+Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading charset_normalizer-3.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (248 kB)
+Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Installing collected packages: xxhash, urllib3, tqdm, safetensors, regex, PyYAML, packaging, numpy, idna, hf-xet, charset-normalizer, certifi, requests, huggingface_hub, tokenizers, transformers
+Successfully installed PyYAML-6.0.3 certifi-2026.7.22 charset-normalizer-3.5.1 hf-xet-1.6.0 huggingface_hub-0.36.2 idna-3.20 numpy-2.5.3 packaging-26.3 regex-2026.9.10 requests-2.34.2 safetensors-0.8.0 tokenizers-0.22.2 tqdm-4.70.1 transformers-4.57.6 urllib3-2.8.0 xxhash-4.0.1
+[exit 0]
+
+$ .venv/bin/python -c import sys, importlib, importlib.metadata as m, importlib.util
+from pathlib import Path
+root=Path.cwd()/'.venv'
+assert sys.prefix==str(root)
+for name in ['transformers','xxhash','numpy','tqdm','safetensors','huggingface_hub','tokenizers','packaging','yaml','regex','requests']:
+ module=importlib.import_module(name)
+ assert Path(module.__file__).is_relative_to(root)
+ print('Import OK:',name, getattr(module,'__version__', getattr(module,'VERSION','see inventory')))
+from transformers import AutoConfig, AutoTokenizer, Qwen3Config
+from tqdm.auto import tqdm
+from safetensors import safe_open
+from safetensors.torch import save, load
+import numpy as np, torch, triton, xxhash
+config=AutoConfig.for_model('qwen3',torch_dtype='bfloat16')
+assert isinstance(config,Qwen3Config)
+assert config.dtype==torch.bfloat16
+assert config.dtype.itemsize==2
+print('Offline Qwen3Config legacy torch_dtype -> dtype:',config.dtype)
+x=np.arange(4,dtype=np.float32)
+t=torch.from_numpy(x)
+assert np.array_equal(t.numpy(),x)
+assert torch.equal(load(save({'x':t}))['x'],t)
+assert isinstance(xxhash.xxh64(x.tobytes()).intdigest(),int)
+print('CPU NumPy/Torch bridge, safetensors round-trip, xxhash: PASS')
+print('torch:',torch.__version__,'triton:',triton.__version__,'CUDA runtime:',torch.version.cuda)
+assert torch.__version__=='2.6.0+cu124' and triton.__version__=='3.2.0'
+assert torch.version.cuda=='12.4'
+assert torch.cuda.is_available()
+print('CUDA available:',torch.cuda.is_available(),'GPU:',torch.cuda.get_device_name(0))
+a=torch.arange(16,dtype=torch.float32,device='cuda:0').reshape(4,4)
+b=torch.eye(4,device='cuda:0')*2
+c=a@b
+torch.cuda.synchronize()
+assert str(c.device)=='cuda:0' and torch.equal(c,a*2)
+print('GPU matmul A @ 2I == 2A: PASS, device:',c.device)
+assert importlib.util.find_spec('flash_attn') is None
+print('flash-attn absent: PASS')
+
+Import OK: transformers 4.57.6
+Import OK: xxhash 4.0.1
+Import OK: numpy 2.5.3
+Import OK: tqdm 4.70.1
+Import OK: safetensors 0.8.0
+Import OK: huggingface_hub 0.36.2
+Import OK: tokenizers 0.22.2
+Import OK: packaging 26.3
+Import OK: yaml 6.0.3
+Import OK: regex 2026.9.10
+Import OK: requests 2.34.2
+Offline Qwen3Config legacy torch_dtype -> dtype: torch.bfloat16
+CPU NumPy/Torch bridge, safetensors round-trip, xxhash: PASS
+torch: 2.6.0+cu124 triton: 3.2.0 CUDA runtime: 12.4
+CUDA available: True GPU: NVIDIA GeForce RTX 4050 Laptop GPU
+GPU matmul A @ 2I == 2A: PASS, device: cuda:0
+flash-attn absent: PASS
+[exit 0]
+
+$ .venv/bin/python -m pip check
+No broken requirements found.
+[exit 0]
+
+$ .venv/bin/python -m pip list --format=freeze --disable-pip-version-check
+certifi==2026.7.22
+charset-normalizer==3.5.1
+filelock==3.32.3
+fsspec==2026.7.0
+hf-xet==1.6.0
+huggingface_hub==0.36.2
+idna==3.20
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+mpmath==1.3.0
+networkx==3.6.1
+numpy==2.5.3
+nvidia-cublas-cu12==12.4.5.8
+nvidia-cuda-cupti-cu12==12.4.127
+nvidia-cuda-nvrtc-cu12==12.4.127
+nvidia-cuda-runtime-cu12==12.4.127
+nvidia-cudnn-cu12==9.1.0.70
+nvidia-cufft-cu12==11.2.1.3
+nvidia-curand-cu12==10.3.5.147
+nvidia-cusolver-cu12==11.6.1.9
+nvidia-cusparse-cu12==12.3.1.170
+nvidia-cusparselt-cu12==0.6.2
+nvidia-nccl-cu12==2.21.5
+nvidia-nvjitlink-cu12==12.4.127
+nvidia-nvtx-cu12==12.4.127
+packaging==26.3
+pip==24.0
+PyYAML==6.0.3
+regex==2026.9.10
+requests==2.34.2
+safetensors==0.8.0
+setuptools==78.1.0
+sympy==1.13.1
+tokenizers==0.22.2
+torch==2.6.0+cu124
+tqdm==4.70.1
+transformers==4.57.6
+triton==3.2.0
+typing_extensions==4.16.0
+urllib3==2.8.0
+xxhash==4.0.1
+[exit 0]
+
+Final repository validation:
+$ git diff --check
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/runtime-deps-info.txt
+[exit 0]
+$ git diff --exit-code HEAD -- nanovllm/ pyproject.toml
+[exit 0]
+$ git status --short --untracked-files=all -- nanovllm/
+[exit 0]
+ENV-005 completed; flash-attn/Toolkit/model/nano-vLLM not installed, no inference run, no Git commit created. CURRENT_TASK.md was already modified and not edited by this task.
