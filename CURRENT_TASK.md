@@ -2,95 +2,82 @@
 
 ## Task ID
 
-ENV-003
+ENV-004
 
 ## Title
 
-Determine the PyTorch and CUDA installation plan.
+Install PyTorch CUDA and validate GPU computation.
 
 ## Goal
 
-Determine a concrete and compatible GPU software stack for this project
-before installing runtime dependencies.
-
-Do not install PyTorch or other runtime dependencies in this task.
+Install only the planned PyTorch CUDA stack into the project .venv and verify
+that PyTorch can perform real computation on the RTX 4050.
 
 ## Context
 
-Current environment:
+ENV-003 selected:
 
-- WSL2
-- Ubuntu 24.04
-- RTX 4050 Laptop GPU
-- approximately 6 GB VRAM
-- NVIDIA driver works in WSL
 - Python 3.12.3
-- project virtual environment: .venv
+- PyTorch 2.6.0
+- CUDA build/runtime: cu124
+- expected Triton: 3.2.0
 
-Pinned nano-vLLM requirements found in ENV-001 include:
-
-- torch >=2.4.0
-- transformers >=4.51.0
-- triton >=3.0.0
-- flash-attn is required but not pinned to an exact version
+Do not install the remaining nano-vLLM dependencies yet.
 
 ## Required Work
 
-1. Read AGENTS.md, PROJECT_STATE.md, and docs/environment.md.
+1. Read AGENTS.md, PROJECT_STATE.md, and docs/gpu-stack-plan.md.
 
-2. Inspect the pinned repository's dependency declarations again where needed.
+2. Confirm .venv exists and use its Python explicitly.
 
-3. Determine a recommended concrete PyTorch installation for:
-   - Linux / WSL2
-   - Python 3.12
-   - NVIDIA RTX 4050
-   - current NVIDIA driver
+3. Record the pre-install package state.
 
-4. Clearly distinguish:
-   - NVIDIA driver
-   - nvidia-smi CUDA compatibility version
-   - PyTorch bundled CUDA runtime
-   - CUDA Toolkit / nvcc
+4. Install PyTorch 2.6.0 from the official cu124 PyTorch wheel index.
 
-5. Assess compatibility concerns involving:
-   - PyTorch
-   - Triton
-   - flash-attn
-   - Python 3.12
+Use the project virtual environment only.
 
-6. Do not choose versions only because they are the newest.
-   Prefer a combination justified by compatibility with this project.
+5. Do not intentionally install torchvision or torchaudio unless PyTorch itself
+requires them.
+
+6. After installation, verify and record:
+
+   - torch.__version__
+   - torch.version.cuda
+   - torch.cuda.is_available()
+   - torch.cuda.device_count()
+   - torch.cuda.get_device_name(0)
+   - Triton version if installed as a dependency
+
+7. Run a real GPU computation:
+
+   - create two small tensors on CUDA
+   - perform matrix multiplication
+   - synchronize CUDA
+   - confirm the result tensor is on cuda:0
+
+8. Record GPU memory information reported by PyTorch.
 
 ## Output
 
 Create:
 
-docs/gpu-stack-plan.md
+artifacts/environment/pytorch-gpu-info.txt
 
-Include:
-
-- recommended PyTorch version
-- recommended PyTorch CUDA build/runtime
-- whether system CUDA Toolkit is needed at this stage
-- expected Triton relationship
-- expected flash-attn compatibility considerations
-- proposed installation order
-- commands proposed for the next task
-
-Do not execute the installation commands.
+Record concise commands/results and package versions.
 
 ## Restrictions
 
-Do not:
+Do not install:
 
-- install PyTorch
-- install CUDA Toolkit
-- install Triton
-- install flash-attn
-- install transformers
-- install nano-vLLM
-- download a model
-- modify nanovllm/
+- transformers
+- flash-attn
+- CUDA Toolkit
+- nano-vLLM
+- models
+
+Do not modify nanovllm/.
+
+Do not change the selected PyTorch version without reporting the blocker first.
 
 ## Validation
 
@@ -99,19 +86,32 @@ Run:
 git diff --check
 git status --short
 
-Confirm nanovllm/ is unchanged.
+Confirm:
+
+- PyTorch is installed only inside .venv
+- torch.cuda.is_available() is True
+- RTX 4050 is detected
+- CUDA tensor computation succeeds
+- nanovllm/ is unchanged
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with ENV-003 findings and the recommended next task.
+Update PROJECT_STATE.md with:
+
+- ENV-004 completion
+- installed torch version
+- reported PyTorch CUDA runtime
+- GPU validation result
+- recommended next task
 
 ## Acceptance Criteria
 
-- a concrete GPU stack plan exists
-- CUDA terminology is correctly distinguished
-- proposed versions are justified
-- no runtime dependency was installed
-- nanovllm/ is unchanged
+- torch 2.6.0 cu124 installation succeeds
+- CUDA is available from PyTorch
+- RTX 4050 is detected
+- GPU matrix multiplication succeeds
+- no CUDA Toolkit installation was performed
+- no nano-vLLM source was modified
 - git diff --check passes
 
 Do not create a Git commit.
@@ -120,10 +120,11 @@ Do not create a Git commit.
 
 Report:
 
-- proposed PyTorch version
-- proposed CUDA runtime/build
-- CUDA Toolkit requirement
-- Triton consideration
-- flash-attn consideration
-- proposed installation order
+- torch version
+- torch CUDA runtime
+- GPU name
+- Triton version
+- GPU computation result
 - files modified
+- any warnings/errors
+- recommended next step

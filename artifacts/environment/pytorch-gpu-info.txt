@@ -1,0 +1,204 @@
+ENV-004 installation and GPU validation
+$ date --iso-8601=seconds
+2026-09-19T08:17:40+08:00
+[exit 0]
+$ git rev-parse HEAD
+ed1bdf83e3a8eabae06cece985ec072c38f50a8e
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+?? artifacts/environment/pytorch-gpu-info.txt
+[exit 0]
+$ .venv/bin/python -c import sys; print(sys.executable); print(sys.version); print(sys.prefix); assert sys.prefix.endswith("/nano-vllm-scheduling-lab/.venv")
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python
+3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv
+[exit 0]
+$ .venv/bin/python -m pip list --format=freeze --disable-pip-version-check
+pip==24.0
+[exit 0]
+$ python3 -c import importlib.util; print("System torch:", importlib.util.find_spec("torch"))
+System torch: None
+[exit 0]
+
+$ .venv/bin/python -m pip install torch==2.6.0+cu124 --index-url https://download.pytorch.org/whl/cu124 --disable-pip-version-check --no-cache-dir --progress-bar off
+Looking in indexes: https://download.pytorch.org/whl/cu124
+Collecting torch==2.6.0+cu124
+  Downloading https://download-r2.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp312-cp312-linux_x86_64.whl.metadata (28 kB)
+Collecting filelock (from torch==2.6.0+cu124)
+  Downloading filelock-3.32.3-py3-none-any.whl.metadata (2.0 kB)
+Collecting typing-extensions>=4.10.0 (from torch==2.6.0+cu124)
+  Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting networkx (from torch==2.6.0+cu124)
+  Downloading networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
+Collecting jinja2 (from torch==2.6.0+cu124)
+  Downloading https://download.pytorch.org/whl/jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting fsspec (from torch==2.6.0+cu124)
+  Downloading fsspec-2026.7.0-py3-none-any.whl.metadata (10 kB)
+Collecting nvidia-cuda-nvrtc-cu12==12.4.127 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cuda-nvrtc-cu12/nvidia_cuda_nvrtc_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (24.6 MB)
+Collecting nvidia-cuda-runtime-cu12==12.4.127 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cuda-runtime-cu12/nvidia_cuda_runtime_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (883 kB)
+Collecting nvidia-cuda-cupti-cu12==12.4.127 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cuda-cupti-cu12/nvidia_cuda_cupti_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (13.8 MB)
+Collecting nvidia-cudnn-cu12==9.1.0.70 (from torch==2.6.0+cu124)
+  Downloading https://download.pytorch.org/whl/cu124/nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+Collecting nvidia-cublas-cu12==12.4.5.8 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cublas-cu12/nvidia_cublas_cu12-12.4.5.8-py3-none-manylinux2014_x86_64.whl (363.4 MB)
+Collecting nvidia-cufft-cu12==11.2.1.3 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cufft-cu12/nvidia_cufft_cu12-11.2.1.3-py3-none-manylinux2014_x86_64.whl (211.5 MB)
+Collecting nvidia-curand-cu12==10.3.5.147 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-curand-cu12/nvidia_curand_cu12-10.3.5.147-py3-none-manylinux2014_x86_64.whl (56.3 MB)
+Collecting nvidia-cusolver-cu12==11.6.1.9 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cusolver-cu12/nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_x86_64.whl (127.9 MB)
+Collecting nvidia-cusparse-cu12==12.3.1.170 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cusparse-cu12/nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl (207.5 MB)
+Collecting nvidia-cusparselt-cu12==0.6.2 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-cusparselt-cu12/nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_x86_64.whl (150.1 MB)
+Collecting nvidia-nccl-cu12==2.21.5 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-nccl-cu12/nvidia_nccl_cu12-2.21.5-py3-none-manylinux2014_x86_64.whl (188.7 MB)
+Collecting nvidia-nvtx-cu12==12.4.127 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-nvtx-cu12/nvidia_nvtx_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (99 kB)
+Collecting nvidia-nvjitlink-cu12==12.4.127 (from torch==2.6.0+cu124)
+  Downloading https://pypi.nvidia.com/nvidia-nvjitlink-cu12/nvidia_nvjitlink_cu12-12.4.127-py3-none-manylinux2014_x86_64.whl (21.1 MB)
+Collecting triton==3.2.0 (from torch==2.6.0+cu124)
+  Downloading https://download-r2.pytorch.org/whl/triton-3.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.4 kB)
+Collecting setuptools (from torch==2.6.0+cu124)
+  Downloading https://download.pytorch.org/whl/setuptools-78.1.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting sympy==1.13.1 (from torch==2.6.0+cu124)
+  Downloading sympy-1.13.1-py3-none-any.whl.metadata (12 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy==1.13.1->torch==2.6.0+cu124)
+  Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting MarkupSafe>=2.0 (from jinja2->torch==2.6.0+cu124)
+  Downloading https://download.pytorch.org/whl/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Downloading https://download-r2.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp312-cp312-linux_x86_64.whl (768.4 MB)
+Downloading sympy-1.13.1-py3-none-any.whl (6.2 MB)
+Downloading https://download-r2.pytorch.org/whl/triton-3.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (166.7 MB)
+Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Downloading filelock-3.32.3-py3-none-any.whl (98 kB)
+Downloading fsspec-2026.7.0-py3-none-any.whl (206 kB)
+Downloading https://download.pytorch.org/whl/jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading networkx-3.6.1-py3-none-any.whl (2.1 MB)
+Downloading https://download.pytorch.org/whl/setuptools-78.1.0-py3-none-any.whl (1.3 MB)
+Downloading https://download.pytorch.org/whl/markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+Installing collected packages: triton, nvidia-cusparselt-cu12, mpmath, typing-extensions, sympy, setuptools, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, MarkupSafe, fsspec, filelock, nvidia-cusparse-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch
+Successfully installed MarkupSafe-3.0.3 filelock-3.32.3 fsspec-2026.7.0 jinja2-3.1.6 mpmath-1.3.0 networkx-3.6.1 nvidia-cublas-cu12-12.4.5.8 nvidia-cuda-cupti-cu12-12.4.127 nvidia-cuda-nvrtc-cu12-12.4.127 nvidia-cuda-runtime-cu12-12.4.127 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.2.1.3 nvidia-curand-cu12-10.3.5.147 nvidia-cusolver-cu12-11.6.1.9 nvidia-cusparse-cu12-12.3.1.170 nvidia-cusparselt-cu12-0.6.2 nvidia-nccl-cu12-2.21.5 nvidia-nvjitlink-cu12-12.4.127 nvidia-nvtx-cu12-12.4.127 setuptools-78.1.0 sympy-1.13.1 torch-2.6.0+cu124 triton-3.2.0 typing-extensions-4.16.0
+[exit 0]
+
+$ .venv/bin/python -m pip check
+No broken requirements found.
+[exit 0]
+
+$ .venv/bin/python -c import sys, pathlib, importlib.metadata as m
+import torch, triton
+root=pathlib.Path.cwd()/'.venv'
+print('Python:', sys.version)
+print('Executable:', sys.executable)
+print('torch path:', torch.__file__)
+assert sys.prefix==str(root)
+assert pathlib.Path(torch.__file__).is_relative_to(root)
+print('torch:', torch.__version__)
+print('CUDA runtime:', torch.version.cuda)
+print('Triton:', triton.__version__)
+print('CXX11 ABI:', torch._C._GLIBCXX_USE_CXX11_ABI)
+assert torch.__version__=='2.6.0+cu124'
+assert torch.version.cuda=='12.4'
+assert triton.__version__=='3.2.0'
+print('CUDA available:', torch.cuda.is_available())
+print('Device count:', torch.cuda.device_count())
+assert torch.cuda.is_available()
+name=torch.cuda.get_device_name(0)
+print('GPU:', name)
+assert 'RTX 4050' in name
+print('Compute capability:', torch.cuda.get_device_capability(0))
+a=torch.arange(16,dtype=torch.float32,device='cuda:0').reshape(4,4)
+b=torch.eye(4,dtype=torch.float32,device='cuda:0')*2
+c=a@b
+torch.cuda.synchronize()
+print('Result device:',c.device)
+print('Result:',c.tolist())
+assert str(c.device)=='cuda:0'
+assert torch.equal(c,a*2)
+print('GPU matrix multiplication: PASS (4x4 A @ 2I == 2A)')
+print('Memory free,total bytes:',torch.cuda.mem_get_info(0))
+print('Device total memory bytes:',torch.cuda.get_device_properties(0).total_memory)
+print('Memory allocated bytes:',torch.cuda.memory_allocated(0))
+print('Memory reserved bytes:',torch.cuda.memory_reserved(0))
+print('Peak allocated bytes:',torch.cuda.max_memory_allocated(0))
+installed={d.metadata['Name'].lower().replace('_','-') for d in m.distributions()}
+assert not installed.intersection({'transformers','flash-attn','nano-vllm','torchvision','torchaudio','numpy','xxhash','safetensors','tqdm'})
+print('Excluded runtime packages absent: PASS')
+
+Python: 3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]
+Executable: /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python
+torch path: /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/lib/python3.12/site-packages/torch/__init__.py
+torch: 2.6.0+cu124
+CUDA runtime: 12.4
+Triton: 3.2.0
+CXX11 ABI: False
+CUDA available: True
+Device count: 1
+GPU: NVIDIA GeForce RTX 4050 Laptop GPU
+Compute capability: (8, 9)
+Result device: cuda:0
+Result: [[0.0, 2.0, 4.0, 6.0], [8.0, 10.0, 12.0, 14.0], [16.0, 18.0, 20.0, 22.0], [24.0, 26.0, 28.0, 30.0]]
+GPU matrix multiplication: PASS (4x4 A @ 2I == 2A)
+Memory free,total bytes: (5272240128, 6438780928)
+Device total memory bytes: 6438780928
+Memory allocated bytes: 8521216
+Memory reserved bytes: 23068672
+Peak allocated bytes: 8522752
+Excluded runtime packages absent: PASS
+/home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:275: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:81.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+[exit 0]
+
+$ .venv/bin/python -m pip list --format=freeze --disable-pip-version-check
+filelock==3.32.3
+fsspec==2026.7.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+mpmath==1.3.0
+networkx==3.6.1
+nvidia-cublas-cu12==12.4.5.8
+nvidia-cuda-cupti-cu12==12.4.127
+nvidia-cuda-nvrtc-cu12==12.4.127
+nvidia-cuda-runtime-cu12==12.4.127
+nvidia-cudnn-cu12==9.1.0.70
+nvidia-cufft-cu12==11.2.1.3
+nvidia-curand-cu12==10.3.5.147
+nvidia-cusolver-cu12==11.6.1.9
+nvidia-cusparse-cu12==12.3.1.170
+nvidia-cusparselt-cu12==0.6.2
+nvidia-nccl-cu12==2.21.5
+nvidia-nvjitlink-cu12==12.4.127
+nvidia-nvtx-cu12==12.4.127
+pip==24.0
+setuptools==78.1.0
+sympy==1.13.1
+torch==2.6.0+cu124
+triton==3.2.0
+typing_extensions==4.16.0
+[exit 0]
+
+$ python3 -c import importlib.util; s=importlib.util.find_spec("torch"); print("System torch:", s); assert s is None
+System torch: None
+[exit 0]
+
+Scope: only torch and its resolved dependencies were installed in .venv. No Toolkit, model or other project runtime dependency was installed. NumPy warning retained; no corrective installation performed.
+Final repository checks:
+$ git diff --check
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/pytorch-gpu-info.txt
+[exit 0]
+$ git diff --exit-code HEAD -- nanovllm/ pyproject.toml
+[exit 0]
+$ git status --short --untracked-files=all -- nanovllm/
+[exit 0]
+$ git check-ignore -v .venv
+.gitignore:7:.venv/	.venv
+[exit 0]
