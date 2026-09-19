@@ -1,0 +1,107 @@
+ENV-007 local editable installation; distribution nano-vllm, import nanovllm.
+$ date --iso-8601=seconds
+2026-09-19T10:20:11+08:00
+[exit 0]
+$ git rev-parse HEAD
+13167639aa2939d95d9e92f7a9207594e7265ba5
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+?? artifacts/environment/nanovllm-install-info.txt
+[exit 0]
+$ .venv/bin/python -m pip list --format=json --disable-pip-version-check
+[{"name": "certifi", "version": "2026.7.22"}, {"name": "charset-normalizer", "version": "3.5.1"}, {"name": "einops", "version": "0.8.2"}, {"name": "filelock", "version": "3.32.3"}, {"name": "flash_attn", "version": "2.7.4.post1"}, {"name": "fsspec", "version": "2026.7.0"}, {"name": "hf-xet", "version": "1.6.0"}, {"name": "huggingface_hub", "version": "0.36.2"}, {"name": "idna", "version": "3.20"}, {"name": "Jinja2", "version": "3.1.6"}, {"name": "MarkupSafe", "version": "3.0.3"}, {"name": "mpmath", "version": "1.3.0"}, {"name": "networkx", "version": "3.6.1"}, {"name": "numpy", "version": "2.5.3"}, {"name": "nvidia-cublas-cu12", "version": "12.4.5.8"}, {"name": "nvidia-cuda-cupti-cu12", "version": "12.4.127"}, {"name": "nvidia-cuda-nvrtc-cu12", "version": "12.4.127"}, {"name": "nvidia-cuda-runtime-cu12", "version": "12.4.127"}, {"name": "nvidia-cudnn-cu12", "version": "9.1.0.70"}, {"name": "nvidia-cufft-cu12", "version": "11.2.1.3"}, {"name": "nvidia-curand-cu12", "version": "10.3.5.147"}, {"name": "nvidia-cusolver-cu12", "version": "11.6.1.9"}, {"name": "nvidia-cusparse-cu12", "version": "12.3.1.170"}, {"name": "nvidia-cusparselt-cu12", "version": "0.6.2"}, {"name": "nvidia-nccl-cu12", "version": "2.21.5"}, {"name": "nvidia-nvjitlink-cu12", "version": "12.4.127"}, {"name": "nvidia-nvtx-cu12", "version": "12.4.127"}, {"name": "packaging", "version": "26.3"}, {"name": "pip", "version": "24.0"}, {"name": "PyYAML", "version": "6.0.3"}, {"name": "regex", "version": "2026.9.10"}, {"name": "requests", "version": "2.34.2"}, {"name": "safetensors", "version": "0.8.0"}, {"name": "setuptools", "version": "78.1.0"}, {"name": "sympy", "version": "1.13.1"}, {"name": "tokenizers", "version": "0.22.2"}, {"name": "torch", "version": "2.6.0+cu124"}, {"name": "tqdm", "version": "4.70.1"}, {"name": "transformers", "version": "4.57.6"}, {"name": "triton", "version": "3.2.0"}, {"name": "typing_extensions", "version": "4.16.0"}, {"name": "urllib3", "version": "2.8.0"}, {"name": "xxhash", "version": "4.0.1"}]
+[exit 0]
+$ .venv/bin/python -m pip install --editable . --no-deps --no-build-isolation --no-index --disable-pip-version-check
+Obtaining file:///home/luoyuxuan/projects/nano-vllm-scheduling-lab
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: nano-vllm
+  Building editable for nano-vllm (pyproject.toml): started
+  Building editable for nano-vllm (pyproject.toml): finished with status 'done'
+  Created wheel for nano-vllm: filename=nano_vllm-0.2.0-0.editable-py3-none-any.whl size=4875 sha256=a7105bb3fe84c5e3fb77aff62a486cdd80202479f05b1ec3d543eedef94aa9e6
+  Stored in directory: /tmp/pip-ephem-wheel-cache-9jdxs8g6/wheels/10/2e/39/fcb0792a5a824307da6ae35489844b6eefb14e529a29fe76f5
+Successfully built nano-vllm
+Installing collected packages: nano-vllm
+Successfully installed nano-vllm-0.2.0
+[exit 0]
+$ .venv/bin/python -m pip list --format=json --disable-pip-version-check
+[{"name": "certifi", "version": "2026.7.22"}, {"name": "charset-normalizer", "version": "3.5.1"}, {"name": "einops", "version": "0.8.2"}, {"name": "filelock", "version": "3.32.3"}, {"name": "flash_attn", "version": "2.7.4.post1"}, {"name": "fsspec", "version": "2026.7.0"}, {"name": "hf-xet", "version": "1.6.0"}, {"name": "huggingface_hub", "version": "0.36.2"}, {"name": "idna", "version": "3.20"}, {"name": "Jinja2", "version": "3.1.6"}, {"name": "MarkupSafe", "version": "3.0.3"}, {"name": "mpmath", "version": "1.3.0"}, {"name": "nano-vllm", "version": "0.2.0", "editable_project_location": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab"}, {"name": "networkx", "version": "3.6.1"}, {"name": "numpy", "version": "2.5.3"}, {"name": "nvidia-cublas-cu12", "version": "12.4.5.8"}, {"name": "nvidia-cuda-cupti-cu12", "version": "12.4.127"}, {"name": "nvidia-cuda-nvrtc-cu12", "version": "12.4.127"}, {"name": "nvidia-cuda-runtime-cu12", "version": "12.4.127"}, {"name": "nvidia-cudnn-cu12", "version": "9.1.0.70"}, {"name": "nvidia-cufft-cu12", "version": "11.2.1.3"}, {"name": "nvidia-curand-cu12", "version": "10.3.5.147"}, {"name": "nvidia-cusolver-cu12", "version": "11.6.1.9"}, {"name": "nvidia-cusparse-cu12", "version": "12.3.1.170"}, {"name": "nvidia-cusparselt-cu12", "version": "0.6.2"}, {"name": "nvidia-nccl-cu12", "version": "2.21.5"}, {"name": "nvidia-nvjitlink-cu12", "version": "12.4.127"}, {"name": "nvidia-nvtx-cu12", "version": "12.4.127"}, {"name": "packaging", "version": "26.3"}, {"name": "pip", "version": "24.0"}, {"name": "PyYAML", "version": "6.0.3"}, {"name": "regex", "version": "2026.9.10"}, {"name": "requests", "version": "2.34.2"}, {"name": "safetensors", "version": "0.8.0"}, {"name": "setuptools", "version": "78.1.0"}, {"name": "sympy", "version": "1.13.1"}, {"name": "tokenizers", "version": "0.22.2"}, {"name": "torch", "version": "2.6.0+cu124"}, {"name": "tqdm", "version": "4.70.1"}, {"name": "transformers", "version": "4.57.6"}, {"name": "triton", "version": "3.2.0"}, {"name": "typing_extensions", "version": "4.16.0"}, {"name": "urllib3", "version": "2.8.0"}, {"name": "xxhash", "version": "4.0.1"}]
+[exit 0]
+All pre-existing distribution versions unchanged; only nano-vllm added.
+
+Working directory: /tmp
+$ /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python -I -B -c import pathlib,importlib,importlib.metadata as m,json,sys
+root=pathlib.Path('/home/luoyuxuan/projects/nano-vllm-scheduling-lab')
+assert pathlib.Path.cwd()!=root
+assert sys.prefix==str(root/'.venv')
+d=m.distribution('nano-vllm')
+metadata=json.loads(d.read_text('direct_url.json'))
+assert metadata['dir_info']['editable'] is True and metadata['url']==root.as_uri()
+print('editable metadata:',metadata)
+print('distribution version:',d.version)
+modules=['nanovllm','nanovllm.llm','nanovllm.config','nanovllm.sampling_params','nanovllm.engine.llm_engine','nanovllm.engine.model_runner','nanovllm.engine.scheduler','nanovllm.engine.sequence','nanovllm.engine.block_manager','nanovllm.layers.attention','nanovllm.models.qwen3','nanovllm.utils.loader']
+for name in modules:
+ module=importlib.import_module(name)
+ assert pathlib.Path(module.__file__).resolve().is_relative_to(root/'nanovllm')
+ print('IMPORT PASS:',name,'->',module.__file__)
+from nanovllm import LLM, SamplingParams
+print('Public LLM/SamplingParams imports: PASS (no engine instantiated)')
+import torch,triton,flash_attn,transformers
+print('torch:',torch.__version__,'triton:',triton.__version__,'flash-attn:',flash_attn.__version__,'transformers:',transformers.__version__)
+assert torch.__version__=='2.6.0+cu124' and triton.__version__=='3.2.0'
+assert flash_attn.__version__=='2.7.4.post1' and transformers.__version__=='4.57.6'
+assert torch.cuda.is_available()
+print('CUDA available:',torch.cuda.is_available(),'runtime:',torch.version.cuda,'GPU:',torch.cuda.get_device_name(0))
+assert 'RTX 4050' in torch.cuda.get_device_name(0)
+
+editable metadata: {'dir_info': {'editable': True}, 'url': 'file:///home/luoyuxuan/projects/nano-vllm-scheduling-lab'}
+distribution version: 0.2.0
+IMPORT PASS: nanovllm -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/__init__.py
+IMPORT PASS: nanovllm.llm -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/llm.py
+IMPORT PASS: nanovllm.config -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/config.py
+IMPORT PASS: nanovllm.sampling_params -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/sampling_params.py
+IMPORT PASS: nanovllm.engine.llm_engine -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/engine/llm_engine.py
+IMPORT PASS: nanovllm.engine.model_runner -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/engine/model_runner.py
+IMPORT PASS: nanovllm.engine.scheduler -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/engine/scheduler.py
+IMPORT PASS: nanovllm.engine.sequence -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/engine/sequence.py
+IMPORT PASS: nanovllm.engine.block_manager -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/engine/block_manager.py
+IMPORT PASS: nanovllm.layers.attention -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/layers/attention.py
+IMPORT PASS: nanovllm.models.qwen3 -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/models/qwen3.py
+IMPORT PASS: nanovllm.utils.loader -> /home/luoyuxuan/projects/nano-vllm-scheduling-lab/nanovllm/utils/loader.py
+Public LLM/SamplingParams imports: PASS (no engine instantiated)
+torch: 2.6.0+cu124 triton: 3.2.0 flash-attn: 2.7.4.post1 transformers: 4.57.6
+CUDA available: True runtime: 12.4 GPU: NVIDIA GeForce RTX 4050 Laptop GPU
+[exit 0]
+
+Working directory: /home/luoyuxuan/projects/nano-vllm-scheduling-lab
+$ /home/luoyuxuan/projects/nano-vllm-scheduling-lab/.venv/bin/python -m pip check
+No broken requirements found.
+[exit 0]
+$ git diff --check
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/nanovllm-install-info.txt
+[exit 0]
+$ git diff --exit-code HEAD -- nanovllm/ pyproject.toml
+[exit 0]
+$ git status --short --untracked-files=all -- nanovllm/
+[exit 0]
+$ git check-ignore -v nano_vllm.egg-info
+[exit 1]
+
+Optional egg-info check clarification: no nano_vllm.egg-info directory exists at repository root, so the preceding bare-path check returned 1. The directory-pattern probe with trailing slash matches .gitignore:21. No generated root metadata remains; editable direct_url metadata was verified in .venv.
+$ git diff --check
+[exit 0]
+$ git status --short
+ M CURRENT_TASK.md
+ M PROJECT_STATE.md
+?? artifacts/environment/nanovllm-install-info.txt
+[exit 0]
+$ git diff --exit-code HEAD -- nanovllm/ pyproject.toml
+[exit 0]
+ENV-007 acceptance checks PASS. No model download/inference, source edits, dependency changes, Toolkit installation or Git commit. CURRENT_TASK.md modification predated this task.

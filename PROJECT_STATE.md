@@ -4,7 +4,7 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-006 complete; prebuilt FlashAttention installed and minimal GPU API tests passed.
+ENV-001 through ENV-007 complete; local editable nano-vLLM installation and imports validated.
 
 ## Current Git Branch
 
@@ -68,6 +68,9 @@ Ubuntu 24.04
 - development branch created.
 - upstream nano-vLLM commit recorded.
 - initial project directory structure created.
+- ENV-007 completed: nano-vllm 0.2.0 installed locally in editable mode with dependency resolution disabled.
+- ENV-007 isolated imports from outside the repository, editable metadata and pip check passed; all pre-existing package versions preserved.
+- ENV-007 evidence: artifacts/environment/nanovllm-install-info.txt.
 - ENV-006 completed: FlashAttention 2.7.4.post1 official cp312/cu12/torch2.6/cxx11abiFALSE wheel installed in .venv, with einops 0.8.2.
 - ENV-006 imports, pip check and two small FlashAttention GPU API tests passed; Torch/Triton preserved.
 - ENV-006 source URL, wheel SHA256, installation and validation evidence: artifacts/environment/flash-attn-info.txt.
@@ -85,7 +88,7 @@ Ubuntu 24.04
 
 ## In Progress
 
-Runtime dependencies and FlashAttention are installed; full nano-vLLM integration validation remains pending.
+Local editable package and imports are validated; GPU integration and model setup remain pending.
 
 ## Not Started
 
@@ -139,9 +142,9 @@ Qwen3Config.dtype == torch.bfloat16; no model configuration was downloaded.
 The prior missing-NumPy warning is resolved. NumPy/Torch interoperability,
 in-memory safetensors round-trip and xxhash checks passed before GPU validation.
 Torch 2.6.0+cu124 and Triton 3.2.0 were protected by pip constraints and remained
-unchanged. FlashAttention was subsequently installed in ENV-006; nano-vLLM,
-torchvision and torchaudio were not installed. No model was downloaded and no
-inference was run.
+unchanged. FlashAttention was installed in ENV-006 and nano-vllm 0.2.0 was
+installed in editable mode in ENV-007. torchvision and torchaudio remain absent.
+No model was downloaded and no inference was run.
 Declared dependencies are torch>=2.4.0, triton>=3.0.0,
 transformers>=4.51.0, flash-attn (required, unpinned), and xxhash (unpinned).
 NumPy, tqdm, and safetensors are imported directly but not separately declared.
@@ -175,15 +178,25 @@ Triton 3.2.0, CUDA runtime 12.4 and RTX 4050 availability. FP16 varlen causal
 attention and one-token KV-cache decode passed against FP32 PyTorch SDPA
 (atol=rtol=0.003); max absolute errors were 0.0005553 and 0.0005496.
 pip check passed without warnings/errors. No Toolkit installation, nvcc
-invocation, source build or model download was performed.
+invocation, source build or model download was performed in ENV-006.
+ENV-007 installed the local package with --editable . --no-deps
+--no-build-isolation --no-index, using existing setuptools. Editable metadata
+points to /home/luoyuxuan/projects/nano-vllm-scheduling-lab.
+Imports from /tmp using isolated Python resolved 12 important nano-vLLM modules
+to local source; public LLM and SamplingParams imports passed without engine
+instantiation. pip check passed. Torch 2.6.0+cu124, Triton 3.2.0,
+FlashAttention 2.7.4.post1 and Transformers 4.57.6 are unchanged, as are all
+other pre-existing distributions. CUDA is available and RTX 4050 is detected.
+Editable metadata resides in .venv; no egg-info directory was left in the
+repository root. Source was not edited.
 
 ## Next Task
 
-Validate the pinned nano-vLLM integration without changing the resolved stack:
-project imports, paged-cache attention, Triton cache-store kernel and single-GPU
-NCCL initialization. Then separately plan model setup and a constrained inference
-smoke test for the 6 GB GPU. ENV-006 API tests do not establish model inference
-correctness or scheduling performance.
+Validate model-free GPU integration in a separately scoped task: paged-cache
+attention, Triton cache-store kernel and single-GPU NCCL initialization while
+preserving the resolved stack. Then plan model setup and a constrained inference
+smoke test for the 6 GB GPU. ENV-007 verifies editable installation and imports;
+it does not establish full model inference or scheduling performance.
 
 ## Important Constraints
 
