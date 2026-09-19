@@ -4,8 +4,8 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-007, MODEL-001, SMOKE-001 and ARCH-001 complete; first
-single-request GPU inference passed and pinned scheduling architecture documented.
+ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001 and TRACE-001 complete;
+request-trace v1 specified after validated smoke inference and architecture analysis.
 
 ## Current Git Branch
 
@@ -60,6 +60,9 @@ Ubuntu 24.04
 
 ## Completed
 
+- TRACE-001 completed: docs/trace-spec.md defines versioned JSONL, arrival/tokenization semantics, scheduler information boundaries, reproducibility, validation and a development-only workload.
+- TRACE-001 is specification only; generator, replay, telemetry and policies remain unimplemented. Formal benchmark parameters remain unfrozen.
+
 - ARCH-001 completed: source-backed request lifecycle, queue behavior, prefill/decode, KV ownership and candidate waiting-policy insertion point documented in docs/architecture.md.
 - ARCH-001 was documentation only; no nano-vLLM source, dependency or scheduling behavior changes.
 
@@ -97,8 +100,9 @@ Ubuntu 24.04
 
 ## In Progress
 
-Initial single-request inference and architecture analysis are complete.
-Trace/replay/telemetry design and broader integration coverage remain pending.
+Initial single-request inference, architecture analysis and trace specification
+are complete. Trace implementation, replay/telemetry design and broader
+integration coverage remain pending.
 No formal performance experiment has run.
 Evidence: artifacts/environment/smoke-single-request.txt.
 Reusable entry point: scripts/smoke_single_request.py.
@@ -177,6 +181,10 @@ The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
 
+TRACE-001 documentation checks include JSON example parsing, offline pinned
+tokenizer counts, specification consistency, git diff --check and git status
+--short. nano-vLLM source remains unchanged; no inference or benchmark run.
+
 ARCH-001 source references and lifecycle were checked against the local pinned
 implementation. Documentation-only validation: git diff --check and git status
 --short; nanovllm/ remains unchanged. No inference or benchmark run for ARCH-001.
@@ -229,13 +237,12 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Specify trace/admission replay and request/token telemetry contracts using
-docs/architecture.md: external request IDs, arrival and token timing boundaries,
-waiting eligibility (fresh, partial-prefill and preempted requests), and
-baseline-preservation checks. Define CPU-testable interfaces before implementing
-policies. Preserve the validated stack and conservative smoke script. Define
-additional tests and formal workloads separately; smoke timings do not establish
-throughput, latency improvements or scheduling-policy performance.
+Implement a CPU-only trace generator and validator against docs/trace-spec.md
+in a separately scoped task. Test deterministic bytes/hashes, schema and IDs,
+arrival ordering, exact tokenizer counts, class ranges and context safety.
+Keep replay, telemetry and scheduling-policy implementation separate. Preserve
+the validated stack and conservative smoke script. Formal workload parameters
+remain unfrozen; development trace values establish no performance claims.
 
 ## SMOKE-001 Attempt
 

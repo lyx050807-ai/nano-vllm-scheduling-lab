@@ -2,99 +2,118 @@
 
 ## Task ID
 
-ARCH-001
+TRACE-001
 
 ## Title
 
-Trace the nano-vLLM request lifecycle and scheduling architecture.
+Define the reproducible request-trace specification.
 
 ## Goal
 
-Understand how a request moves through the pinned nano-vLLM implementation
-before designing any scheduling policy.
+Define the request trace format that will later be shared by baseline,
+short_prompt, and aged_short_prompt experiments.
 
-This is a source-reading and documentation task only.
+This is a design/documentation task only.
 
-Do not modify nano-vLLM source code.
+Do not implement the generator or replay driver yet.
+
+## Context
+
+The trace must allow different scheduling policies to receive exactly the same:
+
+- requests
+- prompt contents
+- prompt lengths
+- arrival times
+- generation limits
+
+The scheduler must not use future information such as actual output length.
 
 ## Required Work
 
-Read the existing source and trace one request through the system.
+1. Read:
+   - AGENTS.md
+   - PROJECT_STATE.md
+   - docs/architecture.md
+   - artifacts/environment/model-info.txt
 
-Identify the relevant implementation for:
+2. Design a versioned JSONL request schema.
 
-1. Public LLM API
-2. LLMEngine
-3. Request/Sequence representation
-4. Waiting queue
-5. Running queue
-6. Scheduler
-7. Prefill scheduling
-8. Decode scheduling
-9. KV-cache block allocation
-10. ModelRunner / GPU execution
-11. Generated token append/update
-12. Request completion and cleanup
+3. Define each request field, including at least:
 
-## Questions To Answer
+   - request_id
+   - arrival_s
+   - prompt_text
+   - num_prompt_tokens
+   - prompt_class
+   - max_new_tokens
 
-Document the exact flow for:
+4. Define the meaning and units of arrival_s.
 
-prompt
-→ request creation
-→ waiting queue
-→ scheduler
-→ prefill
-→ running state
-→ decode
-→ token update
-→ completion
+5. Define which fields are:
+   - allowed scheduling information
+   - experiment-only metadata
+   - forbidden future information
 
-Also answer:
+6. Define reproducibility requirements:
+   - random seed
+   - model/tokenizer identity
+   - model/tokenizer revision
+   - trace version
+   - SHA256 trace hash
 
-- Where is prompt length stored?
-- When is prompt token count known?
-- What data structure stores waiting requests?
-- What determines waiting-request order today?
-- Can waiting requests be reordered without changing running requests?
-- Where are requests moved from waiting to running?
-- How does the scheduler distinguish prefill from decode?
-- Where is KV cache allocated and freed?
-- Is preemption present in the pinned implementation?
-- At what point could a short_prompt policy be inserted with minimal changes?
+7. Define validation invariants, including:
+   - unique request IDs
+   - nondecreasing arrival times
+   - exact tokenizer-derived prompt lengths
+   - positive generation limits
+   - context-length safety
 
-Do not guess. Cite file paths, classes, functions, and important line regions.
+8. Define a small development-only workload profile.
+
+Use conservative candidate prompt sizes such as approximately:
+
+- short: 32 tokens
+- medium: 96 tokens
+- long: 192 tokens
+
+with a small generation limit such as 16 tokens.
+
+Clearly state that these are development values, not the frozen formal
+benchmark configuration.
+
+9. Explain how the same trace will later be replayed under all scheduling
+policies.
 
 ## Output
 
 Create:
 
-docs/architecture.md
+docs/trace-spec.md
 
 Include:
 
-1. Component overview
-2. Request lifecycle
-3. Scheduler lifecycle
-4. Waiting/running queue behavior
-5. Prefill vs decode behavior
-6. KV-cache interaction
-7. Candidate policy insertion point
-8. Risks/invariants that future scheduler changes must preserve
-
-Include a simple ASCII flow diagram.
+1. Purpose
+2. JSONL schema
+3. Example records
+4. Field semantics
+5. Scheduler-visible vs forbidden information
+6. Reproducibility rules
+7. Validation rules
+8. Development workload profile
+9. Trace hashing/versioning
+10. Relationship to future replay and telemetry
 
 ## Restrictions
 
 Do not:
 
 - modify nanovllm/
-- implement a policy
-- change scheduler behavior
-- run benchmarks
+- implement make_trace.py
+- implement replay
+- implement scheduler policies
+- run performance experiments
 - change dependencies
-
-Small read-only source inspection commands are allowed.
 
 ## Validation
 
@@ -107,16 +126,17 @@ Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with ARCH-001 completion and next recommended task.
+Update PROJECT_STATE.md with TRACE-001 completion and next recommended task.
 
 ## Acceptance Criteria
 
-- request lifecycle is documented from actual source
-- waiting and running queues are identified
-- prefill/decode distinction is explained
-- KV-cache interaction is identified
-- candidate policy insertion point is identified
-- no nano-vLLM source file changed
+- trace schema is explicitly defined
+- arrival semantics are defined
+- reproducibility rules are defined
+- future-information leakage is prohibited
+- development workload profile is documented
+- formal benchmark parameters remain unfrozen
+- no nano-vLLM source was modified
 - git diff --check passes
 
 Do not create a Git commit.
@@ -125,11 +145,12 @@ Do not create a Git commit.
 
 Report:
 
-- main classes/files
-- waiting queue implementation
-- current scheduling behavior
-- prefill/decode flow
-- KV-cache interaction
-- candidate policy insertion point
-- important invariants
+- schema fields
+- arrival-time semantics
+- scheduler-visible fields
+- forbidden future information
+- development workload profile
+- reproducibility mechanism
+- validation rules
 - files modified
+- recommended next step
