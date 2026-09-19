@@ -2,120 +2,109 @@
 
 ## Task ID
 
-TRACE-001
+TRACE-002
 
 ## Title
 
-Define the reproducible request-trace specification.
+Implement the deterministic request-trace generator and validator.
 
 ## Goal
 
-Define the request trace format that will later be shared by baseline,
-short_prompt, and aged_short_prompt experiments.
+Implement a CPU-only trace generator that follows docs/trace-spec.md and
+produces reproducible JSONL workloads for later scheduler experiments.
 
-This is a design/documentation task only.
-
-Do not implement the generator or replay driver yet.
-
-## Context
-
-The trace must allow different scheduling policies to receive exactly the same:
-
-- requests
-- prompt contents
-- prompt lengths
-- arrival times
-- generation limits
-
-The scheduler must not use future information such as actual output length.
+Do not modify nano-vLLM source code.
 
 ## Required Work
 
 1. Read:
    - AGENTS.md
    - PROJECT_STATE.md
-   - docs/architecture.md
+   - docs/trace-spec.md
    - artifacts/environment/model-info.txt
 
-2. Design a versioned JSONL request schema.
+2. Implement:
 
-3. Define each request field, including at least:
+   scripts/make_trace.py
 
-   - request_id
-   - arrival_s
-   - prompt_text
-   - num_prompt_tokens
-   - prompt_class
-   - max_new_tokens
+3. The generator must use the local Qwen3-0.6B tokenizer and follow the
+   versioned schema in docs/trace-spec.md.
 
-4. Define the meaning and units of arrival_s.
+4. Implement the development workload defined by TRACE-001:
 
-5. Define which fields are:
-   - allowed scheduling information
-   - experiment-only metadata
-   - forbidden future information
+   - 12 total requests
+   - 4 short
+   - 4 medium
+   - 4 long
+   - target prompt lengths defined in the trace specification
+   - max_new_tokens = 16
 
-6. Define reproducibility requirements:
-   - random seed
-   - model/tokenizer identity
-   - model/tokenizer revision
-   - trace version
-   - SHA256 trace hash
+5. Use an explicit random seed.
 
-7. Define validation invariants, including:
+6. For every generated request, verify the actual tokenizer-derived prompt
+   length rather than assuming word count equals token count.
+
+7. Produce nondecreasing arrival_s values according to the trace specification.
+
+8. Implement trace validation covering at least:
+
+   - schema version
    - unique request IDs
-   - nondecreasing arrival times
+   - nonnegative/nondecreasing arrivals
+   - valid prompt classes
    - exact tokenizer-derived prompt lengths
-   - positive generation limits
+   - positive max_new_tokens
    - context-length safety
 
-8. Define a small development-only workload profile.
+9. Compute and report the SHA256 hash of the final JSONL file.
 
-Use conservative candidate prompt sizes such as approximately:
+10. Default development output:
 
-- short: 32 tokens
-- medium: 96 tokens
-- long: 192 tokens
+    workloads/dev_trace.jsonl
 
-with a small generation limit such as 16 tokens.
+11. Save generation metadata separately under:
 
-Clearly state that these are development values, not the frozen formal
-benchmark configuration.
+    workloads/dev_trace.meta.json
 
-9. Explain how the same trace will later be replayed under all scheduling
-policies.
+The metadata should include at least:
 
-## Output
+- trace version
+- seed
+- model/tokenizer identity
+- tokenizer revision
+- request count
+- class counts
+- max_new_tokens
+- trace SHA256
 
-Create:
+## Reproducibility Tests
 
-docs/trace-spec.md
+Generate the trace twice with the same seed into two temporary files.
 
-Include:
+Confirm:
 
-1. Purpose
-2. JSONL schema
-3. Example records
-4. Field semantics
-5. Scheduler-visible vs forbidden information
-6. Reproducibility rules
-7. Validation rules
-8. Development workload profile
-9. Trace hashing/versioning
-10. Relationship to future replay and telemetry
+- byte-for-byte file equality
+- identical SHA256 hashes
+
+Then generate with a different seed and confirm the resulting trace changes
+in at least one intended stochastic field.
 
 ## Restrictions
 
 Do not:
 
 - modify nanovllm/
-- implement make_trace.py
+- run GPU inference
 - implement replay
-- implement scheduler policies
-- run performance experiments
+- implement telemetry
+- implement scheduling policies
 - change dependencies
 
+This task should run on CPU.
+
 ## Validation
+
+Run the generator and validator.
 
 Run:
 
@@ -126,17 +115,18 @@ Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with TRACE-001 completion and next recommended task.
+Update PROJECT_STATE.md with TRACE-002 completion and next recommended task.
 
 ## Acceptance Criteria
 
-- trace schema is explicitly defined
-- arrival semantics are defined
-- reproducibility rules are defined
-- future-information leakage is prohibited
-- development workload profile is documented
-- formal benchmark parameters remain unfrozen
-- no nano-vLLM source was modified
+- generator works
+- generated trace validates
+- prompt lengths are tokenizer-verified
+- same seed produces byte-identical trace
+- same seed produces identical SHA256
+- different seed changes intended stochastic content
+- metadata records reproducibility information
+- no nano-vLLM source is modified
 - git diff --check passes
 
 Do not create a Git commit.
@@ -145,12 +135,12 @@ Do not create a Git commit.
 
 Report:
 
-- schema fields
-- arrival-time semantics
-- scheduler-visible fields
-- forbidden future information
-- development workload profile
-- reproducibility mechanism
-- validation rules
-- files modified
+- generator interface
+- seed used
+- request/class counts
+- prompt token counts
+- arrival behavior
+- trace SHA256
+- reproducibility-test results
+- files created/modified
 - recommended next step

@@ -4,8 +4,8 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001 and TRACE-001 complete;
-request-trace v1 specified after validated smoke inference and architecture analysis.
+ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001 and TRACE-001/002
+complete; CPU-only deterministic development trace generation and validation passed.
 
 ## Current Git Branch
 
@@ -60,6 +60,11 @@ Ubuntu 24.04
 
 ## Completed
 
+- TRACE-002 completed: scripts/make_trace.py generates and independently validates request-trace-v1/dev-mixed-v1 using the pinned local tokenizer on CPU.
+- Default workloads/dev_trace.jsonl and workloads/dev_trace.meta.json generated with explicit seed 42: 12 requests, four per class, exact 32/96/192 prompt tokens, output cap 16.
+- Same-seed temporary outputs were byte-identical with equal SHA256; seed 43 changed the shuffled prompt-class assignment. Nine CPU tests passed.
+- No nano-vLLM source, dependency, replay, telemetry or scheduling-policy changes were made in TRACE-002.
+
 - TRACE-001 completed: docs/trace-spec.md defines versioned JSONL, arrival/tokenization semantics, scheduler information boundaries, reproducibility, validation and a development-only workload.
 - TRACE-001 is specification only; generator, replay, telemetry and policies remain unimplemented. Formal benchmark parameters remain unfrozen.
 
@@ -100,8 +105,8 @@ Ubuntu 24.04
 
 ## In Progress
 
-Initial single-request inference, architecture analysis and trace specification
-are complete. Trace implementation, replay/telemetry design and broader
+Initial single-request inference, architecture analysis, trace specification
+and CPU trace implementation are complete. Replay/telemetry design and broader
 integration coverage remain pending.
 No formal performance experiment has run.
 Evidence: artifacts/environment/smoke-single-request.txt.
@@ -110,11 +115,10 @@ Reusable entry point: scripts/smoke_single_request.py.
 ## Not Started
 
 - full nano-vLLM integration validation
-- trace generator
 - replay driver
 - telemetry
 - scheduling policies
-- unit tests
+- scheduler/replay/telemetry unit tests (trace tests are implemented)
 - formal workloads
 - experiments
 - analysis
@@ -181,6 +185,28 @@ The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
 
+TRACE-002 commands (all CPU; no model backend or nano-vLLM import):
+
+- `.venv/bin/python -m unittest discover -s tests -v`: 9 tests passed, including same-seed generation into two temporary files, byte/hash equality, and a changed-seed class-order difference.
+- `.venv/bin/python scripts/make_trace.py --seed 42`: generated the default trace and separate metadata without overwriting existing artifacts.
+- `.venv/bin/python scripts/make_trace.py --validate workloads/dev_trace.jsonl`: independent package validation passed, including exact re-tokenized lengths and local asset fingerprints.
+- `git diff --check` and `git status --short`: checked; nano-vLLM source and dependency declarations unchanged.
+
+Trace SHA256: `28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041`.
+Metadata SHA256: `ff239cf2ef5fab30652fd385ebbd0b3f945e6e3a4ad05f5c8cd7943cc6917131`.
+Prompt lengths in file order: 96, 96, 32, 192, 192, 96, 192, 32, 96, 32, 32, 192.
+Planned arrivals: three requests each at 0, 0.25, 0.5 and 0.75 seconds.
+All requests have max_new_tokens=16 and fit the 256-token development context.
+Metadata includes model/tokenizer revisions and asset hashes, source/recipe
+fingerprints, project commit/dirty provenance, RNG/library versions and sampling
+settings. Auxiliary asset fingerprints were captured from the MODEL-001 local
+snapshot; model.safetensors and tokenizer.json retain the previously verified
+hashes. The generator verifies all recorded snapshot assets before tokenization.
+Synthetic prompts use a shared template and a documented token-prefix selection
+rule; shared prefixes are possible. These are development inputs, not a formal
+workload or evidence of GPU concurrency/performance. Formal values remain unfrozen.
+
+
 TRACE-001 documentation checks include JSON example parsing, offline pinned
 tokenizer counts, specification consistency, git diff --check and git status
 --short. nano-vLLM source remains unchanged; no inference or benchmark run.
@@ -237,12 +263,12 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Implement a CPU-only trace generator and validator against docs/trace-spec.md
-in a separately scoped task. Test deterministic bytes/hashes, schema and IDs,
-arrival ordering, exact tokenizer counts, class ranges and context safety.
-Keep replay, telemetry and scheduling-policy implementation separate. Preserve
-the validated stack and conservative smoke script. Formal workload parameters
-remain unfrozen; development trace values establish no performance claims.
+Specify the replay and request/token telemetry contract in a separate task:
+planned versus actual admission, stable external-to-engine request IDs,
+step-boundary admission, first/subsequent token timestamps, and preemption wait
+accounting. Use the validated trace unchanged across policies. Define CPU tests
+before implementing that integration; preserve baseline behavior and the
+validated dependency stack. Formal experiment parameters remain unfrozen.
 
 ## SMOKE-001 Attempt
 
