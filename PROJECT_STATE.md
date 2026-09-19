@@ -4,7 +4,8 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-007, MODEL-001 and SMOKE-001 complete; first single-request GPU inference passed.
+ENV-001 through ENV-007, MODEL-001, SMOKE-001 and ARCH-001 complete; first
+single-request GPU inference passed and pinned scheduling architecture documented.
 
 ## Current Git Branch
 
@@ -59,6 +60,9 @@ Ubuntu 24.04
 
 ## Completed
 
+- ARCH-001 completed: source-backed request lifecycle, queue behavior, prefill/decode, KV ownership and candidate waiting-policy insertion point documented in docs/architecture.md.
+- ARCH-001 was documentation only; no nano-vLLM source, dependency or scheduling behavior changes.
+
 - WSL2 installed and validated.
 - Ubuntu 24.04 installed.
 - NVIDIA GPU visible inside WSL.
@@ -93,15 +97,15 @@ Ubuntu 24.04
 
 ## In Progress
 
-Initial single-request inference is validated; architecture analysis and broader
-integration coverage remain pending. No formal performance experiment has run.
+Initial single-request inference and architecture analysis are complete.
+Trace/replay/telemetry design and broader integration coverage remain pending.
+No formal performance experiment has run.
 Evidence: artifacts/environment/smoke-single-request.txt.
 Reusable entry point: scripts/smoke_single_request.py.
 
 ## Not Started
 
 - full nano-vLLM integration validation
-- architecture analysis
 - trace generator
 - replay driver
 - telemetry
@@ -173,6 +177,10 @@ The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
 
+ARCH-001 source references and lifecycle were checked against the local pinned
+implementation. Documentation-only validation: git diff --check and git status
+--short; nanovllm/ remains unchanged. No inference or benchmark run for ARCH-001.
+
 Repository is currently based on the recorded upstream nano-vLLM commit.
 
 ENV-001 command outputs and exit codes are recorded. Python version and path
@@ -221,10 +229,12 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Perform architecture analysis of the pinned nano-vLLM request lifecycle,
-scheduler and execution path to prepare trace/replay/telemetry work. Preserve
-the now-working stack and conservative smoke script. Define additional tests
-and formal workload configuration separately; smoke timings do not establish
+Specify trace/admission replay and request/token telemetry contracts using
+docs/architecture.md: external request IDs, arrival and token timing boundaries,
+waiting eligibility (fresh, partial-prefill and preempted requests), and
+baseline-preservation checks. Define CPU-testable interfaces before implementing
+policies. Preserve the validated stack and conservative smoke script. Define
+additional tests and formal workloads separately; smoke timings do not establish
 throughput, latency improvements or scheduling-policy performance.
 
 ## SMOKE-001 Attempt

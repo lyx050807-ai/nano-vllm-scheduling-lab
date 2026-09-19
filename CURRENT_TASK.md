@@ -2,108 +2,99 @@
 
 ## Task ID
 
-SMOKE-001
+ARCH-001
 
 ## Title
 
-Run the first single-request nano-vLLM GPU inference.
+Trace the nano-vLLM request lifecycle and scheduling architecture.
 
 ## Goal
 
-Load the local Qwen3-0.6B model with the pinned nano-vLLM repository and
-successfully generate a short response on the RTX 4050.
+Understand how a request moves through the pinned nano-vLLM implementation
+before designing any scheduling policy.
 
-This is a single-request smoke test, not a performance experiment.
+This is a source-reading and documentation task only.
 
-## Current Environment
-
-- Qwen3-0.6B is available locally
-- RTX 4050 Laptop GPU
-- approximately 6 GB VRAM
-- Python 3.12.3
-- torch 2.6.0+cu124
-- Triton 3.2.0
-- FlashAttention 2.7.4.post1
-- nano-vLLM installed editable from this repository
-
-## Required Inspection
-
-Before running inference:
-
-1. Read AGENTS.md and PROJECT_STATE.md.
-2. Inspect the pinned nano-vLLM README and examples.
-3. Inspect the public LLM/inference API used by the existing examples.
-4. Identify the relevant configuration options affecting:
-   - model path
-   - max model length / context length
-   - GPU memory use
-   - maximum generated tokens
-5. Do not guess API names.
+Do not modify nano-vLLM source code.
 
 ## Required Work
 
-1. Use the local model:
+Read the existing source and trace one request through the system.
 
-   models/Qwen3-0.6B
+Identify the relevant implementation for:
 
-2. Design a conservative configuration suitable for approximately 6 GB VRAM.
+1. Public LLM API
+2. LLMEngine
+3. Request/Sequence representation
+4. Waiting queue
+5. Running queue
+6. Scheduler
+7. Prefill scheduling
+8. Decode scheduling
+9. KV-cache block allocation
+10. ModelRunner / GPU execution
+11. Generated token append/update
+12. Request completion and cleanup
 
-3. Use one short prompt.
+## Questions To Answer
 
-4. Request a small number of output tokens.
+Document the exact flow for:
 
-5. Run exactly one request first.
+prompt
+→ request creation
+→ waiting queue
+→ scheduler
+→ prefill
+→ running state
+→ decode
+→ token update
+→ completion
 
-6. Record:
-   - prompt
-   - prompt token count if available
-   - generated text
-   - generated token count if available
-   - wall-clock runtime
-   - peak or observed GPU memory when practical
-   - important engine configuration
+Also answer:
 
-7. Confirm the generated output is non-empty and the request completes normally.
+- Where is prompt length stored?
+- When is prompt token count known?
+- What data structure stores waiting requests?
+- What determines waiting-request order today?
+- Can waiting requests be reordered without changing running requests?
+- Where are requests moved from waiting to running?
+- How does the scheduler distinguish prefill from decode?
+- Where is KV cache allocated and freed?
+- Is preemption present in the pinned implementation?
+- At what point could a short_prompt policy be inserted with minimal changes?
 
-## Failure Handling
-
-If the run fails because of GPU memory:
-
-- stop
-- do not modify source code
-- report the observed memory error and configuration
-- propose a smaller safe configuration
-
-If the run fails because of an import/kernel/runtime error:
-
-- preserve the full relevant error
-- do not change dependency versions automatically
-- stop and report the blocker
+Do not guess. Cite file paths, classes, functions, and important line regions.
 
 ## Output
 
 Create:
 
-artifacts/environment/smoke-single-request.txt
+docs/architecture.md
 
-Record the configuration, command/script used, important runtime output,
-generated result, and any warnings.
+Include:
 
-If a temporary smoke-test script is useful, place it under scripts/.
+1. Component overview
+2. Request lifecycle
+3. Scheduler lifecycle
+4. Waiting/running queue behavior
+5. Prefill vs decode behavior
+6. KV-cache interaction
+7. Candidate policy insertion point
+8. Risks/invariants that future scheduler changes must preserve
 
-Keep it minimal and reusable.
+Include a simple ASCII flow diagram.
 
 ## Restrictions
 
 Do not:
 
 - modify nanovllm/
-- implement scheduling policies
-- run multiple concurrent requests
-- run performance benchmarks
-- change dependency versions
-- install CUDA Toolkit
-- download another model
+- implement a policy
+- change scheduler behavior
+- run benchmarks
+- change dependencies
+
+Small read-only source inspection commands are allowed.
 
 ## Validation
 
@@ -112,30 +103,20 @@ Run:
 git diff --check
 git status --short
 
-Confirm:
-
-- one request completed successfully
-- generated text is non-empty
-- CUDA execution was used
-- nanovllm/ source is unchanged
+Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with:
-
-- SMOKE-001 status
-- configuration used
-- model load/inference result
-- GPU memory observations
-- next recommended task
+Update PROJECT_STATE.md with ARCH-001 completion and next recommended task.
 
 ## Acceptance Criteria
 
-- nano-vLLM loads Qwen3-0.6B
-- RTX 4050 is used
-- one prompt completes successfully
-- output text is produced
-- no source modification was required
+- request lifecycle is documented from actual source
+- waiting and running queues are identified
+- prefill/decode distinction is explained
+- KV-cache interaction is identified
+- candidate policy insertion point is identified
+- no nano-vLLM source file changed
 - git diff --check passes
 
 Do not create a Git commit.
@@ -144,12 +125,11 @@ Do not create a Git commit.
 
 Report:
 
-- prompt
-- important engine configuration
-- prompt/output token counts if available
-- generated output
-- runtime
-- GPU memory observation
-- warnings/errors
-- files created/modified
-- recommended next step
+- main classes/files
+- waiting queue implementation
+- current scheduling behavior
+- prefill/decode flow
+- KV-cache interaction
+- candidate policy insertion point
+- important invariants
+- files modified
