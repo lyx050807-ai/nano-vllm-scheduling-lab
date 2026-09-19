@@ -2,90 +2,85 @@
 
 ## Task ID
 
-ENV-007
+MODEL-001
 
 ## Title
 
-Install nano-vLLM in editable mode and validate package imports.
+Prepare and validate the Qwen3-0.6B model files.
 
 ## Goal
 
-Install the pinned local nano-vLLM repository into the project .venv without
-changing the validated dependency stack.
+Download the planned small model for nano-vLLM experiments and validate its
+configuration and tokenizer without running full model inference yet.
 
-Do not download a model or run full inference yet.
+## Model
 
-## Validated Environment
+Use:
 
-- Python 3.12.3
-- torch 2.6.0+cu124
-- Triton 3.2.0
-- FlashAttention 2.7.4.post1
-- Transformers 4.57.6
-- RTX 4050 CUDA validation passed
+Qwen/Qwen3-0.6B
 
-These versions must remain unchanged.
+Store the model under the repository-local ignored model directory:
+
+models/Qwen3-0.6B
+
+Do not add model files to Git.
 
 ## Required Work
 
-1. Read AGENTS.md, PROJECT_STATE.md, docs/environment.md, and
-   docs/gpu-stack-plan.md.
+1. Read:
+   - AGENTS.md
+   - PROJECT_STATE.md
+   - docs/environment.md
 
-2. Inspect the repository package metadata and confirm the local package name.
+2. Inspect the nano-vLLM README/examples to understand how model paths are
+   supplied to the engine.
 
-3. Install the current repository into .venv in editable mode.
+3. Confirm the current validated environment is still healthy.
 
-4. Prevent dependency resolution from replacing the already validated
-   environment.
+4. Download Qwen/Qwen3-0.6B into:
 
-5. Verify that the installed package resolves to this repository's local source.
+   models/Qwen3-0.6B
 
-6. Run minimal import smoke tests for the important nano-vLLM modules.
+5. Record the Hugging Face model repository and exact downloaded revision or
+   snapshot commit when available.
 
-7. Do not run model inference yet.
+6. Validate locally:
 
-8. Run:
+   - model config loads
+   - tokenizer loads
+   - tokenizer can encode a short sentence
+   - tokenizer can decode the resulting tokens
+   - model path is usable by Transformers locally
 
-   pip check
+7. Do not instantiate the full model on GPU yet.
 
-9. Reconfirm:
-
-   - torch version
-   - triton version
-   - flash-attn version
-   - torch.cuda.is_available()
-   - GPU name
+8. Confirm models/ is ignored by Git.
 
 ## Output
 
 Create:
 
-artifacts/environment/nanovllm-install-info.txt
+artifacts/environment/model-info.txt
 
 Record:
 
-- installation command
-- package/import name
-- editable installation path
-- import test results
-- pip check result
-- torch/triton/flash-attn versions after installation
-- CUDA availability
+- model repository
+- local model path
+- revision/snapshot if available
+- config validation result
+- tokenizer validation result
+- a small tokenization example
+- model directory size
 
 ## Restrictions
 
 Do not:
 
-- download models
-- run full LLM inference
-- modify nanovllm source files
-- change torch
-- change triton
-- change flash-attn
-- install CUDA Toolkit
-
-If installation requires changing the validated stack, stop and report the
-blocker instead.
+- run full model inference
+- load model weights onto GPU
+- modify nanovllm/
+- change torch/triton/flash-attn versions
+- commit model weights to Git
 
 ## Validation
 
@@ -93,26 +88,28 @@ Run:
 
 git diff --check
 git status --short
+git check-ignore -v models/Qwen3-0.6B
 
-Confirm:
-
-- nano-vLLM imports from the local repository
-- pip check passes
-- validated GPU stack remains unchanged
-- nanovllm source files were not modified
+Confirm model files do not appear as Git changes.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with ENV-007 status and next recommended task.
+Update PROJECT_STATE.md with:
+
+- MODEL-001 completion
+- selected model
+- local path
+- revision/snapshot if known
+- next recommended task
 
 ## Acceptance Criteria
 
-- local nano-vLLM is installed in editable mode
-- imports succeed
-- dependency versions remain unchanged
-- CUDA remains available
-- no model was downloaded
-- no source file was modified
+- Qwen3-0.6B is available locally
+- config loads successfully
+- tokenizer encode/decode works
+- model directory is ignored by Git
+- no inference was performed
+- nanovllm/ remains unchanged
 - git diff --check passes
 
 Do not create a Git commit.
@@ -121,11 +118,11 @@ Do not create a Git commit.
 
 Report:
 
-- installation result
-- editable package path
-- import results
-- pip check result
-- torch/triton/flash-attn versions
-- CUDA status
+- model source
+- local path
+- downloaded revision
+- directory size
+- config result
+- tokenizer result
 - files modified
 - recommended next step

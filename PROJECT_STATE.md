@@ -4,7 +4,7 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-007 complete; local editable nano-vLLM installation and imports validated.
+ENV-001 through ENV-007 and MODEL-001 complete; Qwen3-0.6B downloaded and locally validated.
 
 ## Current Git Branch
 
@@ -68,6 +68,9 @@ Ubuntu 24.04
 - development branch created.
 - upstream nano-vLLM commit recorded.
 - initial project directory structure created.
+- MODEL-001 completed: Qwen/Qwen3-0.6B downloaded to models/Qwen3-0.6B.
+- Model revision: c1899de289a04d12100db370d81485cdf75e47ca.
+- Local config/tokenizer encode-decode and weight/tokenizer SHA256 validation passed; evidence in artifacts/environment/model-info.txt.
 - ENV-007 completed: nano-vllm 0.2.0 installed locally in editable mode with dependency resolution disabled.
 - ENV-007 isolated imports from outside the repository, editable metadata and pip check passed; all pre-existing package versions preserved.
 - ENV-007 evidence: artifacts/environment/nanovllm-install-info.txt.
@@ -88,12 +91,11 @@ Ubuntu 24.04
 
 ## In Progress
 
-Local editable package and imports are validated; GPU integration and model setup remain pending.
+Model files and tokenizer are ready; full GPU integration and inference validation remain pending.
 
 ## Not Started
 
 - full nano-vLLM integration validation
-- model setup
 - nano-vLLM smoke test
 - architecture analysis
 - trace generator
@@ -144,7 +146,7 @@ in-memory safetensors round-trip and xxhash checks passed before GPU validation.
 Torch 2.6.0+cu124 and Triton 3.2.0 were protected by pip constraints and remained
 unchanged. FlashAttention was installed in ENV-006 and nano-vllm 0.2.0 was
 installed in editable mode in ENV-007. torchvision and torchaudio remain absent.
-No model was downloaded and no inference was run.
+MODEL-001 subsequently downloaded Qwen3-0.6B; no inference has been run.
 Declared dependencies are torch>=2.4.0, triton>=3.0.0,
 transformers>=4.51.0, flash-attn (required, unpinned), and xxhash (unpinned).
 NumPy, tqdm, and safetensors are imported directly but not separately declared.
@@ -190,13 +192,27 @@ other pre-existing distributions. CUDA is available and RTX 4050 is detected.
 Editable metadata resides in .venv; no egg-info directory was left in the
 repository root. Source was not edited.
 
+## Model Files
+
+Repository: Qwen/Qwen3-0.6B.
+Revision: c1899de289a04d12100db370d81485cdf75e47ca.
+Local path: /home/luoyuxuan/projects/nano-vllm-scheduling-lab/models/Qwen3-0.6B.
+Directory size at validation: 1519210302 bytes (1.414875 GiB), including
+local download metadata; payload files total 1519209243 bytes.
+Qwen3Config loaded locally: bfloat16, 28 layers, hidden size 1024.
+Qwen2TokenizerFast loaded locally and round-tripped 'Hello, nano-vLLM!'.
+Weight and tokenizer.json SHA256 values match the pinned Hub LFS metadata.
+Safetensors header lists 311 tensors; no model instance was created and no
+model weights were loaded onto GPU. Model directory is ignored by Git.
+
 ## Next Task
 
-Validate model-free GPU integration in a separately scoped task: paged-cache
-attention, Triton cache-store kernel and single-GPU NCCL initialization while
-preserving the resolved stack. Then plan model setup and a constrained inference
-smoke test for the 6 GB GPU. ENV-007 verifies editable installation and imports;
-it does not establish full model inference or scheduling performance.
+Plan a constrained nano-vLLM smoke test for the local pinned Qwen3-0.6B model
+on the 6 GB GPU. Explicitly set conservative context/batch/memory limits and
+validate the remaining paged-cache, Triton and NCCL integration as appropriate
+in that separately authorized task. Preserve all dependency versions and the
+model revision. MODEL-001 establishes file/config/tokenizer readiness only,
+not successful inference or scheduling performance.
 
 ## Important Constraints
 
