@@ -1,0 +1,24 @@
+$ .venv/bin/python scripts/smoke_single_request.py --telemetry-output artifacts/telemetry/smoke-completed.jsonl
+Model: /home/luoyuxuan/projects/nano-vllm-scheduling-lab/models/Qwen3-0.6B
+Config: {"enforce_eager": true, "tensor_parallel_size": 1, "max_model_len": 256, "max_num_batched_tokens": 256, "max_num_seqs": 1, "gpu_memory_utilization": 0.6}
+Sampling: temperature=0.6 max_tokens=32 ignore_eos=False seed=42
+Prompt: 'Say hello in one short sentence.'
+Rendered prompt: '<|im_start|>user\nSay hello in one short sentence.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n'
+Prompt token count: 19
+GPU: NVIDIA GeForce RTX 4050 Laptop GPU
+Pre-load free/total bytes: (5318377472, 6438780928)
+Load/warmup seconds: 4.592236964999756
+Model device: cuda:0
+Generate seconds: 2.6168461839988595
+Output text: 'Hello! How can I assist you today?<|im_end|>'
+Output token count: 10
+Output token IDs: [9707, 0, 2585, 646, 358, 7789, 498, 3351, 30, 151645]
+Peak allocated bytes (since upstream warmup reset): 2631439360
+Peak reserved bytes (since upstream warmup reset): 2703228928
+Post-generation free/total bytes: (2585788416, 6438780928)
+Telemetry ordering/token count: PASS
+Telemetry record: artifacts/telemetry/smoke-completed.jsonl
+Single request: PASS
+Total script seconds including load/warmup and cleanup: 7.888567845999205
+
+[exit 0]

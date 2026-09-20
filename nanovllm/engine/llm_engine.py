@@ -1,11 +1,12 @@
 import atexit
 from dataclasses import fields
-from time import perf_counter
+from time import perf_counter, perf_counter_ns
 from tqdm.auto import tqdm
 from transformers import AutoTokenizer
 import torch.multiprocessing as mp
 
 from nanovllm.config import Config
+from nanovllm.telemetry import Telemetry
 from nanovllm.sampling_params import SamplingParams
 from nanovllm.engine.sequence import Sequence
 from nanovllm.engine.scheduler import Scheduler
@@ -32,6 +33,7 @@ class LLMEngine:
         self.tokenizer = AutoTokenizer.from_pretrained(config.model, use_fast=True)
         config.eos = self.tokenizer.eos_token_id
         self.scheduler = Scheduler(config)
+        self.telemetry = None
         atexit.register(self.exit)
 
     def exit(self):
@@ -40,15 +42,34 @@ class LLMEngine:
         for p in self.ps:
             p.join()
 
-    def add_request(self, prompt: str | list[int], sampling_params: SamplingParams):
+    def enable_telemetry(self, t0_ns: int, *, clock_ns=perf_counter_ns):
+        """Enable capture once, after warmup and before requests; caller owns t0."""
+        if self.telemetry is not None or not self.scheduler.is_finished():
+            raise ValueError("enable telemetry once, before admitting requests")
+        self.telemetry = Telemetry(t0_ns, clock_ns=clock_ns)
+        self.scheduler.telemetry = self.telemetry
+
+    def get_telemetry(self, *, completed_only=False):
+        """Detached engine records keyed by request_id; replay timestamps stay outside."""
+        if self.telemetry is None:
+            return {}
+        return self.telemetry.snapshot(completed_only=completed_only)
+
+    def add_request(self, prompt: str | list[int], sampling_params: SamplingParams, *, request_id: str | None = None):
         if isinstance(prompt, str):
             prompt = self.tokenizer.encode(prompt)
         seq = Sequence(prompt, sampling_params)
+        if self.telemetry is not None:
+            self.telemetry.register(seq.seq_id, request_id, seq.num_prompt_tokens, seq.max_tokens)
         self.scheduler.add(seq)
 
     def step(self):
         seqs, is_prefill = self.scheduler.schedule()
+        if self.telemetry is not None:
+            self.telemetry.scheduled(seq.seq_id for seq in seqs)
         num_tokens = sum(seq.num_scheduled_tokens for seq in seqs) if is_prefill else -len(seqs)
+        if self.telemetry is not None and is_prefill:
+            self.telemetry.prefill_dispatched(seq.seq_id for seq in seqs)
         token_ids = self.model_runner.call("run", seqs, is_prefill)
         self.scheduler.postprocess(seqs, token_ids, is_prefill)
         outputs = [(seq.seq_id, seq.completion_token_ids) for seq in seqs if seq.is_finished]

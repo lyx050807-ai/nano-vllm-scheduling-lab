@@ -5,8 +5,8 @@ Last updated: 2026-09-20
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001 and TELEMETRY-001 complete; request telemetry events, clock domain
-and latency/ITL semantics are specified after CPU replay validation.
+REPLAY-001 and TELEMETRY-001/002 complete; opt-in engine lifecycle telemetry
+passed CPU tests and the conservative single-request GPU regression.
 
 ## Current Git Branch
 
@@ -60,6 +60,13 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- TELEMETRY-002 completed: nanovllm/telemetry.py captures in-memory monotonic lifecycle events; llm_engine.py and scheduler.py contain opt-in hooks only.
+- Events: admission, first successful scheduling, first prefill dispatch, first output token, every valid output token and completion after KV deallocation/running removal. First-event timestamps survive rescheduling/preemption.
+- Request IDs are associated at add_request; completed or incomplete detached records are available through get_telemetry. No per-token file writes or GPU synchronization were added.
+- 27 CPU tests passed (19 existing trace/replay tests and 8 telemetry tests). Real scheduler/BlockManager tests cover chunked prefill, EOS completion and forced preemption with capture enabled/disabled.
+- Conservative GPU smoke passed with the same model, prompt, engine options and seed: nonempty output, 10 output tokens, valid lifecycle ordering, nondecreasing token timestamps, no observed warnings/errors.
+- Evidence: artifacts/telemetry/smoke-completed.jsonl and artifacts/telemetry/smoke-regression.txt. Earlier runtime records remain unchanged.
 
 - TELEMETRY-001 completed: docs/telemetry-spec.md defines the common monotonic clock, lifecycle capture points, JSONL record schema, latency/ITL formulas, failure/null behavior and candidate hook locations.
 - Primary TTFT and E2E start at actual replay release_s; TTFT includes admission overhead and queue waiting. Planned arrival remains workload intent, with replay error reported separately; engine TTFT and initial queue wait retain their definitions. Telemetry remains specification-only; no hooks, policy or GPU changes.
@@ -115,8 +122,9 @@ Ubuntu 24.04
 ## In Progress
 
 Initial single-request inference, architecture analysis, trace implementation
-and CPU arrival replay are complete; telemetry semantics are now specified.
-Telemetry implementation, engine integration and broader validation remain pending.
+and CPU arrival replay are complete. Engine-side telemetry is instrumented and
+validated on one GPU request; replay-to-engine integration, full experiment
+record assembly and broader workload validation remain pending.
 No formal performance experiment has run.
 Evidence: artifacts/environment/smoke-single-request.txt.
 Reusable entry point: scripts/smoke_single_request.py.
@@ -125,9 +133,9 @@ Reusable entry point: scripts/smoke_single_request.py.
 
 - full nano-vLLM integration validation
 - replay-to-engine integration
-- telemetry implementation
+- full experiment telemetry assembly (replay/engine join, failures and timeout finalization)
 - scheduling policies
-- scheduler/telemetry unit tests (trace and CPU replay tests are implemented)
+- scheduling-policy tests (trace, CPU replay and engine telemetry tests are implemented)
 - formal workloads
 - experiments
 - analysis
@@ -193,6 +201,33 @@ ENV-002 now provides pip inside .venv; other commands were not rechecked.
 The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
+
+TELEMETRY-002:
+
+- `.venv/bin/python -m unittest discover -s tests -v`: 27 CPU tests passed. The initial forced-preemption test used a one-prompt batch budget and incorrectly expected both requests already scheduled; its dedicated CPU scenario was corrected to a 512-token budget. The conservative GPU configuration was unchanged.
+- `.venv/bin/python scripts/smoke_single_request.py --telemetry-output artifacts/telemetry/smoke-completed.jsonl`: exit 0, nonempty output and 10 output tokens. Original model/prompt/seed/options and previous failure records preserved.
+- Example seconds relative to t0: admitted=0.000107763, first_scheduled=0.000123806, first_prefill_dispatch=0.000126505, first_token=1.420844472, finished=2.615674153. Ten token timestamps are nondecreasing; last token=2.615656154.
+- No warnings/errors observed in the GPU run. Load/warmup=4.592236965 s and generation=2.616846184 s are smoke diagnostics, not benchmark data. Telemetry overhead was not quantified or compared to prior runs.
+- Source diff reviewed: Scheduler.schedule/preempt and LLMEngine.generate/exit remain AST-identical to HEAD; BlockManager, Sequence, ModelRunner, kernels and sampling source are unchanged. Enabling/disabling telemetry gave equal queue/output/block-state histories in the CPU preemption scenario.
+- `git diff --check` and `git status --short` checked. Dependency declarations, trace inputs and existing artifacts unchanged; no commit created.
+
+Interface: after LLM initialization/warmup, call
+`llm.enable_telemetry(t0_ns)` with the coordinator's perf_counter_ns origin.
+For trace requests, use `llm.add_request(tokens, sampling, request_id=external_id)`;
+legacy generate calls receive auto IDs `seq-<engine_seq_id>` when capture is enabled.
+Retrieve detached records using `llm.get_telemetry(completed_only=True)` keyed
+by request_id. Capture defaults to disabled. The smoke script adds only an
+optional --telemetry-output flag; its default inference path remains intact.
+
+The exported engine-telemetry-v1 record is an engine-only contribution, not a
+complete request-telemetry-v1 experiment record. It contains no planned arrival,
+release or inferred user-facing TTFT/E2E. Those remain outside the engine and
+must be joined by a future coordinator using the same t0. Incomplete engine
+records retain null future timestamps; failure/cancellation/timeout finalization
+and full run metadata assembly are not implemented in this task. Hot paths use
+clock reads, scalar assignments and in-memory token-list appends only; records
+are retained in memory for the collector lifetime and copied on retrieval.
+
 
 TELEMETRY-001: documentation/source-reference review, JSON example and formula
 checks, git diff --check and git status --short completed. nano-vLLM source,
@@ -299,13 +334,12 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Implement CPU-only telemetry record collection/validation and metric derivation
-against docs/telemetry-spec.md in a separately scoped task. Test event ordering,
-first-event preservation, exact formulas, token indexing, missing/censored
-observations and preemption identity with synthetic lifecycle cases. Engine
-hooks, replay-to-engine integration and GPU validation remain separate tasks.
-Preserve the validated stack, input trace and baseline behavior; formal workload
-parameters remain unfrozen.
+In a separately scoped task, connect validated arrival replay to engine
+admission using a shared coordinator origin and external request IDs, then join
+replay release/planned times with the engine telemetry fragments. Preserve the
+release-based TTFT/E2E definitions and specify failure/timeout finalization.
+Validate the baseline integration before adding any scheduling policy or formal
+performance workload; keep the current dependency stack and trace unchanged.
 
 ## SMOKE-001 Attempt
 

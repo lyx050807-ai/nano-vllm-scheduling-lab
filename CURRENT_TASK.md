@@ -2,121 +2,121 @@
 
 ## Task ID
 
-TELEMETRY-001
+TELEMETRY-002
 
 ## Title
 
-Define request lifecycle telemetry and metric semantics.
+Implement low-overhead request lifecycle telemetry.
 
 ## Goal
 
-Define the timestamp events and derived latency metrics required to compare
-baseline, short_prompt, and aged_short_prompt scheduling policies.
+Instrument the pinned nano-vLLM request lifecycle so experiments can measure
+admission, first scheduling, token production, and completion timestamps.
 
-This is a design/documentation task only.
+Telemetry must not change scheduling semantics.
 
-Do not instrument nano-vLLM source yet.
+## Required Reads
 
-## Required Work
+Read:
 
-1. Read:
-   - AGENTS.md
-   - PROJECT_STATE.md
-   - docs/architecture.md
-   - docs/trace-spec.md
-   - scripts/replay_trace.py
+- AGENTS.md
+- PROJECT_STATE.md
+- docs/architecture.md
+- docs/telemetry-spec.md
+- scripts/replay_trace.py
 
-2. Define one common monotonic clock domain for runtime timestamps.
+Inspect the exact pinned source before editing.
 
-3. Define request lifecycle timestamps including at least:
+## Required Runtime Events
 
-   - planned_arrival_s
-   - release_s
-   - admitted_s
-   - first_scheduled_s
-   - first_token_s
-   - finished_s
+Implement engine-side capture for:
 
-4. Define per-token timing representation sufficient for future ITL analysis.
+- admitted time
+- first scheduled time
+- first output token time
+- per-output-token timestamps
+- finished time
 
-5. Define the exact semantic meaning and capture point for every timestamp.
+Use the clock semantics defined in docs/telemetry-spec.md.
 
-6. Distinguish clearly between:
+## Design Requirements
 
-   - replay timing
-   - engine admission
-   - waiting-queue delay
-   - first scheduling / prefill start
-   - first output token
-   - request completion
+1. Use one compatible monotonic clock domain.
 
-7. Define derived metrics including at least:
+2. Record first_scheduled only once.
 
-   replay_error_ms
-   admission_overhead_ms
-   queue_wait_ms
-   ttft_ms
-   engine_ttft_ms
-   e2e_latency_ms
+3. Record first_token only once.
 
-8. Define future ITL calculation from token timestamps.
+4. Preserve per-token timestamps for future ITL calculation.
 
-9. Define units and formulas explicitly.
+5. Record finished when the request actually transitions to completion.
 
-10. Define missing-value behavior for:
-    - failed requests
-    - cancelled requests
-    - requests that never receive a first token
-    - unfinished requests at experiment timeout
+6. Associate all engine telemetry with request_id.
 
-11. Define an event/record schema suitable for JSONL output.
+7. Keep replay-layer planned_arrival and release timestamps outside the engine
+   unless an existing clean interface already supports carrying them.
 
-12. Identify candidate source locations from docs/architecture.md where future
-    telemetry hooks should be inserted.
+8. Prefer in-memory timestamp capture on hot paths.
 
-Do not implement those hooks yet.
+9. Avoid per-token disk I/O.
 
-## Metric Semantics
+10. Provide a clean way for the experiment/replay layer to retrieve completed
+    request telemetry.
 
-Primary user-facing TTFT must include waiting time.
+## Scheduling Invariants
 
-Do not define TTFT as first_token_s - first_scheduled_s.
+Telemetry must not change:
 
-The design should preserve both:
+- waiting queue ordering
+- running queue ordering
+- request selection
+- prefill/decode scheduling policy
+- KV-cache allocation decisions
+- preemption behavior
+- sampling behavior
 
-- user-facing latency
-- internal scheduler/engine latency components
+## Testing
+
+Add CPU-focused tests wherever possible for:
+
+- timestamps start unset
+- admitted recorded once
+- first_scheduled recorded once
+- first_token corresponds to the first generated output token
+- token timestamps preserve generation order
+- finished recorded once
+- incomplete requests retain null/missing future timestamps
+- metric record serialization works
+
+Also rerun relevant existing tests.
+
+## GPU Regression Smoke Test
+
+After CPU tests pass, rerun the existing conservative single-request smoke test.
+
+Confirm:
+
+- inference still succeeds
+- generated output is non-empty
+- telemetry record is produced
+- lifecycle ordering is valid:
+
+  admitted <= first_scheduled <= first_token <= finished
+
+- token timestamps are nondecreasing
+- no scheduling-policy behavior was intentionally changed
+
+Do not treat the smoke-test latency as benchmark data.
 
 ## Output
 
-Create:
+Create or update a small experiment-facing telemetry utility if needed.
 
-docs/telemetry-spec.md
+Save one example completed telemetry record under:
 
-Include:
+artifacts/telemetry/
 
-1. clock definition
-2. lifecycle event definitions
-3. event/record schema
-4. exact formulas
-5. timeline example
-6. per-token timing design
-7. failure/missing-value semantics
-8. candidate instrumentation points
-9. invariants
-10. relationship to scheduler experiments
-
-Include an ASCII request timeline.
-
-## Restrictions
-
-Do not:
-
-- modify nanovllm/
-- implement telemetry hooks
-- implement policies
-- run GPU benchmarks
-- change dependencies
+Do not store large logs.
 
 ## Validation
 
@@ -125,23 +125,27 @@ Run:
 git diff --check
 git status --short
 
-Confirm nanovllm/ is unchanged.
+Review the nano-vLLM source diff carefully.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with TELEMETRY-001 completion and next recommended task.
+Update PROJECT_STATE.md with:
+
+- TELEMETRY-002 completion
+- source files instrumented
+- tests run
+- smoke-test result
+- next recommended task
 
 ## Acceptance Criteria
 
-- lifecycle timestamps are unambiguously defined
-- all timestamps use a compatible monotonic clock
-- TTFT includes waiting time
-- queue wait is separately measurable
-- E2E latency is defined
-- future ITL can be computed
-- failure semantics are documented
-- future hook locations are identified
-- no nano-vLLM source is modified
+- lifecycle timestamps are captured
+- first-event semantics are correct
+- per-token timestamps are available
+- telemetry can be exported by request_id
+- CPU tests pass
+- single-request GPU regression passes
+- scheduling semantics remain unchanged
 - git diff --check passes
 
 Do not create a Git commit.
@@ -150,11 +154,11 @@ Do not create a Git commit.
 
 Report:
 
-- lifecycle events
-- clock choice
-- metric formulas
-- event schema
-- failure semantics
-- candidate instrumentation locations
-- files modified
+- source files modified
+- fields/events added
+- instrumentation points
+- test count/results
+- GPU smoke result
+- example event ordering
+- any observed overhead/warnings
 - recommended next step
