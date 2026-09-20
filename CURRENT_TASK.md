@@ -2,20 +2,18 @@
 
 ## Task ID
 
-BASELINE-001
+BENCH-001
 
 ## Title
 
-Characterize the reproducibility of the development baseline.
+Freeze the formal benchmark and comparison protocol.
 
 ## Goal
 
-Run repeated development experiments using the unchanged nano-vLLM baseline
-scheduler and establish a reproducible baseline result format.
+Define the formal workload, repetition, run-order, metadata, timeout, and
+comparison rules before implementing any new scheduling policy.
 
-This is not the final formal benchmark.
-
-Do not implement or change any scheduling policy.
+Do not implement short_prompt or aging in this task.
 
 ## Required Reads
 
@@ -25,124 +23,166 @@ Read:
 - PROJECT_STATE.md
 - docs/trace-spec.md
 - docs/telemetry-spec.md
+- artifacts/baseline/dev-baseline-summary.json
+- scripts/make_trace.py
 - scripts/run_replay.py
-- workloads/dev_trace.jsonl
 
-## Baseline Invariants
+## Development Baseline Context
 
-All measured runs must use the same:
+The 12-request development trace and BASELINE-001 results are validation data,
+not formal benchmark data.
 
-- Qwen3-0.6B model and revision
-- dev trace
-- trace SHA256
-- engine configuration
+Use them only to inform safe experiment sizing and infrastructure design.
+
+## Formal Workload Design
+
+Define a formal mixed-length workload with substantially more requests than
+the 12-request development trace.
+
+Target a balanced prompt-class design such as:
+
+- 20 short requests
+- 20 medium requests
+- 20 long requests
+
+for 60 requests per trace, unless repository/hardware evidence shows this is
+unsafe.
+
+Preserve the existing tokenizer-verified prompt length methodology.
+
+Use multiple fixed trace seeds rather than relying on one request ordering.
+
+Prefer at least 3 fixed formal trace seeds.
+
+## Load Calibration
+
+Before freezing arrival timing, perform baseline-only calibration if needed.
+
+The goal is to create meaningful queue contention while maintaining:
+
+- 100% request completion
+- no OOM
+- no experiment timeout
+- lifecycle invariants
+- nontrivial waiting-queue behavior
+
+Do not select a workload based on whether a future scheduling policy performs
+well on it.
+
+Document any calibration procedure and the criteria used before freezing the
+formal workload.
+
+## Comparison Protocol
+
+Define the future comparison for:
+
+- baseline
+- short_prompt
+- aged_short_prompt
+
+Every policy must use identical:
+
+- model and revision
+- trace and trace SHA256
 - generation configuration
-- baseline scheduler behavior
-
-Do not reorder the waiting queue.
-
-## Failure / Timeout Handling
-
-Before repeated runs, ensure the experiment runner has explicit handling for:
-
-- completed requests
-- failed requests
-- experiment timeout
-- partial results
-
-A failed or timed-out run must:
-
-- preserve available diagnostic output
-- clearly report incomplete requests
-- not silently count incomplete requests as successful
-
-Do not modify nano-vLLM scheduler semantics to implement this.
-
-## Repeated Runs
-
-Execute 3 independent development baseline runs.
-
-Each run must:
-
-1. initialize the engine
-2. perform the existing warm-up
-3. exclude warm-up data
-4. replay the exact same dev trace
-5. complete all 12 requests
-6. preserve the trace SHA256
-7. produce a unique run_id
-8. avoid overwriting previous run artifacts
-
-Use fresh run output locations.
-
-## Run Metadata
-
-Record for every run:
-
-- run_id
-- policy = baseline
-- project Git commit
-- pinned upstream commit
-- model identity/revision
-- trace SHA256
 - engine configuration
-- request count
-- completion count
-- timestamp
-- environment identifiers already available from project metadata
+- prompt contents
+- arrival schedule
+- output limits
+
+Use paired comparisons by trace seed.
+
+Plan at least 5 repeated runs per policy/trace combination for the final
+benchmark unless later runtime evidence justifies a documented change.
+
+## Run Order
+
+Do not always run all baseline trials first and all policy trials later.
+
+Define a rotated or randomized run order so GPU thermal/power drift is less
+likely to systematically favor one policy.
+
+Each measured run must use the same warm-up procedure.
 
 ## Metrics
 
-For each run compute overall diagnostics for:
+Primary:
 
-- replay_error_ms
-- admission_overhead_ms
-- queue_wait_ms
-- ttft_ms
-- engine_ttft_ms
-- e2e_latency_ms
+- TTFT
+- queue_wait
+- E2E latency
 
-Also summarize by:
+Secondary:
+
+- engine TTFT
+- admission overhead
+- ITL
+- completion rate
+- throughput
+
+Report overall results and results by:
 
 - short
 - medium
 - long
 
-Because this is a small 12-request development workload, emphasize:
+Include both central tendency and tail behavior where sample size supports it.
 
-- mean
-- median
-- max
+Do not make inferential/statistical claims from the 12-request development
+baseline.
 
-Do not make statistical performance claims from four requests per prompt class.
+## Fairness
 
-## Cross-Run Reproducibility
+Define long-request fairness diagnostics.
 
-Compare the three runs.
+The protocol must be able to detect whether short-request improvements cause:
 
-Verify:
+- increased long-request queue wait
+- increased long-request TTFT
+- increased long-request E2E
+- starvation or near-starvation
 
-- identical trace SHA256
-- identical request IDs
-- identical request metadata
-- 12/12 completions in each run
-- all lifecycle invariants hold
+## Timeout / Failure Rules
 
-Summarize run-to-run variation in the key latency metrics.
+Freeze explicit rules for:
+
+- experiment timeout
+- request failure
+- incomplete request
+- OOM
+- partial artifact preservation
+
+Failed runs must not silently enter the successful performance summary.
+
+## Reproducibility Metadata
+
+Every formal run must record:
+
+- project Git commit
+- upstream commit
+- model revision
+- trace SHA256
+- trace seed
+- policy
+- engine configuration
+- generation configuration
+- run ID
+- environment metadata
+- completion count
 
 ## Output
 
-Store raw development run artifacts under a non-overwriting structure such as:
-
-artifacts/baseline/<run_id>/
-
 Create:
 
-artifacts/baseline/dev-baseline-summary.json
+docs/benchmark-protocol.md
 
-The summary must clearly state:
+If formal trace-generation changes are required, document them but do not
+implement scheduling policies.
 
-development baseline only; not final benchmark data.
+Clearly distinguish:
+
+- development validation workload
+- formal benchmark workload
 
 ## Restrictions
 
@@ -150,43 +190,44 @@ Do not:
 
 - implement short_prompt
 - implement aging
-- change scheduler ordering
-- change KV-cache behavior
-- change model execution
+- modify scheduler ordering
+- modify KV-cache behavior
+- modify model execution
 - change dependencies
-- change the development trace
 
-Avoid modifying nanovllm/ unless required to fix a demonstrated telemetry bug.
-If such a bug is found, stop and report it before changing core source.
+If calibration discovers a hardware or infrastructure blocker, report it
+rather than silently weakening the protocol.
 
 ## Validation
-
-Run relevant CPU tests.
 
 Run:
 
 git diff --check
 git status --short
 
+Confirm baseline scheduler semantics remain unchanged.
+
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- BASELINE-001 completion
-- baseline run count
-- reproducibility result
+- BENCH-001 completion
+- frozen comparison protocol
+- formal workload plan
 - next recommended task
 
 ## Acceptance Criteria
 
-- 3 independent baseline runs complete
-- each run completes 12/12 requests
-- trace SHA256 is identical across runs
-- scheduler semantics remain unchanged
-- run artifacts are not overwritten
-- failure/timeout handling is explicit
-- per-class summaries exist
-- cross-run variation is reported
+- formal workload design is specified
+- fixed trace seeds are specified
+- repetition count is specified
+- policy run ordering is controlled
+- warm-up procedure is fixed
+- metrics are fixed
+- fairness metrics are fixed
+- timeout/failure rules are fixed
+- reproducibility metadata is fixed
+- no scheduling policy is implemented
 - git diff --check passes
 
 Do not create a Git commit.
@@ -195,13 +236,13 @@ Do not create a Git commit.
 
 Report:
 
-- run IDs
-- completion counts
-- trace SHA256
-- engine configuration
-- overall metrics by run
-- per-class diagnostics
-- cross-run variation
-- failure/timeout behavior
+- formal request count/classes
+- trace seeds
+- arrival/load design
+- repetition plan
+- run-order design
+- metrics
+- fairness diagnostics
+- timeout/failure rules
 - files modified
 - recommended next step

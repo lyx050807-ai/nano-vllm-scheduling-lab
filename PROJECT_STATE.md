@@ -5,9 +5,10 @@ Last updated: 2026-09-20
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001/002, TELEMETRY-001/002 and BASELINE-001 complete. Three independent
-baseline development trials each completed 12/12 requests with the unchanged
-trace, model, configuration and scheduler. These are not formal benchmark data.
+REPLAY-001/002, TELEMETRY-001/002, BASELINE-001 and BENCH-001 complete.
+The formal-mixed-v1 workload recipe and comparison protocol are frozen in
+docs/benchmark-protocol.md. Formal trace packages and capacity checks remain
+pending; no formal policy measurement has run.
 
 ## Current Git Branch
 
@@ -61,6 +62,10 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- BENCH-001 completed: docs/benchmark-protocol.md freezes formal-mixed-v1 as three 60-request traces (20/class), construction seeds 101/202/303, exact 32/96/192-token prompt recipe, cap 16, groups of three every 250 ms, pinned Qwen3-0.6B revision and conservative engine/sampling settings. The 12-request development trace/results remain separate.
+- Comparison protocol: five repetitions per seed/policy (45 measured runs), three-policy blocks rotated by seed/repetition so each policy occupies each position five times, identical warmup and 30 s between fresh processes. Paired run-level comparisons, primary release-based TTFT/E2E and initial queue wait, secondary ITL/throughput/completion and prespecified long-request fairness are defined. Coordinator timeout 90 s, process watchdog 150 s, partial artifact/failed-run rules and required provenance are fixed.
+- This task did not generate formal packages or run a 60-request GPU calibration. Before policy measurement, the separately scoped formal generator/validator must create the three packages and register both hashes, then baseline-only capacity checks must pass 60/60 with no OOM/timeout and the predeclared contention criteria. A failure requires reporting the blocker and a new profile version for changed parameters, not silent relaxation. No scheduling policy or nano-vLLM source was changed.
 
 - BASELINE-001 completed: scripts/run_replay.py now enforces a coordinator observation deadline, records partial request outcomes on failure/timeout, and durably checkpoints progress after completed batches. scripts/run_baseline_trials.py launches three fresh engine processes with separate warmups, unique run IDs/directories and a process watchdog for GPU steps that do not return. Hard process termination uses the last durable snapshot; unknown terminal times stay null and incomplete requests are explicitly failed, never counted as completed.
 - Final accepted trials: dev-baseline-20260920T120738893837Z-bdd3f160, dev-baseline-20260920T120752251324Z-85cfca31, dev-baseline-20260920T120806449035Z-1c3c4440. Each completed 12/12 with no observed errors/warnings. CPU suite: 38/38 passed. Trace SHA256 was identical: 28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041. Model/tokenizer revision, engine/sampling options, project/upstream commits, request IDs/metadata and lifecycle checks were identical/valid. Baseline scheduler and development trace were unchanged.
@@ -136,12 +141,13 @@ Ubuntu 24.04
 
 ## In Progress
 
-No formal performance experiment has run. The development baseline is characterized;
-formal workload/configuration and policy tasks await separate scope.
+No formal performance experiment has run. Formal trace generation, three-seed
+baseline capacity validation and hash registration are the next gates before
+policy implementation or measured comparison.
 
 ## Not Started
 
-- formal workload and experiment definition
+- formal trace generator/validator and baseline-only capacity gate
 - short_prompt and aged_short_prompt policies and tests
 - formal experiments and offline analysis
 - final report
@@ -339,10 +345,11 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, freeze a formal workload and comparison protocol,
-including timeout/cohort definitions and instrumentation overhead assessment,
-before evaluating any new waiting-queue policy. Preserve the pinned model,
-trace evidence, existing baseline semantics and all development artifacts.
+Implement the separately scoped formal-mixed-v1 trace generator/validator,
+register exact trace and sidecar SHA256s, and run baseline-only 60-request
+capacity checks against the frozen BENCH-001 gate. Preserve the development
+trace, baseline scheduler and all previous artifacts. Only after the gate
+passes should short_prompt and aged_short_prompt implementation begin.
 
 ## SMOKE-001 Attempt
 
