@@ -2,18 +2,20 @@
 
 ## Task ID
 
-TRACE-002
+REPLAY-001
 
 ## Title
 
-Implement the deterministic request-trace generator and validator.
+Implement and validate the trace arrival replay driver.
 
 ## Goal
 
-Implement a CPU-only trace generator that follows docs/trace-spec.md and
-produces reproducible JSONL workloads for later scheduler experiments.
+Implement a CPU-only replay driver that releases requests according to the
+absolute arrival_s timestamps in a validated trace.
 
-Do not modify nano-vLLM source code.
+This task validates arrival timing only.
+
+Do not connect replay to nano-vLLM GPU inference yet.
 
 ## Required Work
 
@@ -21,90 +23,97 @@ Do not modify nano-vLLM source code.
    - AGENTS.md
    - PROJECT_STATE.md
    - docs/trace-spec.md
-   - artifacts/environment/model-info.txt
+   - scripts/make_trace.py
+   - workloads/dev_trace.jsonl
 
 2. Implement:
 
-   scripts/make_trace.py
+   scripts/replay_trace.py
 
-3. The generator must use the local Qwen3-0.6B tokenizer and follow the
-   versioned schema in docs/trace-spec.md.
+3. Load and validate the trace before replay begins.
 
-4. Implement the development workload defined by TRACE-001:
+4. Define one monotonic experiment start time t0.
 
-   - 12 total requests
-   - 4 short
-   - 4 medium
-   - 4 long
-   - target prompt lengths defined in the trace specification
-   - max_new_tokens = 16
+5. For every request compute:
 
-5. Use an explicit random seed.
+   target_arrival = t0 + arrival_s
 
-6. For every generated request, verify the actual tokenizer-derived prompt
-   length rather than assuming word count equals token count.
+6. Wait until the absolute target time.
 
-7. Produce nondecreasing arrival_s values according to the trace specification.
+Do not implement replay as cumulative sleep intervals.
 
-8. Implement trace validation covering at least:
+7. At release time record:
 
-   - schema version
-   - unique request IDs
-   - nonnegative/nondecreasing arrivals
-   - valid prompt classes
-   - exact tokenizer-derived prompt lengths
-   - positive max_new_tokens
-   - context-length safety
+   - request_id
+   - planned arrival_s
+   - actual release time relative to t0
+   - release error in milliseconds
 
-9. Compute and report the SHA256 hash of the final JSONL file.
+8. Provide a CPU-only dry-run / callback interface so replay timing can be
+   tested without nano-vLLM or GPU inference.
 
-10. Default development output:
+9. Preserve stable ordering for requests with identical arrival_s according to
+   their order in the trace file.
 
-    workloads/dev_trace.jsonl
+10. Use a monotonic high-resolution clock such as time.perf_counter().
 
-11. Save generation metadata separately under:
+## Timing Semantics
 
-    workloads/dev_trace.meta.json
+Clearly distinguish:
 
-The metadata should include at least:
+- planned arrival time
+- actual replay release time
+- future engine admission time
+- future scheduling time
+- future first-token time
+- future completion time
 
-- trace version
-- seed
-- model/tokenizer identity
-- tokenizer revision
-- request count
-- class counts
-- max_new_tokens
-- trace SHA256
+Do not redefine TTFT in this task.
 
-## Reproducibility Tests
+## Tests
 
-Generate the trace twice with the same seed into two temporary files.
+Add CPU tests covering at least:
 
-Confirm:
+- trace order preservation
+- identical-arrival stable ordering
+- absolute-time replay behavior
+- no cumulative timing drift by design
+- invalid trace rejection
+- callback receives every request exactly once
 
-- byte-for-byte file equality
-- identical SHA256 hashes
+Keep timing tolerances reasonable for a non-real-time operating system.
 
-Then generate with a different seed and confirm the resulting trace changes
-in at least one intended stochastic field.
+Tests must not require GPU inference.
+
+## Output
+
+Create:
+
+artifacts/replay/dev_replay_timing.jsonl
+
+or an equivalent small replay timing record.
+
+Report basic timing error statistics:
+
+- mean absolute release error
+- max absolute release error
+
+These are infrastructure diagnostics, not model performance metrics.
 
 ## Restrictions
 
 Do not:
 
 - modify nanovllm/
-- run GPU inference
-- implement replay
-- implement telemetry
+- connect to real model inference
+- implement telemetry hooks
 - implement scheduling policies
+- run performance benchmarks
 - change dependencies
-
-This task should run on CPU.
 
 ## Validation
 
-Run the generator and validator.
+Run CPU tests.
 
 Run:
 
@@ -115,17 +124,16 @@ Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with TRACE-002 completion and next recommended task.
+Update PROJECT_STATE.md with REPLAY-001 completion and next recommended task.
 
 ## Acceptance Criteria
 
-- generator works
-- generated trace validates
-- prompt lengths are tokenizer-verified
-- same seed produces byte-identical trace
-- same seed produces identical SHA256
-- different seed changes intended stochastic content
-- metadata records reproducibility information
+- replay uses absolute monotonic target times
+- requests are released in trace order
+- equal-arrival ordering is stable
+- every request is released exactly once
+- release timing is measured
+- CPU tests pass
 - no nano-vLLM source is modified
 - git diff --check passes
 
@@ -135,12 +143,11 @@ Do not create a Git commit.
 
 Report:
 
-- generator interface
-- seed used
-- request/class counts
-- prompt token counts
-- arrival behavior
-- trace SHA256
-- reproducibility-test results
+- replay interface
+- clock used
+- timing algorithm
+- test count/results
+- mean release error
+- max release error
 - files created/modified
 - recommended next step

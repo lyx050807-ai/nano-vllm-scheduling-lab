@@ -4,8 +4,8 @@ Last updated: 2026-09-19
 
 ## Current Phase
 
-ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001 and TRACE-001/002
-complete; CPU-only deterministic development trace generation and validation passed.
+ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
+REPLAY-001 complete; CPU-only absolute-arrival replay and timing validation passed.
 
 ## Current Git Branch
 
@@ -60,6 +60,11 @@ Ubuntu 24.04
 
 ## Completed
 
+- REPLAY-001 completed: scripts/replay_trace.py validates the trace package before establishing t0 and releases requests at absolute monotonic targets through a CPU dry-run/callback interface.
+- Ten replay tests plus nine trace tests passed (19 total); stable ordering, exactly-once normal dispatch, callback delay, oversleep, early wakeup, overdue requests and invalid input are covered.
+- One real-clock dry-run released all 12 development requests; diagnostics are preserved in artifacts/replay/dev_replay_timing.jsonl.
+- REPLAY-001 did not connect to nano-vLLM/GPU or implement telemetry/scheduling; source, dependencies and input trace package remain unchanged.
+
 - TRACE-002 completed: scripts/make_trace.py generates and independently validates request-trace-v1/dev-mixed-v1 using the pinned local tokenizer on CPU.
 - Default workloads/dev_trace.jsonl and workloads/dev_trace.meta.json generated with explicit seed 42: 12 requests, four per class, exact 32/96/192 prompt tokens, output cap 16.
 - Same-seed temporary outputs were byte-identical with equal SHA256; seed 43 changed the shuffled prompt-class assignment. Nine CPU tests passed.
@@ -105,9 +110,9 @@ Ubuntu 24.04
 
 ## In Progress
 
-Initial single-request inference, architecture analysis, trace specification
-and CPU trace implementation are complete. Replay/telemetry design and broader
-integration coverage remain pending.
+Initial single-request inference, architecture analysis, trace implementation
+and CPU arrival replay are complete. Engine integration, telemetry design and
+broader integration coverage remain pending.
 No formal performance experiment has run.
 Evidence: artifacts/environment/smoke-single-request.txt.
 Reusable entry point: scripts/smoke_single_request.py.
@@ -115,10 +120,10 @@ Reusable entry point: scripts/smoke_single_request.py.
 ## Not Started
 
 - full nano-vLLM integration validation
-- replay driver
+- replay-to-engine integration
 - telemetry
 - scheduling policies
-- scheduler/replay/telemetry unit tests (trace tests are implemented)
+- scheduler/telemetry unit tests (trace and CPU replay tests are implemented)
 - formal workloads
 - experiments
 - analysis
@@ -184,6 +189,27 @@ ENV-002 now provides pip inside .venv; other commands were not rechecked.
 The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
+
+REPLAY-001 validation:
+
+- `.venv/bin/python -m unittest discover -s tests -v`: 19 CPU tests passed (9 trace and 10 replay tests).
+- `.venv/bin/python scripts/replay_trace.py`: one CPU-only dry-run released all 12 requests; no repeated selection of a better timing result.
+- Clock: `time.perf_counter_ns()`; each target is `t0 + arrival_s` converted to integer nanoseconds. Sleeps use only the remaining time to that fixed target and recheck the clock after waking.
+- Mean absolute release error: 4.3290755 ms. Maximum absolute release error: 11.274627 ms.
+- Timing artifact: `artifacts/replay/dev_replay_timing.jsonl`; records contain request ID, planned arrival_s, actual_release_s, signed release_error_ms and both input package hashes.
+- `git diff --check` and `git status --short` passed/inspected; nano-vLLM source, dependency declarations, generator and input trace/metadata unchanged.
+
+These errors measure CPU release timing on a non-real-time OS, not model
+latency or performance. Release is sampled immediately before synchronous
+callback dispatch; future engine admission, scheduling, first-token and
+completion timestamps are distinct and are not measured. No TTFT definition
+was changed. Callback exceptions abort without retry, so exactly-once dispatch
+applies to successful complete runs. Late releases never shift future targets.
+CLI output defaults to the existing artifact above and refuses overwrites;
+use `--output <new-path>` for any later run. `replay_trace(path, callback)`
+provides full package validation before replay; `replay_requests` is the
+low-level timing primitive for already validated request records.
+
 
 TRACE-002 commands (all CPU; no model backend or nano-vLLM import):
 
@@ -263,12 +289,13 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Specify the replay and request/token telemetry contract in a separate task:
-planned versus actual admission, stable external-to-engine request IDs,
-step-boundary admission, first/subsequent token timestamps, and preemption wait
-accounting. Use the validated trace unchanged across policies. Define CPU tests
-before implementing that integration; preserve baseline behavior and the
-validated dependency stack. Formal experiment parameters remain unfrozen.
+Define the engine-admission and request/token telemetry contract before any
+GPU integration: external request-ID mapping, planned arrival versus actual
+CPU release versus engine admission, scheduler-selection events, first and
+subsequent output tokens, completion and preemption wait accounting. Preserve
+the validated trace, baseline behavior and dependency stack. GPU connection,
+telemetry hooks and scheduling policies require separately scoped tasks;
+formal experiment parameters remain unfrozen.
 
 ## SMOKE-001 Attempt
 
