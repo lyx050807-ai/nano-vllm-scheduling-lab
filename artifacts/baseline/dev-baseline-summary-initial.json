@@ -1,0 +1,577 @@
+{
+  "all_passed": true,
+  "cross_run_variation": {
+    "admission_overhead_ms": {
+      "max_mean_ms": 13.012885249999998,
+      "mean_of_run_means_ms": 11.0801375,
+      "min_mean_ms": 7.688845083333333,
+      "range_of_means_ms": 5.3240401666666655,
+      "run_means_ms": [
+        13.012885249999998,
+        7.688845083333333,
+        12.538682166666668
+      ]
+    },
+    "e2e_latency_ms": {
+      "max_mean_ms": 2105.456685,
+      "mean_of_run_means_ms": 2042.4929505555556,
+      "min_mean_ms": 1993.1601640833333,
+      "range_of_means_ms": 112.29652091666685,
+      "run_means_ms": [
+        2105.456685,
+        1993.1601640833333,
+        2028.8620025833334
+      ]
+    },
+    "engine_ttft_ms": {
+      "max_mean_ms": 57.27418766666667,
+      "mean_of_run_means_ms": 55.95557547222222,
+      "min_mean_ms": 53.334562166666664,
+      "range_of_means_ms": 3.9396255000000053,
+      "run_means_ms": [
+        57.25797658333334,
+        53.334562166666664,
+        57.27418766666667
+      ]
+    },
+    "queue_wait_ms": {
+      "max_mean_ms": 29.27036916666667,
+      "mean_of_run_means_ms": 28.458641,
+      "min_mean_ms": 26.932919166666665,
+      "range_of_means_ms": 2.337450000000004,
+      "run_means_ms": [
+        29.27036916666667,
+        26.932919166666665,
+        29.172634666666667
+      ]
+    },
+    "replay_error_ms": {
+      "max_mean_ms": 0.6015003333333333,
+      "mean_of_run_means_ms": 0.34688680555555557,
+      "min_mean_ms": 0.20446066666666665,
+      "range_of_means_ms": 0.3970396666666667,
+      "run_means_ms": [
+        0.6015003333333333,
+        0.20446066666666665,
+        0.2346994166666667
+      ]
+    },
+    "ttft_ms": {
+      "max_mean_ms": 70.27086183333333,
+      "mean_of_run_means_ms": 67.03571297222221,
+      "min_mean_ms": 61.02340725,
+      "range_of_means_ms": 9.24745458333333,
+      "run_means_ms": [
+        70.27086183333333,
+        61.02340725,
+        69.81286983333332
+      ]
+    }
+  },
+  "generated_at_utc": "2026-09-20T12:05:43.057699+00:00",
+  "mode": "development baseline only; not final benchmark data",
+  "policy": "baseline",
+  "runs": [
+    {
+      "artifact_dir": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/baseline/dev-baseline-20260920T120453728515Z-65ebfdb7",
+      "capture_outcome": "completed",
+      "completion_count": 12,
+      "diagnostics": {
+        "by_prompt_class": {
+          "long": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 24.034547,
+              "mean": 18.989406,
+              "median": 19.679257
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 3626.426557,
+              "mean": 2215.3913695,
+              "median": 1932.379181
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 86.503911,
+              "mean": 53.76799975,
+              "median": 52.395825
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 52.452317,
+              "mean": 22.575822000000002,
+              "median": 18.914683
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.654266,
+              "mean": 0.32071775,
+              "median": 0.257598
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 101.832039,
+              "mean": 72.75740575,
+              "median": 76.4282915
+            }
+          },
+          "medium": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 24.033414,
+              "mean": 9.214385,
+              "median": 6.34774
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 2832.615087,
+              "mean": 1593.6521565,
+              "median": 1527.850597
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 90.598724,
+              "mean": 64.92110075,
+              "median": 66.8633725
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 67.053614,
+              "mean": 37.753457,
+              "median": 41.961068999999995
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 1.241166,
+              "mean": 0.7494515,
+              "median": 0.813157
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 114.632138,
+              "mean": 74.13548575,
+              "median": 73.2052355
+            }
+          },
+          "short": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 15.326158,
+              "mean": 10.83486475,
+              "median": 13.941749000000002
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 3295.405696,
+              "mean": 2507.326529,
+              "median": 2721.2386695
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 85.060024,
+              "mean": 53.08482925,
+              "median": 50.475411
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 59.755391,
+              "mean": 27.4818285,
+              "median": 25.072702999999997
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 1.245113,
+              "mean": 0.73433175,
+              "median": 0.647475
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 85.189827,
+              "mean": 63.919694,
+              "median": 64.41716
+            }
+          }
+        },
+        "overall": {
+          "admission_overhead_ms": {
+            "count": 12,
+            "max": 24.034547,
+            "mean": 13.012885249999998,
+            "median": 13.943709
+          },
+          "e2e_latency_ms": {
+            "count": 12,
+            "max": 3626.426557,
+            "mean": 2105.456685,
+            "median": 2116.2066755
+          },
+          "engine_ttft_ms": {
+            "count": 12,
+            "max": 90.598724,
+            "mean": 57.25797658333334,
+            "median": 56.0856195
+          },
+          "queue_wait_ms": {
+            "count": 12,
+            "max": 67.053614,
+            "mean": 29.27036916666667,
+            "median": 30.868343499999998
+          },
+          "replay_error_ms": {
+            "count": 12,
+            "max": 1.245113,
+            "mean": 0.6015003333333333,
+            "median": 0.5246435
+          },
+          "ttft_ms": {
+            "count": 12,
+            "max": 114.632138,
+            "mean": 70.27086183333333,
+            "median": 64.774357
+          }
+        }
+      },
+      "request_count": 12,
+      "run_id": "dev-baseline-20260920T120453728515Z-65ebfdb7",
+      "runner_exit_code": 0,
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+      "valid": true
+    },
+    {
+      "artifact_dir": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/baseline/dev-baseline-20260920T120511835467Z-326c3678",
+      "capture_outcome": "completed",
+      "completion_count": 12,
+      "diagnostics": {
+        "by_prompt_class": {
+          "long": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 14.318914,
+              "mean": 9.27824525,
+              "median": 8.183212000000001
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 3397.383084,
+              "mean": 2102.93412775,
+              "median": 1842.9919275
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 76.111031,
+              "mean": 47.522167249999995,
+              "median": 44.363675
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 48.760681,
+              "mean": 19.66787475,
+              "median": 14.9440145
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.253415,
+              "mean": 0.16996575,
+              "median": 0.15769899999999998
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 90.429945,
+              "mean": 56.8004125,
+              "median": 50.793817
+            }
+          },
+          "medium": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 9.932614,
+              "mean": 4.12765825,
+              "median": 3.2499595
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 2679.724263,
+              "mean": 1517.57121325,
+              "median": 1452.16444
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 84.415504,
+              "mean": 60.985607,
+              "median": 65.178415
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 58.921383,
+              "mean": 34.65249375,
+              "median": 39.828093
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.247599,
+              "mean": 0.20670075,
+              "median": 0.22284500000000002
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 90.83639,
+              "mean": 65.11326525,
+              "median": 70.1842385
+            }
+          },
+          "short": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 14.318748,
+              "mean": 9.66063175,
+              "median": 12.1216245
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 3073.843681,
+              "mean": 2358.9751512499997,
+              "median": 2552.1687110000003
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 81.910705,
+              "mean": 51.495912249999996,
+              "median": 49.5938485
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 55.705531,
+              "mean": 26.478389,
+              "median": 25.091309000000003
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.251451,
+              "mean": 0.2367155,
+              "median": 0.246015
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 81.991235,
+              "mean": 61.156544,
+              "median": 61.715473
+            }
+          }
+        },
+        "overall": {
+          "admission_overhead_ms": {
+            "count": 12,
+            "max": 14.318914,
+            "mean": 7.688845083333333,
+            "median": 8.181107
+          },
+          "e2e_latency_ms": {
+            "count": 12,
+            "max": 3397.383084,
+            "mean": 1993.1601640833333,
+            "median": 1997.8901095
+          },
+          "engine_ttft_ms": {
+            "count": 12,
+            "max": 84.415504,
+            "mean": 53.334562166666664,
+            "median": 53.063666999999995
+          },
+          "queue_wait_ms": {
+            "count": 12,
+            "max": 58.921383,
+            "mean": 26.932919166666665,
+            "median": 27.2313125
+          },
+          "replay_error_ms": {
+            "count": 12,
+            "max": 0.253415,
+            "mean": 0.20446066666666665,
+            "median": 0.22284500000000002
+          },
+          "ttft_ms": {
+            "count": 12,
+            "max": 90.83639,
+            "mean": 61.02340725,
+            "median": 61.715473
+          }
+        }
+      },
+      "request_count": 12,
+      "run_id": "dev-baseline-20260920T120511835467Z-326c3678",
+      "runner_exit_code": 0,
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+      "valid": true
+    },
+    {
+      "artifact_dir": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/baseline/dev-baseline-20260920T120528200142Z-e897d924",
+      "capture_outcome": "completed",
+      "completion_count": 12,
+      "diagnostics": {
+        "by_prompt_class": {
+          "long": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 19.360717,
+              "mean": 17.35974775,
+              "median": 17.596685
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 3450.441974,
+              "mean": 2137.64781675,
+              "median": 1872.3893545
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 80.078053,
+              "mean": 52.611134,
+              "median": 51.5806915
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 53.96713,
+              "mean": 22.57749725,
+              "median": 18.161393
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.20616,
+              "mean": 0.15076625000000002,
+              "median": 0.14953550000000002
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 94.962957,
+              "mean": 69.97088175,
+              "median": 70.941166
+            }
+          },
+          "medium": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 19.364619,
+              "mean": 8.8389355,
+              "median": 7.955411499999999
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 2715.782976,
+              "mean": 1541.6962255,
+              "median": 1480.1874365
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 95.246807,
+              "mean": 65.2669025,
+              "median": 68.4788005
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 67.000309,
+              "mean": 37.0932715,
+              "median": 40.6695675
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.435905,
+              "mean": 0.29778825,
+              "median": 0.322178
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 114.611426,
+              "mean": 74.10583799999999,
+              "median": 76.4339165
+            }
+          },
+          "short": {
+            "admission_overhead_ms": {
+              "count": 4,
+              "max": 15.828154,
+              "mean": 11.41736325,
+              "median": 14.879873499999999
+            },
+            "e2e_latency_ms": {
+              "count": 4,
+              "max": 3143.323505,
+              "mean": 2407.2419655,
+              "median": 2600.818718
+            },
+            "engine_ttft_ms": {
+              "count": 4,
+              "max": 80.55056,
+              "mean": 53.9445265,
+              "median": 53.1860225
+            },
+            "queue_wait_ms": {
+              "count": 4,
+              "max": 55.231908,
+              "mean": 27.847135249999997,
+              "median": 28.0632765
+            },
+            "replay_error_ms": {
+              "count": 4,
+              "max": 0.439217,
+              "mean": 0.25554375,
+              "median": 0.202272
+            },
+            "ttft_ms": {
+              "count": 4,
+              "max": 80.632112,
+              "mean": 65.36188975,
+              "median": 68.5391995
+            }
+          }
+        },
+        "overall": {
+          "admission_overhead_ms": {
+            "count": 12,
+            "max": 19.364619,
+            "mean": 12.538682166666668,
+            "median": 15.356529
+          },
+          "e2e_latency_ms": {
+            "count": 12,
+            "max": 3450.441974,
+            "mean": 2028.8620025833334,
+            "median": 2028.2114110000002
+          },
+          "engine_ttft_ms": {
+            "count": 12,
+            "max": 95.246807,
+            "mean": 57.27418766666667,
+            "median": 54.577761499999994
+          },
+          "queue_wait_ms": {
+            "count": 12,
+            "max": 67.000309,
+            "mean": 29.172634666666667,
+            "median": 28.8930315
+          },
+          "replay_error_ms": {
+            "count": 12,
+            "max": 0.439217,
+            "mean": 0.2346994166666667,
+            "median": 0.1984875
+          },
+          "ttft_ms": {
+            "count": 12,
+            "max": 114.611426,
+            "mean": 69.81286983333332,
+            "median": 68.5391995
+          }
+        }
+      },
+      "request_count": 12,
+      "run_id": "dev-baseline-20260920T120528200142Z-e897d924",
+      "runner_exit_code": 0,
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+      "valid": true
+    }
+  ],
+  "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+  "trial_count": 3,
+  "warning": "Four requests per class; diagnostics do not establish statistical performance claims."
+}

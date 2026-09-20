@@ -2,21 +2,20 @@
 
 ## Task ID
 
-REPLAY-002
+BASELINE-001
 
 ## Title
 
-Integrate timed trace replay with nano-vLLM and lifecycle telemetry.
+Characterize the reproducibility of the development baseline.
 
 ## Goal
 
-Connect the validated request replay layer to the instrumented nano-vLLM
-engine while preserving request arrival timing independently from blocking GPU
-engine steps.
+Run repeated development experiments using the unchanged nano-vLLM baseline
+scheduler and establish a reproducible baseline result format.
 
-This is an integration task for the existing baseline scheduler.
+This is not the final formal benchmark.
 
-Do not implement a new scheduling policy.
+Do not implement or change any scheduling policy.
 
 ## Required Reads
 
@@ -24,116 +23,77 @@ Read:
 
 - AGENTS.md
 - PROJECT_STATE.md
-- docs/architecture.md
 - docs/trace-spec.md
 - docs/telemetry-spec.md
-- scripts/replay_trace.py
-- nanovllm/telemetry.py
+- scripts/run_replay.py
 - workloads/dev_trace.jsonl
 
-Inspect the current engine API before implementation.
+## Baseline Invariants
 
-## Architecture Requirement
+All measured runs must use the same:
 
-Use two roles:
+- Qwen3-0.6B model and revision
+- dev trace
+- trace SHA256
+- engine configuration
+- generation configuration
+- baseline scheduler behavior
 
-1. Replay producer thread
-   - releases requests according to trace arrival_s
-   - never calls nano-vLLM engine methods
-   - places released requests into a thread-safe admission queue
+Do not reorder the waiting queue.
 
-2. Engine coordinator/main thread
-   - exclusively owns LLMEngine
-   - drains the admission queue
-   - calls add_request()
-   - calls engine.step()
-   - collects completed outputs and telemetry
+## Failure / Timeout Handling
 
-Do not call LLMEngine concurrently from multiple threads.
+Before repeated runs, ensure the experiment runner has explicit handling for:
 
-## Shared Clock
+- completed requests
+- failed requests
+- experiment timeout
+- partial results
 
-Use one shared monotonic perf_counter_ns clock domain and one shared t0_ns.
+A failed or timed-out run must:
 
-Replay release timestamps and engine telemetry timestamps must be directly
-comparable.
+- preserve available diagnostic output
+- clearly report incomplete requests
+- not silently count incomplete requests as successful
 
-If useful, extend replay_trace.py to accept an externally supplied t0_ns while
-preserving existing behavior and tests.
+Do not modify nano-vLLM scheduler semantics to implement this.
 
-## Warmup
+## Repeated Runs
 
-Before the formal development replay:
+Execute 3 independent development baseline runs.
 
-- initialize the model/engine
-- run one small warm-up request with telemetry disabled
-- confirm the engine is idle
-- then establish the shared experiment t0_ns
-- enable telemetry
-- run the development trace
+Each run must:
 
-Warm-up data must not appear in the development trace results.
+1. initialize the engine
+2. perform the existing warm-up
+3. exclude warm-up data
+4. replay the exact same dev trace
+5. complete all 12 requests
+6. preserve the trace SHA256
+7. produce a unique run_id
+8. avoid overwriting previous run artifacts
 
-## Replay / Admission Behavior
+Use fresh run output locations.
 
-During engine.step(), the replay producer must remain able to release future
-requests into the admission queue.
+## Run Metadata
 
-After each engine step, the coordinator should admit queued requests before the
-next engine step where practical.
+Record for every run:
 
-When the engine is idle and no request is currently available, avoid a
-high-CPU busy-wait loop.
+- run_id
+- policy = baseline
+- project Git commit
+- pinned upstream commit
+- model identity/revision
+- trace SHA256
+- engine configuration
+- request count
+- completion count
+- timestamp
+- environment identifiers already available from project metadata
 
-Preserve stable trace order for requests released at the same arrival time.
+## Metrics
 
-## Request Identity
-
-Pass the trace request_id through to LLMEngine.add_request().
-
-Use request_id to join:
-
-- trace metadata
-- planned arrival
-- actual release
-- engine telemetry
-- completion/output data
-
-## Development Configuration
-
-Use the existing local Qwen3-0.6B model.
-
-Use a conservative configuration appropriate for the RTX 4050 and the existing
-development trace.
-
-Prefer the previously validated small-context/single-sequence configuration
-unless repository evidence requires a change.
-
-Do not treat this configuration as the frozen formal benchmark.
-
-## Joined Output
-
-Create a joined per-request JSONL record under:
-
-artifacts/replay/
-
-Each completed request record should include at least:
-
-- request_id
-- prompt_class
-- num_prompt_tokens
-- max_new_tokens
-- planned_arrival_s
-- release_s
-- admitted_s
-- first_scheduled_s
-- first_prefill_dispatch_s
-- first_token_s
-- finished_s
-- output_token_count
-- generated text or a concise output field
-
-Compute:
+For each run compute overall diagnostics for:
 
 - replay_error_ms
 - admission_overhead_ms
@@ -142,59 +102,47 @@ Compute:
 - engine_ttft_ms
 - e2e_latency_ms
 
-Use the formulas defined in docs/telemetry-spec.md.
+Also summarize by:
 
-Do not use planned_arrival_s as the primary TTFT/E2E origin.
+- short
+- medium
+- long
 
-## Required Invariants
+Because this is a small 12-request development workload, emphasize:
 
-For every completed request:
+- mean
+- median
+- max
 
-release_s <= admitted_s
-admitted_s <= first_scheduled_s
-first_scheduled_s <= first_prefill_dispatch_s
-first_prefill_dispatch_s <= first_token_s
-first_token_s <= finished_s
+Do not make statistical performance claims from four requests per prompt class.
 
-Token timestamps must be nondecreasing.
+## Cross-Run Reproducibility
 
-All 12 development requests must be accounted for exactly once.
+Compare the three runs.
 
-## CPU Tests
+Verify:
 
-Add tests using a fake/mock engine where useful.
+- identical trace SHA256
+- identical request IDs
+- identical request metadata
+- 12/12 completions in each run
+- all lifecycle invariants hold
 
-Include a test that simulates a blocking engine step and verifies the replay
-producer can still release a later request while the engine coordinator is
-blocked.
+Summarize run-to-run variation in the key latency metrics.
 
-Also test:
+## Output
 
-- request_id joins
-- metric calculations
-- shared t0 behavior
-- no duplicate/lost requests
-- stable same-arrival ordering
+Store raw development run artifacts under a non-overwriting structure such as:
 
-CPU tests must not require the GPU.
+artifacts/baseline/<run_id>/
 
-## GPU Integration Run
+Create:
 
-After CPU tests pass, run the development trace on the existing local
-Qwen3-0.6B engine.
+artifacts/baseline/dev-baseline-summary.json
 
-This run validates integration only.
+The summary must clearly state:
 
-Do not present its latency as formal benchmark results.
-
-Record:
-
-- request count
-- completion count
-- trace SHA256
-- lifecycle invariant result
-- basic diagnostic latency summary
-- any errors/warnings
+development baseline only; not final benchmark data.
 
 ## Restrictions
 
@@ -202,46 +150,43 @@ Do not:
 
 - implement short_prompt
 - implement aging
-- change waiting queue ordering
-- change running queue ordering
-- change KV-cache policy
-- change model execution or sampling semantics
-- change dependency versions
-- download another model
+- change scheduler ordering
+- change KV-cache behavior
+- change model execution
+- change dependencies
+- change the development trace
+
+Avoid modifying nanovllm/ unless required to fix a demonstrated telemetry bug.
+If such a bug is found, stop and report it before changing core source.
 
 ## Validation
+
+Run relevant CPU tests.
 
 Run:
 
 git diff --check
 git status --short
 
-Run relevant CPU tests and the development GPU integration.
-
-Review any nanovllm/ diff carefully.
-
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- REPLAY-002 completion
-- integration architecture
-- tests run
-- GPU development replay result
+- BASELINE-001 completion
+- baseline run count
+- reproducibility result
 - next recommended task
 
 ## Acceptance Criteria
 
-- replay timing remains independent of blocking engine steps
-- only the coordinator thread calls LLMEngine
-- replay and telemetry share one clock/t0
-- all 12 requests complete exactly once
-- joined timing records are produced
-- lifecycle invariants hold
-- metric formulas match telemetry spec
-- CPU tests pass
-- GPU integration passes
-- baseline scheduler semantics remain unchanged
+- 3 independent baseline runs complete
+- each run completes 12/12 requests
+- trace SHA256 is identical across runs
+- scheduler semantics remain unchanged
+- run artifacts are not overwritten
+- failure/timeout handling is explicit
+- per-class summaries exist
+- cross-run variation is reported
 - git diff --check passes
 
 Do not create a Git commit.
@@ -250,14 +195,13 @@ Do not create a Git commit.
 
 Report:
 
-- integration architecture
-- shared clock/t0 design
-- files modified
-- CPU test count/results
-- GPU request/completion count
+- run IDs
+- completion counts
 - trace SHA256
-- example joined request record
-- latency diagnostics
-- invariant results
-- warnings/errors
+- engine configuration
+- overall metrics by run
+- per-class diagnostics
+- cross-run variation
+- failure/timeout behavior
+- files modified
 - recommended next step

@@ -5,9 +5,9 @@ Last updated: 2026-09-20
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001/002 and TELEMETRY-001/002 complete. Baseline producer-thread replay
-and coordinator-owned engine integration passed 35 CPU tests and the 12-request
-conservative GPU development replay.
+REPLAY-001/002, TELEMETRY-001/002 and BASELINE-001 complete. Three independent
+baseline development trials each completed 12/12 requests with the unchanged
+trace, model, configuration and scheduler. These are not formal benchmark data.
 
 ## Current Git Branch
 
@@ -61,6 +61,11 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- BASELINE-001 completed: scripts/run_replay.py now enforces a coordinator observation deadline, records partial request outcomes on failure/timeout, and durably checkpoints progress after completed batches. scripts/run_baseline_trials.py launches three fresh engine processes with separate warmups, unique run IDs/directories and a process watchdog for GPU steps that do not return. Hard process termination uses the last durable snapshot; unknown terminal times stay null and incomplete requests are explicitly failed, never counted as completed.
+- Final accepted trials: dev-baseline-20260920T120738893837Z-bdd3f160, dev-baseline-20260920T120752251324Z-85cfca31, dev-baseline-20260920T120806449035Z-1c3c4440. Each completed 12/12 with no observed errors/warnings. CPU suite: 38/38 passed. Trace SHA256 was identical: 28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041. Model/tokenizer revision, engine/sampling options, project/upstream commits, request IDs/metadata and lifecycle checks were identical/valid. Baseline scheduler and development trace were unchanged.
+- Final run mean milliseconds: TTFT 65.778/62.248/57.202; E2E 1960.832/1941.339/1939.483; queue wait 27.865/25.155/26.779. Range of run means: TTFT 8.577 ms, E2E 21.349 ms, queue wait 2.710 ms. All six metrics have mean/median/max by run and prompt class (n=4/class) in artifacts/baseline/dev-baseline-summary.json. These values describe small development runs only and support no statistical performance claim.
+- An initial three trial set was preserved with its exact runner source and summary under artifacts/baseline after a correction to hard-crash terminal semantics. The final accepted three use the current runner source; per-run source hashes match. No prior run directory was overwritten.
 
 - REPLAY-002 completed: scripts/run_replay.py connects the independent arrival producer through an unbounded thread-safe FIFO admission queue to the sole engine coordinator. Queued arrivals are admitted before the next step; idle coordinator blocks on Queue.get(). No nanovllm source or baseline ordering changed.
 - Replay and engine telemetry use the same perf_counter_ns clock and t0_ns. One four-token warmup runs with telemetry disabled before establishing t0; warmup is excluded from joined results. The existing replay API retains default behavior and gains an optional external origin/release hook and cooperative cancellation.
@@ -131,25 +136,15 @@ Ubuntu 24.04
 
 ## In Progress
 
-Initial single-request inference, architecture analysis, trace implementation
-and CPU arrival replay are complete. Engine-side telemetry is instrumented and
-validated on one GPU request; replay-to-engine integration, full experiment
-record assembly and broader workload validation remain pending.
-No formal performance experiment has run.
-Evidence: artifacts/environment/smoke-single-request.txt.
-Reusable entry point: scripts/smoke_single_request.py.
+No formal performance experiment has run. The development baseline is characterized;
+formal workload/configuration and policy tasks await separate scope.
 
 ## Not Started
 
-- full nano-vLLM integration validation
-- replay-to-engine integration
-- full experiment telemetry assembly (replay/engine join, failures and timeout finalization)
-- scheduling policies
-- scheduling-policy tests (trace, CPU replay and engine telemetry tests are implemented)
-- formal workloads
-- experiments
-- analysis
-- report
+- formal workload and experiment definition
+- short_prompt and aged_short_prompt policies and tests
+- formal experiments and offline analysis
+- final report
 
 ## Known Issues
 
@@ -344,11 +339,10 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, specify and implement failure/timeout finalization
-for incomplete replay captures, then define and validate the formal baseline
-workload/configuration before policy comparisons. Preserve release-based TTFT/E2E,
-the validated dependency stack and baseline scheduling semantics. The current
-12-request, single-sequence integration run is not a frozen formal benchmark.
+In a separately scoped task, freeze a formal workload and comparison protocol,
+including timeout/cohort definitions and instrumentation overhead assessment,
+before evaluating any new waiting-queue policy. Preserve the pinned model,
+trace evidence, existing baseline semantics and all development artifacts.
 
 ## SMOKE-001 Attempt
 

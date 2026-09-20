@@ -1,0 +1,237 @@
+{
+  "capture_outcome": "completed",
+  "clock": "time.perf_counter_ns",
+  "clock_origin": "after engine initialization and one telemetry-disabled warmup",
+  "clock_resolution_s": 1e-09,
+  "completion_count": 12,
+  "dirty": true,
+  "engine_config": {
+    "enforce_eager": true,
+    "gpu_memory_utilization": 0.6,
+    "max_model_len": 256,
+    "max_num_batched_tokens": 256,
+    "max_num_seqs": 1,
+    "tensor_parallel_size": 1
+  },
+  "environment": {
+    "cuda_runtime": "12.4",
+    "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "torch": "2.6.0+cu124"
+  },
+  "finished_at_utc": "2026-09-20T12:08:05.816014+00:00",
+  "hard_timeout": false,
+  "hard_timeout_s": 150,
+  "incomplete_request_ids": [],
+  "latency_diagnostics_ms": {
+    "by_prompt_class": {
+      "long": {
+        "admission_overhead_ms": {
+          "count": 4,
+          "max": 19.214909,
+          "mean": 15.6588805,
+          "median": 14.867849
+        },
+        "e2e_latency_ms": {
+          "count": 4,
+          "max": 3298.727956,
+          "mean": 2046.0230617500001,
+          "median": 1791.408066
+        },
+        "engine_ttft_ms": {
+          "count": 4,
+          "max": 73.09847,
+          "mean": 44.84669625,
+          "median": 40.5647685
+        },
+        "queue_wait_ms": {
+          "count": 4,
+          "max": 46.854219,
+          "mean": 18.5065755,
+          "median": 13.5751805
+        },
+        "replay_error_ms": {
+          "count": 4,
+          "max": 0.139442,
+          "mean": 0.12573800000000002,
+          "median": 0.125424
+        },
+        "ttft_ms": {
+          "count": 4,
+          "max": 86.783385,
+          "mean": 60.50557675,
+          "median": 56.631406
+        }
+      },
+      "medium": {
+        "admission_overhead_ms": {
+          "count": 4,
+          "max": 19.212098,
+          "mean": 8.548988750000001,
+          "median": 7.462985000000001
+        },
+        "e2e_latency_ms": {
+          "count": 4,
+          "max": 2612.182194,
+          "mean": 1481.42054625,
+          "median": 1419.323388
+        },
+        "engine_ttft_ms": {
+          "count": 4,
+          "max": 78.930661,
+          "mean": 56.711916,
+          "median": 61.696891
+        },
+        "queue_wait_ms": {
+          "count": 4,
+          "max": 54.045937,
+          "mean": 32.419968,
+          "median": 37.8012835
+        },
+        "replay_error_ms": {
+          "count": 4,
+          "max": 0.296183,
+          "mean": 0.21563374999999999,
+          "median": 0.2199605
+        },
+        "ttft_ms": {
+          "count": 4,
+          "max": 93.797626,
+          "mean": 65.26090475,
+          "median": 71.3324425
+        }
+      },
+      "short": {
+        "admission_overhead_ms": {
+          "count": 4,
+          "max": 19.210638,
+          "mean": 11.6587845,
+          "median": 13.681875999999999
+        },
+        "e2e_latency_ms": {
+          "count": 4,
+          "max": 2987.136857,
+          "mean": 2296.57334775,
+          "median": 2483.6233819999998
+        },
+        "engine_ttft_ms": {
+          "count": 4,
+          "max": 75.994559,
+          "mean": 49.3183085,
+          "median": 48.898241999999996
+        },
+        "queue_wait_ms": {
+          "count": 4,
+          "max": 49.449242,
+          "mean": 24.53905,
+          "median": 24.3400085
+        },
+        "replay_error_ms": {
+          "count": 4,
+          "max": 0.299372,
+          "mean": 0.17194700000000002,
+          "median": 0.1368255
+        },
+        "ttft_ms": {
+          "count": 4,
+          "max": 76.055307,
+          "mean": 60.977092999999996,
+          "median": 65.343361
+        }
+      }
+    },
+    "overall": {
+      "admission_overhead_ms": {
+        "count": 12,
+        "max": 19.214909,
+        "mean": 11.95555125,
+        "median": 14.275028500000001
+      },
+      "e2e_latency_ms": {
+        "count": 12,
+        "max": 3298.727956,
+        "mean": 1941.3389852500002,
+        "median": 1947.609779
+      },
+      "engine_ttft_ms": {
+        "count": 12,
+        "max": 78.930661,
+        "mean": 50.29230691666667,
+        "median": 50.234525500000004
+      },
+      "queue_wait_ms": {
+        "count": 12,
+        "max": 54.045937,
+        "mean": 25.155197833333332,
+        "median": 24.8601395
+      },
+      "replay_error_ms": {
+        "count": 12,
+        "max": 0.299372,
+        "mean": 0.17110625000000002,
+        "median": 0.133196
+      },
+      "ttft_ms": {
+        "count": 12,
+        "max": 93.797626,
+        "mean": 62.24785816666667,
+        "median": 64.662394
+      }
+    }
+  },
+  "lifecycle_invariants": "passed",
+  "metadata_sha256": "ff239cf2ef5fab30652fd385ebbd0b3f945e6e3a4ad05f5c8cd7943cc6917131",
+  "mode": "development-baseline-only",
+  "model": {
+    "files_sha256": {
+      "config.json": "660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+      "model.safetensors": "f47f71177f32bcd101b7573ec9171e6a57f4f4d31148d38e382306f42996874b"
+    },
+    "repository": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca"
+  },
+  "observation_end_s": 4.052772962,
+  "policy": "baseline",
+  "project_commit": "6f73601dd96fc38752ed23f23c8278217b12fc0d",
+  "request_count": 12,
+  "run_id": "dev-baseline-20260920T120752251324Z-85cfca31",
+  "runner_exit_code": 0,
+  "sampling": {
+    "ignore_eos": false,
+    "inference_seed": 42,
+    "temperature": 0.6
+  },
+  "source_sha256": {
+    "nanovllm/telemetry.py": "9cdc4d404b6e69922ca432f5099ba01ca09a53bc5c5684b70fee1306e1f5ca2c",
+    "scripts/replay_trace.py": "c0482d74350eaffd9401ca92e34aae0f4112a9a3e82fda31f6e459512b633963",
+    "scripts/run_replay.py": "711bbcdc7c5d5108cfabf56d2a8dad849703f5ad491b6796047eddd26e93cdca"
+  },
+  "started_at_utc": "2026-09-20T12:07:56.234027+00:00",
+  "t0_ns": 33958044786497,
+  "timeout_s": 90.0,
+  "timing_note": "Host/OS and GIL scheduling affect release; development data, not final benchmark.",
+  "tokenizer": {
+    "class": "Qwen2TokenizerFast",
+    "files_sha256": {
+      "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "repository": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "tokenizers_version": "0.22.2",
+    "transformers_version": "4.57.6"
+  },
+  "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+  "tracked_diff_sha256": "f76fbda90db79346647fd0c073fd56fa0787b08a557c41232d9ffe964b58755a",
+  "upstream_commit": "bb823b3e06983d71485a8e1f23715ebd87d98ef8",
+  "warmup": {
+    "cache_state": "engine constructor plus one request warmup",
+    "max_new_tokens": 4,
+    "output_tokens": 4,
+    "requests": 1,
+    "telemetry_enabled": false
+  }
+}

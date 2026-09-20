@@ -150,6 +150,50 @@ class EngineReplayTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.run_fake(FakeEngine(),rows)
 
+    def test_timeout_preserves_completed_and_marks_other_requests(self):
+        rows=requests()
+        rows[-1]['arrival_s']=Decimal('10')
+        engine=FakeEngine()
+        captured={}
+        with self.assertRaises(TimeoutError):
+            self.runner.run_replay(engine,rows,{r['request_id']:[1]*32 for r in rows},
+                 {r['request_id']:object() for r in rows},timeout_s=0.1,
+                 on_abort=lambda error,result: captured.update(error=error,result=result))
+        result=captured['result'];result['timeout_s']=0.1
+        joined=self.runner.partial_records(rows,result,{},'timeout-test',9,lambda ids:'answer','timed_out')
+        self.assertEqual(len(joined),3)
+        self.assertEqual([r['status'] for r in joined],['completed','completed','timed_out'])
+        self.assertIsNone(joined[-1]['release_s'])
+        self.assertIsNone(joined[-1]['e2e_latency_ms'])
+        self.assertEqual(joined[-1]['missing_reasons']['release_s'],'not_released')
+
+    def test_step_failure_preserves_partial_capture(self):
+        class FailAfterOne(FakeEngine):
+            def step(self):
+                if self.rows and any(r['status']=='completed' for r in self.rows.values()):
+                    raise RuntimeError('simulated engine failure')
+                return super().step()
+        captured={}
+        with self.assertRaisesRegex(RuntimeError,'simulated engine failure'):
+            self.runner.run_replay(FailAfterOne(),requests(),
+                {r['request_id']:[1]*32 for r in requests()},
+                {r['request_id']:object() for r in requests()},
+                on_abort=lambda error,result: captured.update(error=error,result=result))
+        joined=self.runner.partial_records(requests(),captured['result'],{},'failed-test',9,
+                                          lambda ids:'answer','failed')
+        self.assertEqual(len(joined),3)
+        self.assertEqual(joined[0]['status'],'completed')
+        self.assertEqual(sum(r['status']=='failed' for r in joined),2)
+        self.assertTrue(all(r['e2e_latency_ms'] is None for r in joined[1:]))
+
+    def test_crashed_capture_does_not_invent_terminal_time(self):
+        result=dict(t0_ns=None,observation_end_s=0.0,releases={},telemetry={},outputs={})
+        joined=self.runner.partial_records(requests(),result,{},'crash-test',None,str,'crashed')
+        self.assertEqual(len(joined),3)
+        self.assertTrue(all(r['status']=='failed' and r['terminal_s'] is None for r in joined))
+        self.assertTrue(all(r['missing_reasons']['terminal_s']=='capture_lost' for r in joined))
+        self.assertTrue(all(r['e2e_latency_ms'] is None for r in joined))
+
     def test_join_rejects_missing_output_and_clock_mismatch(self):
         rows=requests();result=self.run_fake(FakeEngine(),rows)
         bad=copy.deepcopy(result);bad['outputs'].pop(900)

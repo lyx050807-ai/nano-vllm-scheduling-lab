@@ -230,17 +230,14 @@ def partial_records(requests, result, identity, run_id, eos_token_id, decode, ou
         values = {name:(t if t is not None and t <= cutoff else None) for name,t in values.items()}
         values['first_token_s'] = times[0] if times else None
         status = 'timed_out' if outcome == 'timed_out' else 'failed'
-        crashed = outcome == 'crashed'
         missing = {name:('not_released' if name == 'release_s' else 'not_observed_before_cutoff')
                    for name,value in values.items() if value is None}
         missing['finished_s'] = 'not_successfully_finished'
-        if crashed:
-            missing['terminal_s'] = 'capture_lost'
         row = dict(schema_version='request-telemetry-v1',run_id=run_id,request_id=rid,
                    policy='baseline',prompt_class=request['prompt_class'],**identity,
                    engine_seq_id=seq_id,num_prompt_tokens=request['num_prompt_tokens'],
                    max_new_tokens=request['max_new_tokens'],planned_arrival_s=float(request['arrival_s']),
-                   **values,finished_s=None,terminal_s=None if crashed else cutoff,observation_end_s=cutoff,
+                   **values,finished_s=None,terminal_s=cutoff,observation_end_s=cutoff,
                    token_times_s=times,observed_output_tokens=len(times),status=status,
                    reason='experiment_timeout' if status=='timed_out' else 'run_aborted',
                    capture_complete=False,missing_reasons=missing,output_token_count=None,
@@ -343,7 +340,7 @@ def main():
         manifest = dict(summary,started_at_utc=started_at,finished_at_utc=datetime.now(timezone.utc).isoformat(),
                         clock='time.perf_counter_ns',clock_resolution_s=1e-9,
                         clock_origin='after engine initialization and one telemetry-disabled warmup',
-                        t0_ns=result['t0_ns'],observation_end_s=min(result['observation_end_s'],args.timeout_s) if outcome=='timed_out' else result['observation_end_s'],
+                        t0_ns=result['t0_ns'],observation_end_s=result['observation_end_s'],
                         engine_config=OPTIONS,model=meta['model'],tokenizer=meta['tokenizer'],
                         sampling=meta['sampling'],environment=dict(python=platform.python_version(),
                         platform=platform.platform(),torch=torch.__version__,cuda_runtime=torch.version.cuda,
