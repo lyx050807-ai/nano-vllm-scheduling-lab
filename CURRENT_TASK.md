@@ -2,19 +2,22 @@
 
 ## Task ID
 
-BENCH-002
+POLICY-001
 
 ## Title
 
-Generate and validate the frozen formal benchmark traces.
+Design the waiting-request scheduling policy abstraction.
 
 ## Goal
 
-Materialize the formal benchmark traces defined by docs/benchmark-protocol.md
-and verify that the unchanged baseline engine can safely execute the formal
-60-request workload before any scheduling policy is implemented.
+Design a minimal policy abstraction that allows the pinned nano-vLLM scheduler
+to select waiting requests using:
 
-Do not implement short_prompt or aging.
+- baseline
+- future short_prompt
+- future aged_short_prompt
+
+Do not implement the policies yet.
 
 ## Required Reads
 
@@ -22,134 +25,155 @@ Read:
 
 - AGENTS.md
 - PROJECT_STATE.md
+- docs/architecture.md
 - docs/benchmark-protocol.md
-- docs/trace-spec.md
-- docs/telemetry-spec.md
-- scripts/make_trace.py
-- scripts/run_replay.py
+- nanovllm/engine/scheduler.py
+- nanovllm/engine/sequence.py
+- nanovllm/config.py
 
-## Formal Traces
+Inspect the exact current scheduling loop before proposing the design.
 
-Generate one formal trace for each frozen seed:
+## Baseline Requirement
 
-- 101
-- 202
-- 303
+The default baseline policy must reproduce the current scheduler behavior
+exactly.
 
-Each trace must contain exactly:
+No configuration change should alter existing behavior unless a non-baseline
+policy is explicitly selected.
 
-- 20 short requests
-- 20 medium requests
-- 20 long requests
-- 60 total requests
+## Policy Scope
 
-Use the frozen prompt lengths, generation limits, and arrival design from
-docs/benchmark-protocol.md.
+The policy abstraction should control only:
 
-Do not change the protocol to improve scheduler performance.
+which waiting request is selected as the next candidate for admission/prefill.
 
-## Trace Artifacts
+It must not control:
 
-Store formal traces under workloads/ using clear names such as:
+- running request ordering
+- decode scheduling
+- KV-cache allocation
+- block-manager behavior
+- model execution
+- sampling
+- preemption
 
-- formal_trace_seed101.jsonl
-- formal_trace_seed202.jsonl
-- formal_trace_seed303.jsonl
+## Short-Prompt Semantics
 
-Store matching metadata sidecars.
+Define future short_prompt as:
 
-For every trace record:
+Select the waiting request with the smallest num_prompt_tokens.
 
-- seed
-- request count
-- class counts
-- tokenizer/model revision
-- trace version
-- SHA256
+For equal prompt lengths, preserve original waiting/arrival order.
 
-## Determinism Validation
+Do not use:
 
-For every seed:
+- actual output length
+- future completion information
+- generated-token count from the future
 
-1. regenerate the trace independently
-2. verify byte-for-byte equality
-3. verify identical SHA256
-4. run the existing trace validator
+## Selection vs Sorting
 
-Confirm different seeds produce different intended stochastic ordering.
+Prefer a candidate-selection abstraction rather than permanently sorting the
+entire waiting deque.
 
-## CPU Validation
+Analyze:
 
-Run all existing trace/replay/telemetry CPU tests.
+- current deque behavior
+- O(n) minimum selection
+- arbitrary candidate removal
+- stable tie-breaking
+- interaction with existing feasibility checks
 
-Confirm formal traces satisfy:
+## Resource-Check Semantics
 
-- unique request IDs
-- nondecreasing arrivals
-- stable same-arrival ordering
-- exact tokenizer-derived prompt lengths
-- context safety
-- valid generation limits
+Preserve the existing scheduler's allocation/budget checks after candidate
+selection.
 
-## Baseline Capacity Check
+Do not add a new policy that scans for another request after the selected
+candidate fails an existing allocation/resource check unless the current
+baseline already does so.
 
-Using the unchanged baseline scheduler, run one development/calibration GPU
-execution for each formal trace.
+The first short_prompt implementation should change priority, not introduce a
+separate resource-aware scheduling algorithm.
 
-This is capacity validation only, not a formal measured benchmark.
+## Future Aging Compatibility
 
-For each seed verify:
+The abstraction must be extendable to aged_short_prompt later.
 
-- 60/60 requests accounted for
-- 60/60 requests complete
-- no OOM
-- no experiment timeout
-- no lifecycle invariant violation
-- no duplicate or missing request IDs
-- trace SHA256 matches the formal trace
+Identify what scheduler-owned information aging will require.
 
-## Queue-Contention Check
+Do not make future aging depend on telemetry being enabled.
 
-Confirm the workload creates meaningful waiting-queue contention.
+Telemetry is measurement infrastructure, not scheduler state.
 
-Report diagnostics such as:
+## Configuration Design
 
-- requests with queue_wait_ms > 0
-- mean/median/max queue_wait_ms
-- maximum observed backlog if available
-- short/medium/long queue-wait summaries
+Propose how policy selection should be configured.
 
-Do not tune the workload based on future policy performance.
+Expected conceptual values:
 
-If the frozen load fails capacity or creates effectively no scheduling
-contention, stop and report the evidence before changing the protocol.
+- baseline
+- short_prompt
+- aged_short_prompt
 
-## Artifact Separation
+The default must remain baseline.
 
-Clearly mark these GPU runs as:
+Invalid policy values should fail clearly.
 
-capacity/calibration only
+Do not implement configuration changes yet.
 
-Do not mix them with future formal benchmark measurements.
+## Invariants
 
-Store them under a separate calibration directory.
+Document invariants including:
+
+- baseline reproduces current behavior
+- waiting requests are neither lost nor duplicated
+- stable ordering is preserved for equal priority
+- running queue behavior is unchanged
+- existing resource checks remain authoritative
+- request identity is preserved
+- no future information is used
+
+## Complexity
+
+Document expected candidate-selection complexity for each policy.
+
+For short_prompt, explain why an O(n) scan is sufficient and why globally
+sorting the waiting queue is unnecessary.
+
+## Output
+
+Create:
+
+docs/scheduling-policy-design.md
+
+Include:
+
+1. current baseline selection behavior
+2. proposed policy interface
+3. baseline semantics
+4. short_prompt semantics
+5. stable tie-breaking
+6. selection/removal approach
+7. resource-check interaction
+8. future aging requirements
+9. complexity
+10. invariants
+11. proposed implementation locations
+12. test plan for the implementation task
+
+Include concise pseudocode.
 
 ## Restrictions
 
 Do not:
 
+- modify nanovllm scheduler behavior
 - implement short_prompt
 - implement aging
-- change waiting queue ordering
-- change running queue ordering
-- modify KV-cache policy
-- modify model execution
+- run policy benchmarks
 - change dependencies
-- silently change the frozen benchmark protocol
-
-Avoid modifying nanovllm/.
-
-If a core bug is found, stop and report before changing core source.
+- change formal benchmark traces
 
 ## Validation
 
@@ -158,28 +182,27 @@ Run:
 git diff --check
 git status --short
 
+Confirm nanovllm/ is unchanged.
+
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- BENCH-002 completion
-- formal trace paths and SHA256 hashes
-- baseline capacity results
-- queue-contention result
+- POLICY-001 completion
+- chosen abstraction
 - next recommended task
 
 ## Acceptance Criteria
 
-- all 3 formal traces exist
-- every trace has exactly 60 requests
-- class counts are 20/20/20
-- same-seed regeneration is byte-identical
-- trace hashes are recorded
-- all traces validate
-- baseline completes 60/60 for all three seeds
-- no OOM or timeout occurs
-- workload exhibits meaningful queue contention
-- scheduler semantics remain unchanged
+- policy scope is explicitly limited
+- baseline compatibility is specified
+- short_prompt semantics are unambiguous
+- equal-length tie behavior is defined
+- resource-check semantics are preserved
+- future aging does not depend on telemetry
+- complexity is documented
+- implementation/test locations are identified
+- no scheduler behavior changed
 - git diff --check passes
 
 Do not create a Git commit.
@@ -188,14 +211,14 @@ Do not create a Git commit.
 
 Report:
 
-- formal trace filenames
-- seeds and SHA256 hashes
-- request/class counts
-- determinism results
-- CPU test results
-- per-seed baseline completion
-- per-seed runtime
-- queue-contention diagnostics
-- errors/warnings
-- files created/modified
+- proposed policy interface
+- baseline selection rule
+- short_prompt selection rule
+- tie-breaking rule
+- candidate-removal approach
+- resource-check behavior
+- future aging state requirements
+- complexity
+- proposed files for implementation
+- files modified
 - recommended next step

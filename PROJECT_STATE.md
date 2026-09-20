@@ -5,10 +5,10 @@ Last updated: 2026-09-20
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001/002, TELEMETRY-001/002, BASELINE-001 and BENCH-001/002 complete.
-The formal-mixed-v1 recipe and protocol are frozen, three immutable trace
-packages are registered, and baseline-only capacity/queue-contention checks
-passed for all seeds. No formal policy measurement has run.
+REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
+POLICY-001 complete. The formal-mixed-v1 traces and baseline capacity gate are
+validated. Waiting-request policy abstraction is specified but no policy is
+implemented and no formal policy measurement has run.
 
 ## Current Git Branch
 
@@ -62,6 +62,9 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- POLICY-001 completed as design only: docs/scheduling-policy-design.md specifies a candidate-index selector for the waiting deque. Default baseline remains the exact current head-of-deque/popleft path, including partial prefill, preemption and head-of-line resource failure. Future short_prompt scans waiting requests for minimum original num_prompt_tokens and uses current deque order for stable ties; a selected candidate still goes through the existing allocation/budget checks with no feasibility backfill. Non-head final-prefill removal is proposed without sorting the deque. Future aging needs scheduler-owned monotonic wait state independent of optional telemetry; no formula is chosen.
+- The design limits policy scope to waiting candidate selection, documents O(1) baseline and O(n) scan/deletion complexity, configuration validation, invariants, insertion points and CPU/GPU test plan. No nanovllm source, scheduler behavior, dependencies, formal traces or benchmark results changed. No policy benchmark ran.
 
 - BENCH-002 completed: scripts/make_formal_trace.py generates and validates the frozen formal-mixed-v1 packages without changing the development generator. Each of three traces has 60 requests (20 short, 20 medium, 20 long), exact tokenizer-verified 32/96/192-token prompts, cap 16, and groups of three every 250 ms. Same-seed independent regeneration was byte-identical; all three seed class orders differ. The generic trace validator, strict formal sidecar/recipe validator and replay loader passed; the full CPU suite passed 40/40.
 - Formal trace and sidecar SHA256 pairs registered in docs/benchmark-protocol.md: seed 101 workloads/formal_trace_seed101.jsonl ff3acfd57a153030e76d06af491fed20bd1498db7e12580db345c8bb1ff92ac8 / fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476; seed 202 workloads/formal_trace_seed202.jsonl e3c82a96d5b7295b7e98d4d4884476ddd9cc5ee1701831f4d5e63e8872e94078 / 8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc; seed 303 workloads/formal_trace_seed303.jsonl 8721930601de3f96d23287cef9038a0967f653133987a154ca18ae8e5b4d6866 / af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526.
@@ -148,8 +151,8 @@ Ubuntu 24.04
 ## In Progress
 
 No measured formal performance comparison has run. The three-seed baseline
-capacity gate has passed; policy implementation and its tests require separate
-scope before any measured comparisons.
+capacity gate has passed; the policy abstraction is design-only. Implementation
+and tests require separate scope before any measured comparisons.
 
 ## Not Started
 
@@ -350,10 +353,11 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, implement and CPU-test short_prompt waiting-queue
-selection with unchanged baseline behavior, then validate it against the three
-registered formal trace packages. Do not start measured policy comparisons until
-all three policy implementations and their validation gates are ready.
+In a separately scoped task, implement and CPU-test the POLICY-001 waiting
+candidate interface and short_prompt policy. Preserve default baseline queue,
+resource, decode and preemption behavior exactly. Run the baseline GPU
+regression before any short_prompt GPU experiment; do not implement aging or
+start formal measured comparisons in that task unless explicitly scoped.
 
 ## SMOKE-001 Attempt
 
