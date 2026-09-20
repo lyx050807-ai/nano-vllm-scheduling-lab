@@ -6,9 +6,10 @@ Last updated: 2026-09-20
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001 complete. The formal-mixed-v1 traces and baseline capacity gate are
-validated. Waiting-request policy abstraction is specified but no policy is
-implemented and no formal policy measurement has run.
+POLICY-001/002 complete. The formal-mixed-v1 traces and baseline capacity gate
+are validated. Default baseline and stable short_prompt waiting selection are
+implemented and passed CPU and 12-request GPU functional smoke. Aging and
+formal policy measurement remain unimplemented.
 
 ## Current Git Branch
 
@@ -62,6 +63,10 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- POLICY-002 completed: nanovllm/engine/waiting_policy.py provides a pure O(n) shortest-original-prompt selector with leftmost deque tie-breaking; Config accepts only baseline/short_prompt and defaults to baseline. Scheduler uses the existing index-zero/popleft baseline path and removes a non-head short_prompt candidate only after the existing successful final-prefill check. Allocation/budget failure still breaks without backfill. Running/decode, KV-cache, model/sampling and preemption logic are unchanged; telemetry remains observational.
+- CPU validation: `.venv/bin/python -m unittest discover -s tests -v` passed 51/51 tests. New tests cover default/invalid configuration, baseline trajectory, stable 192/32/96/32 -> 32/32/96/192 selection, non-head removal, no backfill on allocation failure, first-only chunk budget, partial prefill, preempted original prompt length, telemetry independence, unchanged decode ordering, and policy labels in joined records. Existing trace/replay/telemetry tests passed.
+- Development GPU smoke: both baseline and short_prompt completed 12/12 on unchanged workloads/dev_trace.jsonl (SHA256 28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041) using the same engine/generation settings except policy. Both exited 0 without OOM, timeout, lifecycle violation or observed warnings/errors. Final observation durations were 3.974 s baseline and 3.793 s short_prompt; these are functional diagnostics, not performance claims. Baseline first-scheduled order matched trace order. Short_prompt first scheduled dev-000003 (32 tokens) before dev-000001 and dev-000002 (96 tokens); later mixed-length arrival groups also reordered. Full joined records/logs and final order summary: artifacts/policy-smoke/policy002-smoke-final-summary.json and its run directories. An earlier passing smoke pair and its summary are preserved after moving the new Config field to the end to retain positional compatibility. No formal 45-run benchmark was executed.
 
 - POLICY-001 completed as design only: docs/scheduling-policy-design.md specifies a candidate-index selector for the waiting deque. Default baseline remains the exact current head-of-deque/popleft path, including partial prefill, preemption and head-of-line resource failure. Future short_prompt scans waiting requests for minimum original num_prompt_tokens and uses current deque order for stable ties; a selected candidate still goes through the existing allocation/budget checks with no feasibility backfill. Non-head final-prefill removal is proposed without sorting the deque. Future aging needs scheduler-owned monotonic wait state independent of optional telemetry; no formula is chosen.
 - The design limits policy scope to waiting candidate selection, documents O(1) baseline and O(n) scan/deletion complexity, configuration validation, invariants, insertion points and CPU/GPU test plan. No nanovllm source, scheduler behavior, dependencies, formal traces or benchmark results changed. No policy benchmark ran.
@@ -151,8 +156,9 @@ Ubuntu 24.04
 ## In Progress
 
 No measured formal performance comparison has run. The three-seed baseline
-capacity gate has passed; the policy abstraction is design-only. Implementation
-and tests require separate scope before any measured comparisons.
+capacity gate passed; baseline and short_prompt are functionally validated.
+Aged-short-prompt design/implementation and formal measurement orchestration
+remain separately scoped.
 
 ## Not Started
 
@@ -353,11 +359,11 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, implement and CPU-test the POLICY-001 waiting
-candidate interface and short_prompt policy. Preserve default baseline queue,
-resource, decode and preemption behavior exactly. Run the baseline GPU
-regression before any short_prompt GPU experiment; do not implement aging or
-start formal measured comparisons in that task unless explicitly scoped.
+In a separately scoped task, specify and implement aged_short_prompt using
+scheduler-owned causal waiting state independent of telemetry. Preserve the
+validated baseline and short_prompt behavior; run CPU and development GPU
+regressions before any formal 45-run comparison. Formal run metadata should
+also fingerprint policy-selection source and validate policy/config identity.
 
 ## SMOKE-001 Attempt
 

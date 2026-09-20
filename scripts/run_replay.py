@@ -142,7 +142,7 @@ def metrics(row):
             for name,(end,start) in pairs.items()}
 
 
-def join_records(requests, result, identity, run_id, eos_token_id, decode):
+def join_records(requests, result, identity, run_id, eos_token_id, decode, *, policy='baseline'):
     """Join complete records by request ID, then engine seq ID; reject bad captures."""
     ids = [r['request_id'] for r in requests]
     make_trace.require(len(set(ids)) == len(ids) and
@@ -173,7 +173,7 @@ def join_records(requests, result, identity, run_id, eos_token_id, decode):
         capped = len(tokens) == request['max_new_tokens']
         make_trace.require(eos or capped, 'completion lacks EOS/cap stopping condition')
         row.update(schema_version='request-telemetry-v1', run_id=run_id, request_id=request_id,
-                   policy='baseline', prompt_class=request['prompt_class'], **identity,
+                   policy=policy, prompt_class=request['prompt_class'], **identity,
                    planned_arrival_s=float(request['arrival_s']), release_s=release['actual_release_s'],
                    status='completed', reason='eos_and_max_new_tokens' if eos and capped else
                    ('eos' if eos else 'max_new_tokens'), terminal_s=event['finished_s'],
@@ -207,7 +207,8 @@ def diagnostics(rows):
                  for name in ('short','medium','long')})
 
 
-def partial_records(requests, result, identity, run_id, eos_token_id, decode, outcome):
+def partial_records(requests, result, identity, run_id, eos_token_id, decode, outcome,
+                    *, policy='baseline'):
     """Keep observed completed requests; mark every other trace ID explicitly."""
     cutoff = min(result['observation_end_s'], result.get('timeout_s', float('inf')))
     rows = []
@@ -221,7 +222,8 @@ def partial_records(requests, result, identity, run_id, eos_token_id, decode, ou
             subset = dict(result, releases={rid:release}, telemetry={rid:event},
                           outputs={seq_id:result['outputs'][seq_id]})
             inferred_eos = eos_token_id if eos_token_id is not None else result['outputs'][seq_id][-1]
-            rows.extend(join_records([request],subset,identity,run_id,inferred_eos,decode))
+            rows.extend(join_records([request],subset,identity,run_id,inferred_eos,decode,
+                                     policy=policy))
             continue
         times = [t for t in event.get('token_times_s',[]) if t <= cutoff]
         fields = ('release_s','admitted_s','first_scheduled_s','first_prefill_dispatch_s','first_token_s')
@@ -237,7 +239,7 @@ def partial_records(requests, result, identity, run_id, eos_token_id, decode, ou
         if crashed:
             missing['terminal_s'] = 'capture_lost'
         row = dict(schema_version='request-telemetry-v1',run_id=run_id,request_id=rid,
-                   policy='baseline',prompt_class=request['prompt_class'],**identity,
+                   policy=policy,prompt_class=request['prompt_class'],**identity,
                    engine_seq_id=seq_id,num_prompt_tokens=request['num_prompt_tokens'],
                    max_new_tokens=request['max_new_tokens'],planned_arrival_s=float(request['arrival_s']),
                    **values,finished_s=None,terminal_s=None if crashed else cutoff,observation_end_s=cutoff,
@@ -272,8 +274,10 @@ def main():
     parser.add_argument('--run-id', default=None)
     parser.add_argument('--timeout-s', type=float, default=90.0)
     parser.add_argument('--progress', type=Path, default=None)
-    parser.add_argument('--mode', choices=('development-baseline-only', 'capacity-calibration-only'),
+    parser.add_argument('--mode', choices=('development-baseline-only', 'capacity-calibration-only',
+                                           'development-smoke-only'),
                         default='development-baseline-only')
+    parser.add_argument('--policy', choices=('baseline', 'short_prompt'), default='baseline')
     args = parser.parse_args()
     if not math.isfinite(args.timeout_s) or args.timeout_s <= 0:
         parser.error('--timeout-s must be positive and finite')
@@ -292,13 +296,14 @@ def main():
     started_at = datetime.now(timezone.utc).isoformat()
     run_id = args.run_id or ('dev-baseline-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'))
     torch.manual_seed(meta['sampling']['inference_seed'])
-    engine = LLM(str(args.model.resolve()), **OPTIONS)
+    engine_options = dict(OPTIONS, scheduling_policy=args.policy)
+    engine = LLM(str(args.model.resolve()), **engine_options)
     try:
         token_ids = {r['request_id']:engine.tokenizer.encode(r['prompt_text'],
                      add_special_tokens=False,truncation=False) for r in requests}
         for row in requests:
             make_trace.require(len(token_ids[row['request_id']]) == row['num_prompt_tokens'] and
-                               row['num_prompt_tokens']+row['max_new_tokens'] <= OPTIONS['max_model_len'],
+                               row['num_prompt_tokens']+row['max_new_tokens'] <= engine_options['max_model_len'],
                                'engine tokenizer/context mismatch')
         sampling = {r['request_id']:SamplingParams(temperature=float(meta['sampling']['temperature']),
                      max_tokens=r['max_new_tokens'],ignore_eos=meta['sampling']['ignore_eos']) for r in requests}
@@ -323,7 +328,7 @@ def main():
             result = run_replay(engine,requests,token_ids,sampling,timeout_s=args.timeout_s,
                                 on_progress=checkpoint,on_abort=on_abort)
             joined = join_records(requests,result,identity,run_id,engine.tokenizer.eos_token_id,
-                                  engine.tokenizer.decode)
+                                  engine.tokenizer.decode,policy=args.policy)
             outcome = 'completed'
         except BaseException as error:
             if not abort:
@@ -333,12 +338,12 @@ def main():
             if outcome == 'timed_out':
                 result['timeout_s'] = args.timeout_s
             joined = partial_records(requests,result,identity,run_id,engine.tokenizer.eos_token_id,
-                                     engine.tokenizer.decode,outcome)
+                                     engine.tokenizer.decode,outcome,policy=args.policy)
             print(f'Run {run_id} {outcome}: {type(error).__name__}: {error}',flush=True)
 
         completed = sum(r['status']=='completed' for r in joined)
         diagnostic = diagnostics(joined)
-        summary = dict(run_id=run_id,mode=args.mode,policy='baseline',
+        summary = dict(run_id=run_id,mode=args.mode,policy=args.policy,
                        request_count=len(requests),completion_count=completed,
                        incomplete_request_ids=[r['request_id'] for r in joined if r['status']!='completed'],
                        lifecycle_invariants='passed' if outcome=='completed' else 'partial',
@@ -347,7 +352,7 @@ def main():
                         clock='time.perf_counter_ns',clock_resolution_s=1e-9,
                         clock_origin='after engine initialization and one telemetry-disabled warmup',
                         t0_ns=result['t0_ns'],observation_end_s=min(result['observation_end_s'],args.timeout_s) if outcome=='timed_out' else result['observation_end_s'],
-                        engine_config=OPTIONS,model=meta['model'],tokenizer=meta['tokenizer'],
+                        engine_config=engine_options,model=meta['model'],tokenizer=meta['tokenizer'],
                         sampling=meta['sampling'],environment=dict(python=platform.python_version(),
                         platform=platform.platform(),torch=torch.__version__,cuda_runtime=torch.version.cuda,
                         gpu=torch.cuda.get_device_name(0)),

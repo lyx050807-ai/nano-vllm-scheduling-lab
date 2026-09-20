@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from transformers import AutoConfig
+from nanovllm.engine.waiting_policy import validate_policy
 
 
 @dataclass(slots=True)
@@ -16,8 +17,10 @@ class Config:
     eos: int = -1
     kvcache_block_size: int = 256
     num_kvcache_blocks: int = -1
+    scheduling_policy: str = "baseline"
 
     def __post_init__(self):
+        validate_policy(self.scheduling_policy)
         assert os.path.isdir(self.model)
         assert self.kvcache_block_size % 256 == 0
         assert 1 <= self.tensor_parallel_size <= 8

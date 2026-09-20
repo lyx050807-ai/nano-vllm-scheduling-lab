@@ -3,11 +3,13 @@ from collections import deque
 from nanovllm.config import Config
 from nanovllm.engine.sequence import Sequence, SequenceStatus
 from nanovllm.engine.block_manager import BlockManager
+from nanovllm.engine.waiting_policy import choose_waiting_index, validate_policy
 
 
 class Scheduler:
 
     def __init__(self, config: Config):
+        self.scheduling_policy = validate_policy(getattr(config, "scheduling_policy", "baseline"))
         self.max_num_seqs = config.max_num_seqs
         self.max_num_batched_tokens = config.max_num_batched_tokens
         self.eos = config.eos
@@ -31,7 +33,9 @@ class Scheduler:
 
         # prefill
         while self.waiting and len(scheduled_seqs) < self.max_num_seqs:
-            seq = self.waiting[0]
+            index = 0 if self.scheduling_policy == "baseline" else choose_waiting_index(
+                self.waiting, self.scheduling_policy)
+            seq = self.waiting[index]
             remaining = self.max_num_batched_tokens - num_batched_tokens
             if remaining == 0:
                 break
@@ -50,7 +54,10 @@ class Scheduler:
             num_batched_tokens += seq.num_scheduled_tokens
             if seq.num_cached_tokens + seq.num_scheduled_tokens == seq.num_tokens:
                 seq.status = SequenceStatus.RUNNING
-                self.waiting.popleft()
+                if index == 0:
+                    self.waiting.popleft()
+                else:
+                    del self.waiting[index]
                 self.running.append(seq)
             scheduled_seqs.append(seq)
 

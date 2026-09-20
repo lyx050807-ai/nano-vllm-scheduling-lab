@@ -111,6 +111,15 @@ class EngineReplayTests(unittest.TestCase):
         self.assertTrue(all(r['release_s']<=r['admitted_s']<=r['first_scheduled_s']<=
                             r['first_prefill_dispatch_s']<=r['first_token_s']<=r['finished_s'] for r in joined))
 
+    def test_join_records_selected_policy_without_changing_metric_origin(self):
+        rows=requests(); result=self.run_fake(FakeEngine(),rows)
+        joined=self.runner.join_records(rows,result,{},'cpu-short',9,lambda ids:'answer',
+                                        policy='short_prompt')
+        self.assertTrue(all(row['policy']=='short_prompt' for row in joined))
+        for row in joined:
+            self.assertAlmostEqual(row['ttft_ms'],
+                                   1000*(row['first_token_s']-row['release_s']))
+
     def test_metrics_use_release_not_planned_arrival(self):
         row={'planned_arrival_s':0.250,'release_s':0.252,'admitted_s':0.255,
              'first_scheduled_s':0.280,'first_token_s':0.330,'finished_s':0.361}

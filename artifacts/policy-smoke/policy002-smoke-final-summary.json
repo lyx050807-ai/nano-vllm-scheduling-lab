@@ -1,0 +1,58 @@
+{
+  "mode": "development-smoke-only; not benchmark data",
+  "results": [
+    {
+      "capture_outcome": "completed",
+      "completion_count": 12,
+      "directory": "artifacts/policy-smoke/policy002-final-baseline-20260920T140748314497Z",
+      "exit_code": 0,
+      "first_scheduled_order": [
+        "dev-000001",
+        "dev-000002",
+        "dev-000003",
+        "dev-000004",
+        "dev-000005",
+        "dev-000006",
+        "dev-000007",
+        "dev-000008",
+        "dev-000009",
+        "dev-000010",
+        "dev-000011",
+        "dev-000012"
+      ],
+      "hard_timeout": false,
+      "policy": "baseline",
+      "process_wall_s": 13.408675494996714,
+      "request_count": 12,
+      "run_id": "policy002-final-baseline-20260920T140748314497Z",
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041"
+    },
+    {
+      "capture_outcome": "completed",
+      "completion_count": 12,
+      "directory": "artifacts/policy-smoke/policy002-final-short_prompt-20260920T140801723505Z",
+      "exit_code": 0,
+      "first_scheduled_order": [
+        "dev-000003",
+        "dev-000001",
+        "dev-000002",
+        "dev-000006",
+        "dev-000004",
+        "dev-000005",
+        "dev-000008",
+        "dev-000009",
+        "dev-000007",
+        "dev-000010",
+        "dev-000011",
+        "dev-000012"
+      ],
+      "hard_timeout": false,
+      "policy": "short_prompt",
+      "process_wall_s": 12.8638192110011,
+      "request_count": 12,
+      "run_id": "policy002-final-short_prompt-20260920T140801723505Z",
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041"
+    }
+  ],
+  "service_order_changed": true
+}
