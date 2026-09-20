@@ -2,18 +2,19 @@
 
 ## Task ID
 
-BENCH-001
+BENCH-002
 
 ## Title
 
-Freeze the formal benchmark and comparison protocol.
+Generate and validate the frozen formal benchmark traces.
 
 ## Goal
 
-Define the formal workload, repetition, run-order, metadata, timeout, and
-comparison rules before implementing any new scheduling policy.
+Materialize the formal benchmark traces defined by docs/benchmark-protocol.md
+and verify that the unchanged baseline engine can safely execute the formal
+60-request workload before any scheduling policy is implemented.
 
-Do not implement short_prompt or aging in this task.
+Do not implement short_prompt or aging.
 
 ## Required Reads
 
@@ -21,168 +22,117 @@ Read:
 
 - AGENTS.md
 - PROJECT_STATE.md
+- docs/benchmark-protocol.md
 - docs/trace-spec.md
 - docs/telemetry-spec.md
-- artifacts/baseline/dev-baseline-summary.json
 - scripts/make_trace.py
 - scripts/run_replay.py
 
-## Development Baseline Context
+## Formal Traces
 
-The 12-request development trace and BASELINE-001 results are validation data,
-not formal benchmark data.
+Generate one formal trace for each frozen seed:
 
-Use them only to inform safe experiment sizing and infrastructure design.
+- 101
+- 202
+- 303
 
-## Formal Workload Design
-
-Define a formal mixed-length workload with substantially more requests than
-the 12-request development trace.
-
-Target a balanced prompt-class design such as:
+Each trace must contain exactly:
 
 - 20 short requests
 - 20 medium requests
 - 20 long requests
+- 60 total requests
 
-for 60 requests per trace, unless repository/hardware evidence shows this is
-unsafe.
+Use the frozen prompt lengths, generation limits, and arrival design from
+docs/benchmark-protocol.md.
 
-Preserve the existing tokenizer-verified prompt length methodology.
+Do not change the protocol to improve scheduler performance.
 
-Use multiple fixed trace seeds rather than relying on one request ordering.
+## Trace Artifacts
 
-Prefer at least 3 fixed formal trace seeds.
+Store formal traces under workloads/ using clear names such as:
 
-## Load Calibration
+- formal_trace_seed101.jsonl
+- formal_trace_seed202.jsonl
+- formal_trace_seed303.jsonl
 
-Before freezing arrival timing, perform baseline-only calibration if needed.
+Store matching metadata sidecars.
 
-The goal is to create meaningful queue contention while maintaining:
+For every trace record:
 
-- 100% request completion
+- seed
+- request count
+- class counts
+- tokenizer/model revision
+- trace version
+- SHA256
+
+## Determinism Validation
+
+For every seed:
+
+1. regenerate the trace independently
+2. verify byte-for-byte equality
+3. verify identical SHA256
+4. run the existing trace validator
+
+Confirm different seeds produce different intended stochastic ordering.
+
+## CPU Validation
+
+Run all existing trace/replay/telemetry CPU tests.
+
+Confirm formal traces satisfy:
+
+- unique request IDs
+- nondecreasing arrivals
+- stable same-arrival ordering
+- exact tokenizer-derived prompt lengths
+- context safety
+- valid generation limits
+
+## Baseline Capacity Check
+
+Using the unchanged baseline scheduler, run one development/calibration GPU
+execution for each formal trace.
+
+This is capacity validation only, not a formal measured benchmark.
+
+For each seed verify:
+
+- 60/60 requests accounted for
+- 60/60 requests complete
 - no OOM
 - no experiment timeout
-- lifecycle invariants
-- nontrivial waiting-queue behavior
+- no lifecycle invariant violation
+- no duplicate or missing request IDs
+- trace SHA256 matches the formal trace
 
-Do not select a workload based on whether a future scheduling policy performs
-well on it.
+## Queue-Contention Check
 
-Document any calibration procedure and the criteria used before freezing the
-formal workload.
+Confirm the workload creates meaningful waiting-queue contention.
 
-## Comparison Protocol
+Report diagnostics such as:
 
-Define the future comparison for:
+- requests with queue_wait_ms > 0
+- mean/median/max queue_wait_ms
+- maximum observed backlog if available
+- short/medium/long queue-wait summaries
 
-- baseline
-- short_prompt
-- aged_short_prompt
+Do not tune the workload based on future policy performance.
 
-Every policy must use identical:
+If the frozen load fails capacity or creates effectively no scheduling
+contention, stop and report the evidence before changing the protocol.
 
-- model and revision
-- trace and trace SHA256
-- generation configuration
-- engine configuration
-- prompt contents
-- arrival schedule
-- output limits
+## Artifact Separation
 
-Use paired comparisons by trace seed.
+Clearly mark these GPU runs as:
 
-Plan at least 5 repeated runs per policy/trace combination for the final
-benchmark unless later runtime evidence justifies a documented change.
+capacity/calibration only
 
-## Run Order
+Do not mix them with future formal benchmark measurements.
 
-Do not always run all baseline trials first and all policy trials later.
-
-Define a rotated or randomized run order so GPU thermal/power drift is less
-likely to systematically favor one policy.
-
-Each measured run must use the same warm-up procedure.
-
-## Metrics
-
-Primary:
-
-- TTFT
-- queue_wait
-- E2E latency
-
-Secondary:
-
-- engine TTFT
-- admission overhead
-- ITL
-- completion rate
-- throughput
-
-Report overall results and results by:
-
-- short
-- medium
-- long
-
-Include both central tendency and tail behavior where sample size supports it.
-
-Do not make inferential/statistical claims from the 12-request development
-baseline.
-
-## Fairness
-
-Define long-request fairness diagnostics.
-
-The protocol must be able to detect whether short-request improvements cause:
-
-- increased long-request queue wait
-- increased long-request TTFT
-- increased long-request E2E
-- starvation or near-starvation
-
-## Timeout / Failure Rules
-
-Freeze explicit rules for:
-
-- experiment timeout
-- request failure
-- incomplete request
-- OOM
-- partial artifact preservation
-
-Failed runs must not silently enter the successful performance summary.
-
-## Reproducibility Metadata
-
-Every formal run must record:
-
-- project Git commit
-- upstream commit
-- model revision
-- trace SHA256
-- trace seed
-- policy
-- engine configuration
-- generation configuration
-- run ID
-- environment metadata
-- completion count
-
-## Output
-
-Create:
-
-docs/benchmark-protocol.md
-
-If formal trace-generation changes are required, document them but do not
-implement scheduling policies.
-
-Clearly distinguish:
-
-- development validation workload
-- formal benchmark workload
+Store them under a separate calibration directory.
 
 ## Restrictions
 
@@ -190,13 +140,16 @@ Do not:
 
 - implement short_prompt
 - implement aging
-- modify scheduler ordering
-- modify KV-cache behavior
+- change waiting queue ordering
+- change running queue ordering
+- modify KV-cache policy
 - modify model execution
 - change dependencies
+- silently change the frozen benchmark protocol
 
-If calibration discovers a hardware or infrastructure blocker, report it
-rather than silently weakening the protocol.
+Avoid modifying nanovllm/.
+
+If a core bug is found, stop and report before changing core source.
 
 ## Validation
 
@@ -205,29 +158,28 @@ Run:
 git diff --check
 git status --short
 
-Confirm baseline scheduler semantics remain unchanged.
-
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- BENCH-001 completion
-- frozen comparison protocol
-- formal workload plan
+- BENCH-002 completion
+- formal trace paths and SHA256 hashes
+- baseline capacity results
+- queue-contention result
 - next recommended task
 
 ## Acceptance Criteria
 
-- formal workload design is specified
-- fixed trace seeds are specified
-- repetition count is specified
-- policy run ordering is controlled
-- warm-up procedure is fixed
-- metrics are fixed
-- fairness metrics are fixed
-- timeout/failure rules are fixed
-- reproducibility metadata is fixed
-- no scheduling policy is implemented
+- all 3 formal traces exist
+- every trace has exactly 60 requests
+- class counts are 20/20/20
+- same-seed regeneration is byte-identical
+- trace hashes are recorded
+- all traces validate
+- baseline completes 60/60 for all three seeds
+- no OOM or timeout occurs
+- workload exhibits meaningful queue contention
+- scheduler semantics remain unchanged
 - git diff --check passes
 
 Do not create a Git commit.
@@ -236,13 +188,14 @@ Do not create a Git commit.
 
 Report:
 
-- formal request count/classes
-- trace seeds
-- arrival/load design
-- repetition plan
-- run-order design
-- metrics
-- fairness diagnostics
-- timeout/failure rules
-- files modified
+- formal trace filenames
+- seeds and SHA256 hashes
+- request/class counts
+- determinism results
+- CPU test results
+- per-seed baseline completion
+- per-seed runtime
+- queue-contention diagnostics
+- errors/warnings
+- files created/modified
 - recommended next step

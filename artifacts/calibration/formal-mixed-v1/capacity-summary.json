@@ -1,0 +1,149 @@
+{
+  "all_seeds_passed": true,
+  "generated_at_utc": "2026-09-20T13:23:10.562950+00:00",
+  "mode": "capacity/calibration only; not formal benchmark measurements",
+  "profile_id": "formal-mixed-v1",
+  "results": [
+    {
+      "completion_count": 60,
+      "directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/calibration/formal-mixed-v1/capacity-baseline-seed101-20260920T132139286307Z",
+      "gate_passed": true,
+      "gpu_memory_bytes": {
+        "end_allocated": 2630891520,
+        "end_reserved": 2707423232,
+        "peak_allocated": 2636926464,
+        "peak_reserved": 2707423232
+      },
+      "hard_timeout": false,
+      "observation_end_s": 19.374576192,
+      "process_wall_s": 30.339125071004673,
+      "queue_wait": {
+        "at_least_100_ms": 1,
+        "at_least_20_ms": 40,
+        "by_prompt_class": {
+          "long": {
+            "count": 20,
+            "max_ms": 55.424471,
+            "mean_ms": 24.5545075,
+            "median_ms": 23.7322815
+          },
+          "medium": {
+            "count": 20,
+            "max_ms": 225.997117,
+            "mean_ms": 33.0278547,
+            "median_ms": 24.5271155
+          },
+          "short": {
+            "count": 20,
+            "max_ms": 50.456409,
+            "mean_ms": 24.2934383,
+            "median_ms": 24.2628855
+          }
+        },
+        "max_ms": 225.997117,
+        "mean_ms": 27.291933500000003,
+        "median_ms": 24.1871365,
+        "positive_count": 60
+      },
+      "request_count": 60,
+      "run_id": "capacity-baseline-seed101-20260920T132139286307Z",
+      "runner_exit_code": 0,
+      "seed": 101,
+      "trace_sha256": "ff3acfd57a153030e76d06af491fed20bd1498db7e12580db345c8bb1ff92ac8"
+    },
+    {
+      "completion_count": 60,
+      "directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/calibration/formal-mixed-v1/capacity-baseline-seed202-20260920T132210123430Z",
+      "gate_passed": true,
+      "gpu_memory_bytes": {
+        "end_allocated": 2630891520,
+        "end_reserved": 2707423232,
+        "peak_allocated": 2636926464,
+        "peak_reserved": 2707423232
+      },
+      "hard_timeout": false,
+      "observation_end_s": 19.476139905,
+      "process_wall_s": 29.645556757997838,
+      "queue_wait": {
+        "at_least_100_ms": 2,
+        "at_least_20_ms": 40,
+        "by_prompt_class": {
+          "long": {
+            "count": 20,
+            "max_ms": 442.437915,
+            "mean_ms": 49.423398399999996,
+            "median_ms": 25.7342965
+          },
+          "medium": {
+            "count": 20,
+            "max_ms": 109.874008,
+            "mean_ms": 30.138948149999997,
+            "median_ms": 26.1132885
+          },
+          "short": {
+            "count": 20,
+            "max_ms": 54.45752,
+            "mean_ms": 20.33432995,
+            "median_ms": 24.399359500000003
+          }
+        },
+        "max_ms": 442.437915,
+        "mean_ms": 33.29889216666667,
+        "median_ms": 25.3376635,
+        "positive_count": 60
+      },
+      "request_count": 60,
+      "run_id": "capacity-baseline-seed202-20260920T132210123430Z",
+      "runner_exit_code": 0,
+      "seed": 202,
+      "trace_sha256": "e3c82a96d5b7295b7e98d4d4884476ddd9cc5ee1701831f4d5e63e8872e94078"
+    },
+    {
+      "completion_count": 60,
+      "directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/calibration/formal-mixed-v1/capacity-baseline-seed303-20260920T132240265691Z",
+      "gate_passed": true,
+      "gpu_memory_bytes": {
+        "end_allocated": 2630891520,
+        "end_reserved": 2707423232,
+        "peak_allocated": 2636926464,
+        "peak_reserved": 2707423232
+      },
+      "hard_timeout": false,
+      "observation_end_s": 20.054974653,
+      "process_wall_s": 29.783363508002367,
+      "queue_wait": {
+        "at_least_100_ms": 2,
+        "at_least_20_ms": 40,
+        "by_prompt_class": {
+          "long": {
+            "count": 20,
+            "max_ms": 83.848616,
+            "mean_ms": 26.2756707,
+            "median_ms": 25.0883995
+          },
+          "medium": {
+            "count": 20,
+            "max_ms": 52.130445,
+            "mean_ms": 27.82455735,
+            "median_ms": 25.4468965
+          },
+          "short": {
+            "count": 20,
+            "max_ms": 458.790591,
+            "mean_ms": 49.87420035,
+            "median_ms": 25.753473
+          }
+        },
+        "max_ms": 458.790591,
+        "mean_ms": 34.6581428,
+        "median_ms": 25.663968,
+        "positive_count": 60
+      },
+      "request_count": 60,
+      "run_id": "capacity-baseline-seed303-20260920T132240265691Z",
+      "runner_exit_code": 0,
+      "seed": 303,
+      "trace_sha256": "8721930601de3f96d23287cef9038a0967f653133987a154ca18ae8e5b4d6866"
+    }
+  ]
+}

@@ -5,10 +5,10 @@ Last updated: 2026-09-20
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001/002, TELEMETRY-001/002, BASELINE-001 and BENCH-001 complete.
-The formal-mixed-v1 workload recipe and comparison protocol are frozen in
-docs/benchmark-protocol.md. Formal trace packages and capacity checks remain
-pending; no formal policy measurement has run.
+REPLAY-001/002, TELEMETRY-001/002, BASELINE-001 and BENCH-001/002 complete.
+The formal-mixed-v1 recipe and protocol are frozen, three immutable trace
+packages are registered, and baseline-only capacity/queue-contention checks
+passed for all seeds. No formal policy measurement has run.
 
 ## Current Git Branch
 
@@ -62,6 +62,12 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- BENCH-002 completed: scripts/make_formal_trace.py generates and validates the frozen formal-mixed-v1 packages without changing the development generator. Each of three traces has 60 requests (20 short, 20 medium, 20 long), exact tokenizer-verified 32/96/192-token prompts, cap 16, and groups of three every 250 ms. Same-seed independent regeneration was byte-identical; all three seed class orders differ. The generic trace validator, strict formal sidecar/recipe validator and replay loader passed; the full CPU suite passed 40/40.
+- Formal trace and sidecar SHA256 pairs registered in docs/benchmark-protocol.md: seed 101 workloads/formal_trace_seed101.jsonl ff3acfd57a153030e76d06af491fed20bd1498db7e12580db345c8bb1ff92ac8 / fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476; seed 202 workloads/formal_trace_seed202.jsonl e3c82a96d5b7295b7e98d4d4884476ddd9cc5ee1701831f4d5e63e8872e94078 / 8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc; seed 303 workloads/formal_trace_seed303.jsonl 8721930601de3f96d23287cef9038a0967f653133987a154ca18ae8e5b4d6866 / af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526.
+- Baseline-only 60-request calibration used fresh engines, the existing warmup/seed/configuration, 90 s coordinator cutoff and 150 s process watchdog. All seeds completed 60/60, no OOM, timeout, lifecycle violation, duplicate/missing ID or observed warning/error. Observation durations after t0: seed 101 19.375 s, 202 19.476 s, 303 20.055 s; total process wall times 30.339/29.646/29.783 s. Peak Torch allocated/reserved bytes: 2636926464/2707423232 in each run. These are allocator statistics, not whole-device residency.
+- Frozen contention gate passed: each seed had 60/60 positive queue waits and 40/60 >=20 ms; requests >=100 ms were 1/2/2. Queue wait mean/median/max ms: seed 101 27.292/24.187/225.997; seed 202 33.299/25.338/442.438; seed 303 34.658/25.664/458.791. Per-class diagnostics and raw logs/records are in artifacts/calibration/formal-mixed-v1/capacity-summary.json and separate run directories. These are capacity/calibration runs, not measured formal benchmark trials.
+- Only formal trace generation/validation, replay profile dispatch and calibration mode/memory metadata were changed. No nanovllm source, scheduler, KV-cache, model execution, dependency or development trace was changed. No Git commit was created.
 
 - BENCH-001 completed: docs/benchmark-protocol.md freezes formal-mixed-v1 as three 60-request traces (20/class), construction seeds 101/202/303, exact 32/96/192-token prompt recipe, cap 16, groups of three every 250 ms, pinned Qwen3-0.6B revision and conservative engine/sampling settings. The 12-request development trace/results remain separate.
 - Comparison protocol: five repetitions per seed/policy (45 measured runs), three-policy blocks rotated by seed/repetition so each policy occupies each position five times, identical warmup and 30 s between fresh processes. Paired run-level comparisons, primary release-based TTFT/E2E and initial queue wait, secondary ITL/throughput/completion and prespecified long-request fairness are defined. Coordinator timeout 90 s, process watchdog 150 s, partial artifact/failed-run rules and required provenance are fixed.
@@ -141,13 +147,12 @@ Ubuntu 24.04
 
 ## In Progress
 
-No formal performance experiment has run. Formal trace generation, three-seed
-baseline capacity validation and hash registration are the next gates before
-policy implementation or measured comparison.
+No measured formal performance comparison has run. The three-seed baseline
+capacity gate has passed; policy implementation and its tests require separate
+scope before any measured comparisons.
 
 ## Not Started
 
-- formal trace generator/validator and baseline-only capacity gate
 - short_prompt and aged_short_prompt policies and tests
 - formal experiments and offline analysis
 - final report
@@ -345,11 +350,10 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Implement the separately scoped formal-mixed-v1 trace generator/validator,
-register exact trace and sidecar SHA256s, and run baseline-only 60-request
-capacity checks against the frozen BENCH-001 gate. Preserve the development
-trace, baseline scheduler and all previous artifacts. Only after the gate
-passes should short_prompt and aged_short_prompt implementation begin.
+In a separately scoped task, implement and CPU-test short_prompt waiting-queue
+selection with unchanged baseline behavior, then validate it against the three
+registered formal trace packages. Do not start measured policy comparisons until
+all three policy implementations and their validation gates are ready.
 
 ## SMOKE-001 Attempt
 

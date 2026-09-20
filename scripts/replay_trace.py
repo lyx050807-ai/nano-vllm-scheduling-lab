@@ -36,9 +36,17 @@ def load_validated_trace(trace_path, model_dir=ROOT / "models/Qwen3-0.6B"):
     data = path.read_bytes()
     metadata_bytes = path.with_suffix(".meta.json").read_bytes()
     tokenizer, assets = make_trace.load_local_tokenizer(model_dir)
-    records = make_trace.validate_trace_bytes(data, tokenizer)
     metadata = make_trace.strict_json(metadata_bytes.decode("utf-8"))
-    make_trace.validate_metadata(metadata, data, records, assets)
+    make_trace.require(type(metadata) is dict, "trace metadata must be an object")
+    if metadata.get("profile_id") == "formal-mixed-v1":
+        if __package__:
+            from . import make_formal_trace
+        else:
+            import make_formal_trace
+        records, _ = make_formal_trace.validate_package(data, metadata_bytes, tokenizer, assets)
+    else:
+        records = make_trace.validate_trace_bytes(data, tokenizer)
+        make_trace.validate_metadata(metadata, data, records, assets)
     identity = {"trace_sha256": make_trace.sha256(data),
                 "metadata_sha256": make_trace.sha256(metadata_bytes)}
     return records, identity

@@ -272,6 +272,8 @@ def main():
     parser.add_argument('--run-id', default=None)
     parser.add_argument('--timeout-s', type=float, default=90.0)
     parser.add_argument('--progress', type=Path, default=None)
+    parser.add_argument('--mode', choices=('development-baseline-only', 'capacity-calibration-only'),
+                        default='development-baseline-only')
     args = parser.parse_args()
     if not math.isfinite(args.timeout_s) or args.timeout_s <= 0:
         parser.error('--timeout-s must be positive and finite')
@@ -304,6 +306,7 @@ def main():
         warmup = engine.generate([warmup_tokens],SamplingParams(temperature=0.6,max_tokens=4),use_tqdm=False)
         make_trace.require(engine.is_finished() and not engine.get_telemetry(), 'warmup not idle/untracked')
         torch.manual_seed(meta['sampling']['inference_seed'])
+        torch.cuda.reset_peak_memory_stats()
 
         def checkpoint(result):
             if args.progress is not None:
@@ -335,7 +338,7 @@ def main():
 
         completed = sum(r['status']=='completed' for r in joined)
         diagnostic = diagnostics(joined)
-        summary = dict(run_id=run_id,mode='development-baseline-only',policy='baseline',
+        summary = dict(run_id=run_id,mode=args.mode,policy='baseline',
                        request_count=len(requests),completion_count=completed,
                        incomplete_request_ids=[r['request_id'] for r in joined if r['status']!='completed'],
                        lifecycle_invariants='passed' if outcome=='completed' else 'partial',
@@ -348,6 +351,10 @@ def main():
                         sampling=meta['sampling'],environment=dict(python=platform.python_version(),
                         platform=platform.platform(),torch=torch.__version__,cuda_runtime=torch.version.cuda,
                         gpu=torch.cuda.get_device_name(0)),
+                        gpu_memory_bytes=dict(peak_allocated=torch.cuda.max_memory_allocated(),
+                                              peak_reserved=torch.cuda.max_memory_reserved(),
+                                              end_allocated=torch.cuda.memory_allocated(),
+                                              end_reserved=torch.cuda.memory_reserved()),
                         warmup=dict(requests=1,max_new_tokens=4,output_tokens=len(warmup[0]['token_ids']),
                                     telemetry_enabled=False,cache_state='engine constructor plus one request warmup'),
                         project_commit=make_trace.git_output('rev-parse','HEAD').decode().strip(),
@@ -357,7 +364,7 @@ def main():
                                        ('scripts/run_replay.py','scripts/replay_trace.py','nanovllm/telemetry.py')},
                         tracked_diff_sha256=make_trace.sha256(make_trace.git_output('diff','--binary','HEAD')),
                         timeout_s=args.timeout_s,
-                        timing_note='Host/OS and GIL scheduling affect release; development data, not final benchmark.')
+                        timing_note='Host/OS and GIL scheduling affect release; calibration/development data, not final benchmark.')
         make_trace.write_package(args.output,
             ''.join(json.dumps(row,sort_keys=True,allow_nan=False)+'\n' for row in joined).encode(),
             (json.dumps(manifest,sort_keys=True,indent=2,default=float,allow_nan=False)+'\n').encode())
