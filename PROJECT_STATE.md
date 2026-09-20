@@ -5,8 +5,9 @@ Last updated: 2026-09-20
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001 and TELEMETRY-001/002 complete; opt-in engine lifecycle telemetry
-passed CPU tests and the conservative single-request GPU regression.
+REPLAY-001/002 and TELEMETRY-001/002 complete. Baseline producer-thread replay
+and coordinator-owned engine integration passed 35 CPU tests and the 12-request
+conservative GPU development replay.
 
 ## Current Git Branch
 
@@ -60,6 +61,15 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- REPLAY-002 completed: scripts/run_replay.py connects the independent arrival producer through an unbounded thread-safe FIFO admission queue to the sole engine coordinator. Queued arrivals are admitted before the next step; idle coordinator blocks on Queue.get(). No nanovllm source or baseline ordering changed.
+- Replay and engine telemetry use the same perf_counter_ns clock and t0_ns. One four-token warmup runs with telemetry disabled before establishing t0; warmup is excluded from joined results. The existing replay API retains default behavior and gains an optional external origin/release hook and cooperative cancellation.
+- CPU validation: `.venv/bin/python -m unittest discover -s tests -v` passed all 35 tests (8 new integration tests). Coverage includes release during a blocked engine step, exclusive engine ownership, shared origin, stable same-arrival order, exact joins, release-based metric formulas, producer errors and cancellation.
+- GPU validation: `.venv/bin/python scripts/run_replay.py` exited 0; all 12 requests completed exactly once, with lifecycle and nondecreasing token timestamp checks passing. Saved JSONL was independently checked for six metric formulas, trace hash, identity/counts and timestamp ordering. No warnings/errors were observed.
+- Artifacts: artifacts/replay/dev_engine_replay.jsonl, dev_engine_replay.meta.json and dev_engine_replay.log.txt. Metadata records model/tokenizer identity, sampling, configuration, warmup, shared clock, project/upstream revisions and source hashes. Trace SHA256: 28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041.
+- Development engine configuration: local Qwen3-0.6B; eager=True, tensor_parallel_size=1, max_model_len=256, max_num_batched_tokens=256, max_num_seqs=1, gpu_memory_utilization=0.6. Trace sampling remains temperature=0.6, ignore_eos=False, max_new_tokens=16, inference_seed=42.
+- Diagnostic mean/max milliseconds: replay error 0.199524/0.442302; admission overhead 6.763655/15.975741; queue wait 23.107351/49.547368; TTFT 52.796690/84.237275; engine TTFT 46.033035/71.257523; E2E 1738.603030/2999.947949. These are development integration diagnostics, not formal benchmark results. TTFT/E2E start at actual release; planned arrival remains workload intent.
+- Limits: OS/GIL scheduling can delay release; the producer is independent of engine service but is not real-time. This integration captures completed runs and propagates failures; a timeout/incomplete-record finalization layer is not yet implemented. No dependency changes or Git commit were made.
 
 - TELEMETRY-002 completed: nanovllm/telemetry.py captures in-memory monotonic lifecycle events; llm_engine.py and scheduler.py contain opt-in hooks only.
 - Events: admission, first successful scheduling, first prefill dispatch, first output token, every valid output token and completion after KV deallocation/running removal. First-event timestamps survive rescheduling/preemption.
@@ -334,12 +344,11 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, connect validated arrival replay to engine
-admission using a shared coordinator origin and external request IDs, then join
-replay release/planned times with the engine telemetry fragments. Preserve the
-release-based TTFT/E2E definitions and specify failure/timeout finalization.
-Validate the baseline integration before adding any scheduling policy or formal
-performance workload; keep the current dependency stack and trace unchanged.
+In a separately scoped task, specify and implement failure/timeout finalization
+for incomplete replay captures, then define and validate the formal baseline
+workload/configuration before policy comparisons. Preserve release-based TTFT/E2E,
+the validated dependency stack and baseline scheduling semantics. The current
+12-request, single-sequence integration run is not a frozen formal benchmark.
 
 ## SMOKE-001 Attempt
 

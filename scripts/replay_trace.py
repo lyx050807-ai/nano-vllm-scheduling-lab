@@ -44,11 +44,15 @@ def load_validated_trace(trace_path, model_dir=ROOT / "models/Qwen3-0.6B"):
     return records, identity
 
 
-def replay_requests(records, callback=None, *, clock_ns=time.perf_counter_ns, sleep=time.sleep):
+def replay_requests(records, callback=None, *, clock_ns=time.perf_counter_ns, sleep=time.sleep,
+                    t0_ns=None, on_release=None, stop_event=None):
     """Release already validated requests in order, with injectable clock/wait functions.
 
     Use replay_trace for file input and full tokenizer/package validation. This
     low-level layer checks timing/identity before t0 and snapshots each request.
+    Optional t0_ns shares an external origin; on_release(request, timing) receives
+    the original release sample before the legacy callback. stop_event permits
+    cooperative producer shutdown (use stop_event.wait as sleep to wake early).
     Callbacks receive a fresh dict, cannot mutate the replay plan, and run once
     per request on normal completion. A callback exception aborts immediately;
     it is propagated, never retried. Overdue requests are dispatched in file
@@ -78,20 +82,30 @@ def replay_requests(records, callback=None, *, clock_ns=time.perf_counter_ns, sl
         offset_ns = int(arrival * 1_000_000_000)
         plan.append((dict(row), request_id, offset_ns))
 
+    make_trace.require(t0_ns is None or (type(t0_ns) is int and t0_ns >= 0),
+                       "t0_ns must be a nonnegative integer")
+    make_trace.require(on_release is None or callable(on_release), "on_release must be callable")
     timings = []
-    t0 = clock_ns()
+    t0 = clock_ns() if t0_ns is None else t0_ns
     for request, request_id, offset_ns in plan:
+        if stop_event is not None and stop_event.is_set():
+            break
         target_arrival = t0 + offset_ns
         now = clock_ns()
         while now < target_arrival:
             sleep((target_arrival - now) / 1_000_000_000)
+            if stop_event is not None and stop_event.is_set():
+                return timings
             now = clock_ns()  # Recheck after early wakeup; never release early.
+        elapsed_ns = now - t0
+        timing = {"request_id": request_id, "arrival_s": offset_ns / 1_000_000_000,
+                  "actual_release_s": elapsed_ns / 1_000_000_000,
+                  "release_error_ms": (elapsed_ns - offset_ns) / 1_000_000}
+        if on_release is not None:
+            on_release(dict(request), dict(timing))
         if callback is not None:
             callback(request)
-        elapsed_ns = now - t0
-        timings.append({"request_id": request_id, "arrival_s": offset_ns / 1_000_000_000,
-                        "actual_release_s": elapsed_ns / 1_000_000_000,
-                        "release_error_ms": (elapsed_ns - offset_ns) / 1_000_000})
+        timings.append(timing)
     return timings
 
 

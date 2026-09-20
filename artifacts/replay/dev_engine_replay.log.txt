@@ -1,0 +1,4 @@
+Command: .venv/bin/python scripts/run_replay.py
+{"completion_count": 12, "latency_diagnostics_ms": {"admission_overhead_ms": {"max": 15.975741, "mean": 6.763655166666666}, "e2e_latency_ms": {"max": 2999.947949, "mean": 1738.6030301666667}, "engine_ttft_ms": {"max": 71.257523, "mean": 46.033035000000005}, "queue_wait_ms": {"max": 49.547368, "mean": 23.10735083333333}, "replay_error_ms": {"max": 0.442302, "mean": 0.19952416666666664}, "ttft_ms": {"max": 84.237275, "mean": 52.79669016666667}}, "lifecycle_invariants": "passed", "metadata_sha256": "ff239cf2ef5fab30652fd385ebbd0b3f945e6e3a4ad05f5c8cd7943cc6917131", "mode": "development-integration-only", "policy": "baseline", "request_count": 12, "run_id": "dev-baseline-28066537776992", "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041"}
+
+Exit code: 0

@@ -2,18 +2,21 @@
 
 ## Task ID
 
-TELEMETRY-002
+REPLAY-002
 
 ## Title
 
-Implement low-overhead request lifecycle telemetry.
+Integrate timed trace replay with nano-vLLM and lifecycle telemetry.
 
 ## Goal
 
-Instrument the pinned nano-vLLM request lifecycle so experiments can measure
-admission, first scheduling, token production, and completion timestamps.
+Connect the validated request replay layer to the instrumented nano-vLLM
+engine while preserving request arrival timing independently from blocking GPU
+engine steps.
 
-Telemetry must not change scheduling semantics.
+This is an integration task for the existing baseline scheduler.
+
+Do not implement a new scheduling policy.
 
 ## Required Reads
 
@@ -22,101 +25,189 @@ Read:
 - AGENTS.md
 - PROJECT_STATE.md
 - docs/architecture.md
+- docs/trace-spec.md
 - docs/telemetry-spec.md
 - scripts/replay_trace.py
+- nanovllm/telemetry.py
+- workloads/dev_trace.jsonl
 
-Inspect the exact pinned source before editing.
+Inspect the current engine API before implementation.
 
-## Required Runtime Events
+## Architecture Requirement
 
-Implement engine-side capture for:
+Use two roles:
 
-- admitted time
-- first scheduled time
-- first output token time
-- per-output-token timestamps
-- finished time
+1. Replay producer thread
+   - releases requests according to trace arrival_s
+   - never calls nano-vLLM engine methods
+   - places released requests into a thread-safe admission queue
 
-Use the clock semantics defined in docs/telemetry-spec.md.
+2. Engine coordinator/main thread
+   - exclusively owns LLMEngine
+   - drains the admission queue
+   - calls add_request()
+   - calls engine.step()
+   - collects completed outputs and telemetry
 
-## Design Requirements
+Do not call LLMEngine concurrently from multiple threads.
 
-1. Use one compatible monotonic clock domain.
+## Shared Clock
 
-2. Record first_scheduled only once.
+Use one shared monotonic perf_counter_ns clock domain and one shared t0_ns.
 
-3. Record first_token only once.
+Replay release timestamps and engine telemetry timestamps must be directly
+comparable.
 
-4. Preserve per-token timestamps for future ITL calculation.
+If useful, extend replay_trace.py to accept an externally supplied t0_ns while
+preserving existing behavior and tests.
 
-5. Record finished when the request actually transitions to completion.
+## Warmup
 
-6. Associate all engine telemetry with request_id.
+Before the formal development replay:
 
-7. Keep replay-layer planned_arrival and release timestamps outside the engine
-   unless an existing clean interface already supports carrying them.
+- initialize the model/engine
+- run one small warm-up request with telemetry disabled
+- confirm the engine is idle
+- then establish the shared experiment t0_ns
+- enable telemetry
+- run the development trace
 
-8. Prefer in-memory timestamp capture on hot paths.
+Warm-up data must not appear in the development trace results.
 
-9. Avoid per-token disk I/O.
+## Replay / Admission Behavior
 
-10. Provide a clean way for the experiment/replay layer to retrieve completed
-    request telemetry.
+During engine.step(), the replay producer must remain able to release future
+requests into the admission queue.
 
-## Scheduling Invariants
+After each engine step, the coordinator should admit queued requests before the
+next engine step where practical.
 
-Telemetry must not change:
+When the engine is idle and no request is currently available, avoid a
+high-CPU busy-wait loop.
 
-- waiting queue ordering
-- running queue ordering
-- request selection
-- prefill/decode scheduling policy
-- KV-cache allocation decisions
-- preemption behavior
-- sampling behavior
+Preserve stable trace order for requests released at the same arrival time.
 
-## Testing
+## Request Identity
 
-Add CPU-focused tests wherever possible for:
+Pass the trace request_id through to LLMEngine.add_request().
 
-- timestamps start unset
-- admitted recorded once
-- first_scheduled recorded once
-- first_token corresponds to the first generated output token
-- token timestamps preserve generation order
-- finished recorded once
-- incomplete requests retain null/missing future timestamps
-- metric record serialization works
+Use request_id to join:
 
-Also rerun relevant existing tests.
+- trace metadata
+- planned arrival
+- actual release
+- engine telemetry
+- completion/output data
 
-## GPU Regression Smoke Test
+## Development Configuration
 
-After CPU tests pass, rerun the existing conservative single-request smoke test.
+Use the existing local Qwen3-0.6B model.
 
-Confirm:
+Use a conservative configuration appropriate for the RTX 4050 and the existing
+development trace.
 
-- inference still succeeds
-- generated output is non-empty
-- telemetry record is produced
-- lifecycle ordering is valid:
+Prefer the previously validated small-context/single-sequence configuration
+unless repository evidence requires a change.
 
-  admitted <= first_scheduled <= first_token <= finished
+Do not treat this configuration as the frozen formal benchmark.
 
-- token timestamps are nondecreasing
-- no scheduling-policy behavior was intentionally changed
+## Joined Output
 
-Do not treat the smoke-test latency as benchmark data.
+Create a joined per-request JSONL record under:
 
-## Output
+artifacts/replay/
 
-Create or update a small experiment-facing telemetry utility if needed.
+Each completed request record should include at least:
 
-Save one example completed telemetry record under:
+- request_id
+- prompt_class
+- num_prompt_tokens
+- max_new_tokens
+- planned_arrival_s
+- release_s
+- admitted_s
+- first_scheduled_s
+- first_prefill_dispatch_s
+- first_token_s
+- finished_s
+- output_token_count
+- generated text or a concise output field
 
-artifacts/telemetry/
+Compute:
 
-Do not store large logs.
+- replay_error_ms
+- admission_overhead_ms
+- queue_wait_ms
+- ttft_ms
+- engine_ttft_ms
+- e2e_latency_ms
+
+Use the formulas defined in docs/telemetry-spec.md.
+
+Do not use planned_arrival_s as the primary TTFT/E2E origin.
+
+## Required Invariants
+
+For every completed request:
+
+release_s <= admitted_s
+admitted_s <= first_scheduled_s
+first_scheduled_s <= first_prefill_dispatch_s
+first_prefill_dispatch_s <= first_token_s
+first_token_s <= finished_s
+
+Token timestamps must be nondecreasing.
+
+All 12 development requests must be accounted for exactly once.
+
+## CPU Tests
+
+Add tests using a fake/mock engine where useful.
+
+Include a test that simulates a blocking engine step and verifies the replay
+producer can still release a later request while the engine coordinator is
+blocked.
+
+Also test:
+
+- request_id joins
+- metric calculations
+- shared t0 behavior
+- no duplicate/lost requests
+- stable same-arrival ordering
+
+CPU tests must not require the GPU.
+
+## GPU Integration Run
+
+After CPU tests pass, run the development trace on the existing local
+Qwen3-0.6B engine.
+
+This run validates integration only.
+
+Do not present its latency as formal benchmark results.
+
+Record:
+
+- request count
+- completion count
+- trace SHA256
+- lifecycle invariant result
+- basic diagnostic latency summary
+- any errors/warnings
+
+## Restrictions
+
+Do not:
+
+- implement short_prompt
+- implement aging
+- change waiting queue ordering
+- change running queue ordering
+- change KV-cache policy
+- change model execution or sampling semantics
+- change dependency versions
+- download another model
 
 ## Validation
 
@@ -125,27 +216,32 @@ Run:
 git diff --check
 git status --short
 
-Review the nano-vLLM source diff carefully.
+Run relevant CPU tests and the development GPU integration.
+
+Review any nanovllm/ diff carefully.
 
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- TELEMETRY-002 completion
-- source files instrumented
+- REPLAY-002 completion
+- integration architecture
 - tests run
-- smoke-test result
+- GPU development replay result
 - next recommended task
 
 ## Acceptance Criteria
 
-- lifecycle timestamps are captured
-- first-event semantics are correct
-- per-token timestamps are available
-- telemetry can be exported by request_id
+- replay timing remains independent of blocking engine steps
+- only the coordinator thread calls LLMEngine
+- replay and telemetry share one clock/t0
+- all 12 requests complete exactly once
+- joined timing records are produced
+- lifecycle invariants hold
+- metric formulas match telemetry spec
 - CPU tests pass
-- single-request GPU regression passes
-- scheduling semantics remain unchanged
+- GPU integration passes
+- baseline scheduler semantics remain unchanged
 - git diff --check passes
 
 Do not create a Git commit.
@@ -154,11 +250,14 @@ Do not create a Git commit.
 
 Report:
 
-- source files modified
-- fields/events added
-- instrumentation points
-- test count/results
-- GPU smoke result
-- example event ordering
-- any observed overhead/warnings
+- integration architecture
+- shared clock/t0 design
+- files modified
+- CPU test count/results
+- GPU request/completion count
+- trace SHA256
+- example joined request record
+- latency diagnostics
+- invariant results
+- warnings/errors
 - recommended next step
