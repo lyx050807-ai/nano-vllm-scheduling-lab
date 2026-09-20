@@ -1,11 +1,12 @@
 # PROJECT_STATE.md
 
-Last updated: 2026-09-19
+Last updated: 2026-09-20
 
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
-REPLAY-001 complete; CPU-only absolute-arrival replay and timing validation passed.
+REPLAY-001 and TELEMETRY-001 complete; request telemetry events, clock domain
+and latency/ITL semantics are specified after CPU replay validation.
 
 ## Current Git Branch
 
@@ -60,6 +61,9 @@ Ubuntu 24.04
 
 ## Completed
 
+- TELEMETRY-001 completed: docs/telemetry-spec.md defines the common monotonic clock, lifecycle capture points, JSONL record schema, latency/ITL formulas, failure/null behavior and candidate hook locations.
+- Primary TTFT and E2E start at actual replay release_s; TTFT includes admission overhead and queue waiting. Planned arrival remains workload intent, with replay error reported separately; engine TTFT and initial queue wait retain their definitions. Telemetry remains specification-only; no hooks, policy or GPU changes.
+
 - REPLAY-001 completed: scripts/replay_trace.py validates the trace package before establishing t0 and releases requests at absolute monotonic targets through a CPU dry-run/callback interface.
 - Ten replay tests plus nine trace tests passed (19 total); stable ordering, exactly-once normal dispatch, callback delay, oversleep, early wakeup, overdue requests and invalid input are covered.
 - One real-clock dry-run released all 12 development requests; diagnostics are preserved in artifacts/replay/dev_replay_timing.jsonl.
@@ -111,8 +115,8 @@ Ubuntu 24.04
 ## In Progress
 
 Initial single-request inference, architecture analysis, trace implementation
-and CPU arrival replay are complete. Engine integration, telemetry design and
-broader integration coverage remain pending.
+and CPU arrival replay are complete; telemetry semantics are now specified.
+Telemetry implementation, engine integration and broader validation remain pending.
 No formal performance experiment has run.
 Evidence: artifacts/environment/smoke-single-request.txt.
 Reusable entry point: scripts/smoke_single_request.py.
@@ -121,7 +125,7 @@ Reusable entry point: scripts/smoke_single_request.py.
 
 - full nano-vLLM integration validation
 - replay-to-engine integration
-- telemetry
+- telemetry implementation
 - scheduling policies
 - scheduler/telemetry unit tests (trace and CPU replay tests are implemented)
 - formal workloads
@@ -189,6 +193,12 @@ ENV-002 now provides pip inside .venv; other commands were not rechecked.
 The repository does not specify a tested CUDA/build compatibility matrix.
 
 ## Current Validation
+
+TELEMETRY-001: documentation/source-reference review, JSON example and formula
+checks, git diff --check and git status --short completed. nano-vLLM source,
+replay/generator scripts, dependency declarations and existing artifacts remain
+unchanged. No runtime hooks, inference or benchmarks were run for this task.
+
 
 REPLAY-001 validation:
 
@@ -289,13 +299,13 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-Define the engine-admission and request/token telemetry contract before any
-GPU integration: external request-ID mapping, planned arrival versus actual
-CPU release versus engine admission, scheduler-selection events, first and
-subsequent output tokens, completion and preemption wait accounting. Preserve
-the validated trace, baseline behavior and dependency stack. GPU connection,
-telemetry hooks and scheduling policies require separately scoped tasks;
-formal experiment parameters remain unfrozen.
+Implement CPU-only telemetry record collection/validation and metric derivation
+against docs/telemetry-spec.md in a separately scoped task. Test event ordering,
+first-event preservation, exact formulas, token indexing, missing/censored
+observations and preemption identity with synthetic lifecycle cases. Engine
+hooks, replay-to-engine integration and GPU validation remain separate tasks.
+Preserve the validated stack, input trace and baseline behavior; formal workload
+parameters remain unfrozen.
 
 ## SMOKE-001 Attempt
 

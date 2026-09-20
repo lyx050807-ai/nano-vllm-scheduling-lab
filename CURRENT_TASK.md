@@ -2,118 +2,123 @@
 
 ## Task ID
 
-REPLAY-001
+TELEMETRY-001
 
 ## Title
 
-Implement and validate the trace arrival replay driver.
+Define request lifecycle telemetry and metric semantics.
 
 ## Goal
 
-Implement a CPU-only replay driver that releases requests according to the
-absolute arrival_s timestamps in a validated trace.
+Define the timestamp events and derived latency metrics required to compare
+baseline, short_prompt, and aged_short_prompt scheduling policies.
 
-This task validates arrival timing only.
+This is a design/documentation task only.
 
-Do not connect replay to nano-vLLM GPU inference yet.
+Do not instrument nano-vLLM source yet.
 
 ## Required Work
 
 1. Read:
    - AGENTS.md
    - PROJECT_STATE.md
+   - docs/architecture.md
    - docs/trace-spec.md
-   - scripts/make_trace.py
-   - workloads/dev_trace.jsonl
+   - scripts/replay_trace.py
 
-2. Implement:
+2. Define one common monotonic clock domain for runtime timestamps.
 
-   scripts/replay_trace.py
+3. Define request lifecycle timestamps including at least:
 
-3. Load and validate the trace before replay begins.
+   - planned_arrival_s
+   - release_s
+   - admitted_s
+   - first_scheduled_s
+   - first_token_s
+   - finished_s
 
-4. Define one monotonic experiment start time t0.
+4. Define per-token timing representation sufficient for future ITL analysis.
 
-5. For every request compute:
+5. Define the exact semantic meaning and capture point for every timestamp.
 
-   target_arrival = t0 + arrival_s
+6. Distinguish clearly between:
 
-6. Wait until the absolute target time.
+   - replay timing
+   - engine admission
+   - waiting-queue delay
+   - first scheduling / prefill start
+   - first output token
+   - request completion
 
-Do not implement replay as cumulative sleep intervals.
+7. Define derived metrics including at least:
 
-7. At release time record:
+   replay_error_ms
+   admission_overhead_ms
+   queue_wait_ms
+   ttft_ms
+   engine_ttft_ms
+   e2e_latency_ms
 
-   - request_id
-   - planned arrival_s
-   - actual release time relative to t0
-   - release error in milliseconds
+8. Define future ITL calculation from token timestamps.
 
-8. Provide a CPU-only dry-run / callback interface so replay timing can be
-   tested without nano-vLLM or GPU inference.
+9. Define units and formulas explicitly.
 
-9. Preserve stable ordering for requests with identical arrival_s according to
-   their order in the trace file.
+10. Define missing-value behavior for:
+    - failed requests
+    - cancelled requests
+    - requests that never receive a first token
+    - unfinished requests at experiment timeout
 
-10. Use a monotonic high-resolution clock such as time.perf_counter().
+11. Define an event/record schema suitable for JSONL output.
 
-## Timing Semantics
+12. Identify candidate source locations from docs/architecture.md where future
+    telemetry hooks should be inserted.
 
-Clearly distinguish:
+Do not implement those hooks yet.
 
-- planned arrival time
-- actual replay release time
-- future engine admission time
-- future scheduling time
-- future first-token time
-- future completion time
+## Metric Semantics
 
-Do not redefine TTFT in this task.
+Primary user-facing TTFT must include waiting time.
 
-## Tests
+Do not define TTFT as first_token_s - first_scheduled_s.
 
-Add CPU tests covering at least:
+The design should preserve both:
 
-- trace order preservation
-- identical-arrival stable ordering
-- absolute-time replay behavior
-- no cumulative timing drift by design
-- invalid trace rejection
-- callback receives every request exactly once
-
-Keep timing tolerances reasonable for a non-real-time operating system.
-
-Tests must not require GPU inference.
+- user-facing latency
+- internal scheduler/engine latency components
 
 ## Output
 
 Create:
 
-artifacts/replay/dev_replay_timing.jsonl
+docs/telemetry-spec.md
 
-or an equivalent small replay timing record.
+Include:
 
-Report basic timing error statistics:
+1. clock definition
+2. lifecycle event definitions
+3. event/record schema
+4. exact formulas
+5. timeline example
+6. per-token timing design
+7. failure/missing-value semantics
+8. candidate instrumentation points
+9. invariants
+10. relationship to scheduler experiments
 
-- mean absolute release error
-- max absolute release error
-
-These are infrastructure diagnostics, not model performance metrics.
+Include an ASCII request timeline.
 
 ## Restrictions
 
 Do not:
 
 - modify nanovllm/
-- connect to real model inference
 - implement telemetry hooks
-- implement scheduling policies
-- run performance benchmarks
+- implement policies
+- run GPU benchmarks
 - change dependencies
 
 ## Validation
-
-Run CPU tests.
 
 Run:
 
@@ -124,16 +129,18 @@ Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
-Update PROJECT_STATE.md with REPLAY-001 completion and next recommended task.
+Update PROJECT_STATE.md with TELEMETRY-001 completion and next recommended task.
 
 ## Acceptance Criteria
 
-- replay uses absolute monotonic target times
-- requests are released in trace order
-- equal-arrival ordering is stable
-- every request is released exactly once
-- release timing is measured
-- CPU tests pass
+- lifecycle timestamps are unambiguously defined
+- all timestamps use a compatible monotonic clock
+- TTFT includes waiting time
+- queue wait is separately measurable
+- E2E latency is defined
+- future ITL can be computed
+- failure semantics are documented
+- future hook locations are identified
 - no nano-vLLM source is modified
 - git diff --check passes
 
@@ -143,11 +150,11 @@ Do not create a Git commit.
 
 Report:
 
-- replay interface
-- clock used
-- timing algorithm
-- test count/results
-- mean release error
-- max release error
-- files created/modified
+- lifecycle events
+- clock choice
+- metric formulas
+- event schema
+- failure semantics
+- candidate instrumentation locations
+- files modified
 - recommended next step
