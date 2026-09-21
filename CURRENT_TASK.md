@@ -2,19 +2,21 @@
 
 ## Task ID
 
-POLICY-002
+AGING-001
 
 ## Title
 
-Implement baseline and short_prompt waiting-request selection.
+Design the aged_short_prompt scheduling policy.
 
 ## Goal
 
-Implement the scheduling-policy abstraction designed in POLICY-001 and add
-short_prompt waiting-request selection while preserving all existing scheduler
-mechanisms and baseline behavior.
+Design an aging-based extension of short_prompt that preserves the latency
+benefit of short prompts while reducing starvation risk for requests that wait
+unusually long.
 
-Do not implement aging yet.
+This is a design task only.
+
+Do not implement aged_short_prompt yet.
 
 ## Required Reads
 
@@ -22,188 +24,171 @@ Read:
 
 - AGENTS.md
 - PROJECT_STATE.md
-- docs/architecture.md
 - docs/scheduling-policy-design.md
 - docs/benchmark-protocol.md
-- nanovllm/config.py
+- artifacts/calibration/formal-mixed-v1/capacity-summary.json
 - nanovllm/engine/scheduler.py
 - nanovllm/engine/sequence.py
+- nanovllm/engine/waiting_policy.py
 
-Inspect the exact current source before editing.
+Inspect the exact current preemption and waiting-queue lifecycle.
 
-## Configuration
+## Problem
 
-Add an explicit scheduling-policy configuration with supported values:
+Explain why pure short_prompt can cause priority starvation when shorter
+requests continue to arrive.
 
-- baseline
-- short_prompt
+Distinguish:
 
-Reserve aged_short_prompt for a later task; do not implement it here.
+- priority starvation
+- resource infeasibility
+- preemption/requeue behavior
 
-Default must be:
+Aging should address priority starvation only.
 
-baseline
+## Candidate Aging Score
 
-Invalid values must fail clearly.
+Analyze:
 
-Existing callers that do not specify a policy must preserve the current
-behavior exactly.
+score_i = num_prompt_tokens_i - aging_rate * waiting_seconds_i
 
-## Policy Abstraction
+Select the waiting request with the smallest score.
 
-Implement a small selector that chooses the index/candidate from the waiting
-deque.
+Units:
 
-Keep policy selection separate from:
+- num_prompt_tokens: tokens
+- waiting_seconds: seconds
+- aging_rate: tokens/second
+- score: token-equivalent priority
 
-- resource feasibility checks
-- KV-cache allocation
-- token-budget logic
-- chunked-prefill handling
-- running queue management
-- decode scheduling
+Do not use future output length or other future information.
 
-## Baseline Semantics
+## Aging Parameter
 
-baseline must reproduce the current waiting behavior exactly.
+Use the frozen prompt classes:
 
-Conceptually:
+- short = 32 tokens
+- medium = 96 tokens
+- long = 192 tokens
 
-candidate = waiting[0]
+Use only baseline/calibration evidence when choosing the aging parameter.
 
-Preserve the existing popleft/removal behavior and all subsequent checks.
+Analyze an interpretable candidate where:
 
-## short_prompt Semantics
+A 192-token long request that has waited about 0.5 seconds reaches priority
+parity with a newly arrived 32-token short request.
 
-When waiting is non-empty, select the request having the smallest:
+Derive:
 
-num_prompt_tokens
+- aging_rate
+- medium vs short crossover
+- long vs medium crossover
+- long vs short crossover
 
-Use an O(n) scan.
+Do not tune aging_rate using future aged_short_prompt performance.
 
-Do not globally sort or permanently reorder the waiting deque.
+## Waiting-Time Semantics
 
-For equal prompt lengths, select the earliest request in the existing deque.
+Compare:
 
-Example:
+1. time since original engine admission
+2. time since current entry into waiting
 
-waiting:
+Inspect the current preemption behavior and choose one explicitly.
 
-A: 192
-B: 32
-C: 96
-D: 32
+Explain how a preempted request should behave.
 
-short_prompt candidate sequence should be:
+Do not depend on telemetry for scheduler correctness.
 
-B
-D
-C
-A
+## Scheduler-Owned State
 
-assuming all candidates are successfully admitted/prefilled.
+Define the minimum scheduler-owned timing state needed for aging.
 
-## Candidate Failure Semantics
+Use a monotonic clock.
 
-After a candidate is selected, run the exact existing allocation/resource
-checks.
+Telemetry may observe aging behavior but must not supply the scheduler's age.
 
-If the selected short_prompt candidate fails a check that causes the current
-baseline scheduler to stop/break, preserve that behavior.
+## Tie Breaking
 
-Do not search for another candidate merely because the selected candidate
-failed an existing resource check.
+If effective scores are equal, preserve the existing waiting deque order.
 
-This task changes request priority only; it does not implement
-resource-aware bypass scheduling.
+## Complexity
 
-## Removal Semantics
+Preserve O(n) candidate selection.
 
-Preserve all existing chunked-prefill and waiting-to-running lifecycle rules.
+Do not sort the waiting deque globally.
 
-Do not permanently remove a selected waiting request earlier than the current
-baseline semantics permit.
+## Resource Checks
 
-When removing a non-head short_prompt candidate, preserve the relative order of
-all remaining requests.
+After candidate selection, preserve all current allocation and budget checks.
 
-No request may be lost or duplicated.
+Do not add fallback to another candidate when the selected request fails an
+existing resource check.
 
-## Telemetry
+## Starvation Reasoning
 
-Existing telemetry must continue to function.
+Explain whether an old request eventually gains priority over newly arriving
+finite-length requests.
 
-Do not use telemetry state to implement scheduling decisions.
+State assumptions and limitations.
 
-## CPU Tests
+Do not claim starvation freedom under resource infeasibility or unlimited
+preemption.
 
-Add deterministic tests covering at least:
+## Evaluation Plan
 
-1. default configuration is baseline
-2. invalid policy fails clearly
-3. baseline chooses the current deque head
-4. baseline behavior is equivalent to the previous scheduler behavior
-5. short_prompt selects the shortest prompt
-6. equal-length requests preserve deque arrival order
-7. example ordering:
-   A=192, B=32, C=96, D=32
-   produces B, D, C, A when all requests are admitted
-8. candidate removal preserves remaining relative order
-9. no request is lost or duplicated
-10. short_prompt candidate failure does not fall through to a second candidate
-    when baseline would stop
-11. existing resource checks remain authoritative
-12. running/decode ordering is unchanged
-13. telemetry-on and telemetry-off do not change policy decisions
+Define tests for:
 
-Add focused selector tests where practical rather than requiring GPU.
+- zero waiting reproduces short_prompt ranking
+- score improves monotonically with waiting time
+- stable equal-score ties
+- old long request eventually outranks new short request
+- baseline unchanged
+- short_prompt unchanged
+- telemetry on/off does not affect decisions
+- preemption/requeue aging semantics
+- no future information used
 
-## Baseline Regression
+Define later fairness diagnostics:
 
-Run the existing CPU tests and baseline regression tests.
+- long-request queue wait
+- long-request TTFT
+- long-request E2E
+- maximum queue wait
+- near-starvation count
 
-Verify that policy=baseline reproduces expected existing behavior.
+## Output
 
-## Development GPU Smoke
+Create:
 
-After all CPU tests pass:
+docs/aging-policy-design.md
 
-Run the existing 12-request development trace once with:
+Include:
 
-policy=baseline
-
-and once with:
-
-policy=short_prompt
-
-This is a functional smoke comparison only, not benchmark data.
-
-Verify both:
-
-- complete 12/12
-- have no OOM
-- have no timeout
-- preserve lifecycle invariants
-- produce valid joined telemetry
-
-Confirm that short_prompt changes waiting-request service order on a workload
-where multiple different prompt lengths are simultaneously waiting.
-
-Do not report performance superiority from these two smoke runs.
+1. starvation problem
+2. score formula
+3. units
+4. crossover derivation
+5. proposed aging parameter
+6. waiting-time origin
+7. preemption semantics
+8. scheduler-owned state
+9. tie-breaking
+10. complexity
+11. assumptions and limitations
+12. implementation locations
+13. CPU test plan
+14. GPU validation plan
 
 ## Restrictions
 
 Do not:
 
 - implement aged_short_prompt
-- change formal benchmark traces
-- run the 45-run formal benchmark
-- change KV-cache policy
-- introduce resource-aware fallback selection
-- change running request ordering
-- change decode policy
-- change model execution
-- change sampling
+- modify scheduler behavior
+- change formal traces
+- run formal policy benchmarks
+- modify KV-cache behavior
 - change dependencies
 
 ## Validation
@@ -213,32 +198,29 @@ Run:
 git diff --check
 git status --short
 
-Review all nanovllm/ source changes carefully.
+Confirm nanovllm/ is unchanged.
 
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- POLICY-002 status
-- implementation files
-- tests run
-- baseline regression result
-- short_prompt smoke result
+- AGING-001 completion
+- aging semantics
+- proposed parameter
 - next recommended task
 
 ## Acceptance Criteria
 
-- baseline remains the default
-- baseline reproduces current behavior
-- short_prompt implements stable shortest-prompt selection
-- short_prompt uses no future information
-- existing resource checks are unchanged
-- candidate-failure semantics are preserved
-- chunked-prefill lifecycle is preserved
-- requests are neither lost nor duplicated
-- telemetry remains independent
-- CPU tests pass
-- both development GPU smoke runs complete 12/12
+- starvation is clearly defined
+- formula and units are explicit
+- aging parameter has an interpretable crossover meaning
+- waiting-time semantics are explicit
+- preemption semantics are explicit
+- telemetry is not required for correctness
+- stable ties are preserved
+- O(n) selection is preserved
+- limitations are documented
+- no scheduler behavior changed
 - git diff --check passes
 
 Do not create a Git commit.
@@ -247,17 +229,13 @@ Do not create a Git commit.
 
 Report:
 
+- score formula
+- aging rate and crossover interpretation
+- waiting-time origin
+- preemption/requeue semantics
+- tie-breaking
+- complexity
+- starvation guarantee and limitations
+- proposed implementation files
 - files modified
-- policy configuration/interface
-- selector implementation
-- short_prompt complexity
-- tie-breaking behavior
-- candidate removal method
-- candidate failure behavior
-- CPU test count/results
-- baseline regression result
-- baseline GPU smoke result
-- short_prompt GPU smoke result
-- observed service-order difference
-- warnings/errors
 - recommended next step

@@ -1,15 +1,15 @@
 # PROJECT_STATE.md
 
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
 ## Current Phase
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002 complete. The formal-mixed-v1 traces and baseline capacity gate
-are validated. Default baseline and stable short_prompt waiting selection are
-implemented and passed CPU and 12-request GPU functional smoke. Aging and
-formal policy measurement remain unimplemented.
+POLICY-001/002 and AGING-001 complete. The formal-mixed-v1 traces and baseline
+capacity gate are validated. Default baseline and stable short_prompt waiting selection are
+implemented and passed CPU and 12-request GPU functional smoke. The aging
+policy is specified but unimplemented; formal policy measurement has not run.
 
 ## Current Git Branch
 
@@ -63,6 +63,20 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- AGING-001 completed as design only: docs/aging-policy-design.md defines
+  `aged_short_prompt` score as original prompt tokens minus 320 tokens/second
+  times request age since first entry into the scheduler waiting deque. This
+  age can include running time before a later preemption and is separate from
+  telemetry `queue_wait_ms`. The parity differences remain 0.2 s for 96-vs-32,
+  0.3 s for 192-vs-96 and 0.5 s for 192-vs-32. The chosen origin is retained
+  across partial prefill and preemption/requeue. A
+  scheduler-owned monotonic first-enqueue timestamp, independent of optional
+  telemetry, is proposed; stable deque ties, O(n) selection and existing
+  no-backfill resource behavior are preserved. The rate derives from frozen
+  prompt classes and an interpretable half-second crossover, not policy
+  outcomes. No policy was implemented, no formal benchmark ran, and nanovllm/
+  remains unchanged.
 
 - POLICY-002 completed: nanovllm/engine/waiting_policy.py provides a pure O(n) shortest-original-prompt selector with leftmost deque tie-breaking; Config accepts only baseline/short_prompt and defaults to baseline. Scheduler uses the existing index-zero/popleft baseline path and removes a non-head short_prompt candidate only after the existing successful final-prefill check. Allocation/budget failure still breaks without backfill. Running/decode, KV-cache, model/sampling and preemption logic are unchanged; telemetry remains observational.
 - CPU validation: `.venv/bin/python -m unittest discover -s tests -v` passed 51/51 tests. New tests cover default/invalid configuration, baseline trajectory, stable 192/32/96/32 -> 32/32/96/192 selection, non-head removal, no backfill on allocation failure, first-only chunk budget, partial prefill, preempted original prompt length, telemetry independence, unchanged decode ordering, and policy labels in joined records. Existing trace/replay/telemetry tests passed.
@@ -157,12 +171,12 @@ Ubuntu 24.04
 
 No measured formal performance comparison has run. The three-seed baseline
 capacity gate passed; baseline and short_prompt are functionally validated.
-Aged-short-prompt design/implementation and formal measurement orchestration
-remain separately scoped.
+Aged-short-prompt implementation and formal measurement orchestration remain
+separately scoped.
 
 ## Not Started
 
-- short_prompt and aged_short_prompt policies and tests
+- aged_short_prompt policy and tests
 - formal experiments and offline analysis
 - final report
 
@@ -359,11 +373,12 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, specify and implement aged_short_prompt using
-scheduler-owned causal waiting state independent of telemetry. Preserve the
-validated baseline and short_prompt behavior; run CPU and development GPU
-regressions before any formal 45-run comparison. Formal run metadata should
-also fingerprint policy-selection source and validate policy/config identity.
+In a separately scoped task, implement the fixed AGING-001 design in
+docs/aging-policy-design.md, with scheduler-owned first-enqueue age independent
+of telemetry. Preserve baseline and short_prompt behavior; run CPU and
+development GPU regressions before any formal 45-run comparison. Formal run
+metadata should also fingerprint policy-selection source and validate
+policy/config identity and the 320 tokens/second rate.
 
 ## SMOKE-001 Attempt
 
