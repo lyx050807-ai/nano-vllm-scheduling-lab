@@ -6,14 +6,15 @@ Last updated: 2026-09-21
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002, AGING-001/002, BENCH-003/004, ANALYSIS-001 and FINAL-001
+POLICY-001/002, AGING-001/002, BENCH-003/004, ANALYSIS-001 and FINAL-001/002
 complete. The formal-mixed-v1 traces and
 baseline capacity gate are validated. Baseline, short_prompt and
 aged_short_prompt are implemented and passed CPU and 12-request GPU functional
 smoke. The frozen 45-run formal benchmark and offline paired analysis are
-complete. Scheduling-lab v1 is documented and ready for a final repository
-release audit/tag; raw results remain under artifacts/formal-benchmark/ and
-analysis outputs under artifacts/analysis/formal-v1/.
+complete. Scheduling-lab v1 passed its final release audit and is ready for
+review of the proposed `scheduling-lab-v1` tag. Raw results remain under
+artifacts/formal-benchmark/ and analysis outputs under
+artifacts/analysis/formal-v1/.
 
 ## Current Git Branch
 
@@ -67,6 +68,21 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- FINAL-002 audited the repository, default and candidate scheduler rules,
+  frozen 45-run/15-block manifest, all 2,700 completed request records, all
+  188 raw-input SHA256 entries, the report's class/paired tables, 52 local
+  documentation links, the reproduction CLI, and tracked-file hygiene.
+  The archived dry-run found 45 runs and zero pending. The complete CPU suite
+  passed 71/71 tests. The measured source remains identical to commit
+  `f582364e1248a3b1f9ec241c07c4895eac75783f`; no raw data, trace,
+  parameter, dependency, or scheduling file changed. The release record is
+  docs/v1-release-summary.md. Current audit HEAD is
+  `c27a45c8ade1c0694892bef140f8e1db64f349d2`; upstream is
+  `bb823b3e06983d71485a8e1f23715ebd87d98ef8`. Proposed tag:
+  `scheduling-lab-v1` (not created). The protocol's planned run-ID suffix
+  differs from the archive's unique deterministic IDs; this naming-only
+  deviation does not affect pairing or measurements.
 
 - FINAL-001 packaged the frozen v1 study without changing code, policies,
   traces, dependencies, or raw measurements. README.md now introduces the
@@ -322,15 +338,12 @@ Ubuntu 24.04
 
 ## In Progress
 
-No measured formal performance comparison has run. The three-seed baseline
-capacity gate passed, all policies are functionally validated, and the frozen
-45-run manifest/orchestrator is dry-run validated. Formal GPU execution and
-offline analysis remain separately scoped.
+No v1 implementation or measurement task is in progress. The proposed
+release tag awaits a separate, explicitly authorized action.
 
 ## Not Started
 
-- formal experiments and offline analysis
-- final report
+- Any separately versioned follow-up workload or experiment.
 
 ## Known Issues
 
@@ -525,11 +538,9 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, execute the frozen manifest on the GPU exactly
-as recorded. Preserve terminal failures and partial artifacts, resume only
-pending entries, and do not change traces, run order, policy behavior or the
-fixed aging rate after inspecting results. Aggregate only after the required
-valid run set is available.
+Review the FINAL-002 release record and, only under a separately authorized
+task, create the proposed `scheduling-lab-v1` tag. Any follow-up experiment
+requires a new protocol/profile version; preserve the frozen v1 artifacts.
 
 ## SMOKE-001 Attempt
 

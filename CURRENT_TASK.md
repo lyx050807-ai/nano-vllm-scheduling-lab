@@ -2,20 +2,21 @@
 
 ## Task ID
 
-FINAL-001
+FINAL-002
 
 ## Title
 
-Package scheduling-lab v1 as a complete reproducible project.
+Perform the final scheduling-lab v1 release audit.
 
 ## Goal
 
-Finalize the existing v1 scheduling study for presentation and reproducibility.
+Audit the completed scheduling-lab v1 repository before freezing the release.
 
-Do not modify scheduling behavior, benchmark data, formal traces, aging
-parameters, dependencies, or raw artifacts.
+Do not modify scheduling algorithms, benchmark data, traces, dependencies,
+aging parameters, or experimental results.
 
-This task is documentation and project packaging only.
+Only make a documentation correction if a real release-blocking problem is
+found.
 
 ## Required Reads
 
@@ -24,275 +25,192 @@ Read:
 - AGENTS.md
 - PROJECT_STATE.md
 - README.md
+- docs/v1-report.md
+- docs/reproduce-v1.md
 - docs/architecture.md
 - docs/scheduling-policy-design.md
 - docs/aging-policy-design.md
 - docs/benchmark-protocol.md
 - artifacts/analysis/formal-v1/report.md
-- artifacts/analysis/formal-v1/anomaly-analysis.md
+- artifacts/analysis/formal-v1/analysis-summary.json
 - artifacts/analysis/formal-v1/class-summary.csv
 - artifacts/analysis/formal-v1/paired-results.csv
+- artifacts/formal-benchmark/manifest.json
 - artifacts/formal-benchmark/summary.json
+- artifacts/formal-benchmark/validation.json
 
-Use only frozen v1 results.
+## Repository Audit
 
-## V1 Scope
+Verify the repository contains the expected v1 components:
 
-Clearly define v1 as a scheduling experiment comparing:
+- scheduling policy implementation
+- telemetry
+- reproducible traces
+- replay infrastructure
+- benchmark orchestrator
+- formal benchmark artifacts
+- offline analysis
+- README
+- v1 report
+- reproduction guide
 
-- baseline
-- short_prompt
-- aged_short_prompt
+## Git Audit
 
-The v1 workload is the frozen formal-mixed-v1 workload.
+Record:
 
-Do not introduce or discuss new experimental results from a v2 workload.
+- current branch
+- current HEAD
+- upstream commit
+- git status
+- recent commit history
 
-## Root README
+The final repository should have no unintended working-tree changes.
 
-Update README.md carefully.
+Check that no generated virtual environment, model weights, caches, or other
+large local-only files are accidentally tracked.
 
-Preserve useful upstream nano-vLLM information rather than deleting it.
+## Scheduler Audit
 
-Add a clear scheduling-lab section near the top explaining:
-
-- project objective
-- what was changed
-- three scheduling policies
-- experimental setup
-- headline findings
-- repository structure
-- reproduction entry point
-- link to detailed v1 report
-
-Clearly distinguish this project work from upstream nano-vLLM.
-
-Do not claim ownership of upstream nano-vLLM.
-
-## Headline Results
-
-Use the frozen ANALYSIS-001 results.
-
-Present the main findings accurately:
-
-- short requests receive substantially lower TTFT under short-oriented policies
-- medium requests also improve
-- long requests experience materially higher waiting/TTFT
-- throughput remains approximately unchanged
-- overall E2E effects are small and not robust in sensitivity analysis
-- aged_short_prompt did not materially alter observed first-selection order
-  relative to short_prompt in this frozen workload
-
-Do not say one policy is universally better.
-
-Do not claim aging is generally ineffective.
-
-State that aging was not strongly activated by the frozen workload.
-
-## Core Algorithm Explanation
-
-Explain the policies concisely.
-
-baseline:
-
-candidate = waiting head
-
-short_prompt:
-
-argmin(prompt_tokens)
-
-aged_short_prompt:
-
-argmin(prompt_tokens - 320 * age_seconds)
-
-where age is time since first scheduler enqueue and is preserved across
-preemption/requeue.
-
-Explain:
-
-- O(n) candidate selection
-- stable tie-breaking
-- existing KV-cache/resource checks remain unchanged
-- running/decode scheduling remains unchanged
-
-## Results Table
-
-Include a concise table using frozen v1 class-level means for at least:
-
-- TTFT
-- queue wait
-- E2E
-
-for:
+Verify the released scheduler still supports exactly:
 
 - baseline
 - short_prompt
 - aged_short_prompt
 
-Include short, medium, and long classes.
+Confirm:
 
-Also summarize paired effects in prose.
+- baseline remains the default
+- short_prompt uses prompt length
+- aged_short_prompt uses the frozen 320 tokens/second aging rate
+- stable tie behavior remains documented
+- resource checks are unchanged
+- running/decode behavior is unchanged
 
-Do not manually invent or approximate values when exact frozen values exist.
+Do not modify the implementation.
 
-## Figures
+## Frozen Experiment Audit
 
-Embed or link the existing frozen analysis figures where appropriate:
-
-- TTFT by class
-- queue wait by class
-- long-request fairness
-- paired TTFT change
-
-Do not regenerate results unless needed only for file-format presentation.
-
-Do not alter the underlying analysis data.
-
-## Detailed V1 Report
-
-Create:
-
-docs/v1-report.md
-
-Structure it approximately as:
-
-1. Motivation
-2. System architecture
-3. Baseline scheduler
-4. short_prompt design
-5. aged_short_prompt design
-6. Experimental protocol
-7. Reproducibility controls
-8. Formal results
-9. Paired analysis
-10. Long-request fairness
-11. Aging interpretation
-12. Throughput
-13. Timing anomaly and sensitivity analysis
-14. Limitations
-15. Main conclusions
-16. Future work
-
-Separate:
-
-- measured facts
-- mathematical interpretation
-- limitations
-- future hypotheses
-
-## Reproduction Guide
-
-Create:
-
-docs/reproduce-v1.md
-
-Document the existing workflow required to reproduce v1, including:
-
-- environment assumptions
-- WSL/Linux setup at a high level
-- Python environment
-- validated model
-- formal trace locations
-- benchmark manifest
-- dry-run validation
-- formal benchmark command
-- aggregation command
-- offline analysis command
-- expected artifact locations
-
-Use commands that actually exist in the repository.
-
-Do not invent commands.
-
-Do not require users to regenerate frozen raw artifacts merely to inspect the
-existing results.
-
-## Repository Map
-
-Provide a concise map for:
-
-- nanovllm/
-- scripts/
-- workloads/
-- tests/
-- docs/
-- artifacts/formal-benchmark/
-- artifacts/analysis/formal-v1/
-
-Explain what is source, input, raw measurement, and derived analysis.
-
-## Experimental Integrity
-
-Document that v1 used:
+Verify the documented formal experiment still matches the archived artifacts:
 
 - 3 policies
-- 3 frozen trace seeds
+- 3 trace seeds
 - 5 repetitions
-- 45 formal runs
+- 45 runs
 - 60 requests per run
-- 2700 measured requests total
-- paired (seed, repetition) comparisons
-- precomputed rotated policy order
-- frozen trace hashes
-- immutable raw formal artifacts
+- 2700 measured requests
+- 45/45 successful runs
+- 2700/2700 completed requests
+- paired comparison by seed and repetition
 
-Mention that all 45 formal runs completed successfully.
+Verify formal trace hashes and manifest integrity.
 
-## Timing Anomaly
+## Result Audit
 
-Document the preserved anomalous baseline run:
+Cross-check README.md and docs/v1-report.md against frozen analysis outputs.
 
-- large UTC-wall vs monotonic-observation discrepancy
-- cause was not established by artifacts
+Verify all reported numerical results come from existing analysis artifacts.
+
+Specifically confirm that the documentation does not overclaim:
+
+- short/medium TTFT improvement
+- long-request fairness cost
+- approximately unchanged throughput
+- small/non-robust overall E2E differences
+- aged_short_prompt did not materially change observed first-selection order
+  under formal-mixed-v1
+
+Do not describe aged_short_prompt as generally ineffective.
+
+## Anomaly Audit
+
+Verify the timing anomaly is documented consistently:
+
+- anomalous baseline run is preserved
+- cause remains unestablished
 - primary analysis retains it
 - sensitivity analysis excludes its paired block
 - core short-vs-long trade-off remains
-- small overall E2E direction is not robust
+- small overall E2E result is sensitive
 
 Do not speculate about the cause.
 
-## Limitations
+## Link Audit
 
-Explicitly include:
+Verify all local links in:
 
-- single laptop RTX 4050 environment
-- one model size/model configuration
-- synthetic frozen workload
-- limited concurrency/load regime
-- no sustained-arrival starvation workload in v1
-- aged policy was not strongly activated by observed first-selection order
-- findings should not be generalized to all LLM serving workloads
+- README.md
+- docs/v1-report.md
+- docs/reproduce-v1.md
 
-## Resume / Interview Summary
+Resolve correctly.
 
-Add a concise section to docs/v1-report.md describing the project in
-engineering terms, suitable as source material for a resume or interview.
+Verify referenced figures exist.
 
-It should emphasize:
+## Reproduction Audit
 
-- scheduler architecture analysis
-- policy/mechanism separation
-- reproducible workload/replay infrastructure
-- telemetry
-- paired benchmark design
-- latency/fairness trade-off analysis
+Check every command in docs/reproduce-v1.md against actual repository scripts.
 
-Do not exaggerate performance claims.
+Confirm:
 
-## No V2 Work
+- script names exist
+- command-line options exist
+- referenced workload paths exist
+- referenced manifest paths exist
+- output paths are accurate
 
-Do not:
+Do not run the full 45-run benchmark again.
 
-- create a new workload
-- retune aging
-- implement a new scheduler
-- rerun formal measurements
-- modify frozen raw data
-- modify scheduling source
-- modify dependencies
+Dry-run or CPU-only checks are allowed.
 
-Future sustained-arrival aging experiments may be mentioned only as future
-work.
+## Test Audit
+
+Run the complete CPU test suite.
+
+Run any lightweight existing validation that does not create new formal
+measurements.
+
+Do not rerun the formal GPU benchmark.
+
+Record exact pass counts.
+
+## Raw Artifact Integrity
+
+Verify analysis and documentation work did not modify frozen raw benchmark
+records.
+
+Do not rewrite raw benchmark artifacts.
+
+## Release Summary
+
+Create:
+
+docs/v1-release-summary.md
+
+Keep it concise.
+
+Include:
+
+- release scope
+- implementation summary
+- experiment size
+- headline findings
+- main fairness trade-off
+- important limitation
+- timing anomaly note
+- reproduction entry point
+- frozen commit information
+
+Do not introduce new experimental claims.
+
+## Version Recommendation
+
+Recommend a Git tag for this frozen project version.
+
+Preferred tag:
+
+scheduling-lab-v1
+
+Do not create the tag in this task.
 
 ## Validation
 
@@ -301,47 +219,46 @@ Run:
 git diff --check
 git status --short
 
-Check all relative README/report links.
-
-Confirm no scheduling source, formal trace, or raw benchmark artifact changed.
-
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- FINAL-001 completion
-- v1 documentation paths
-- v1 status as complete pending final repository audit/tag
-- recommended next task: FINAL-002 release audit
+- FINAL-002 completion
+- release audit result
+- test result
+- proposed release tag
+- v1 status
 
 ## Acceptance Criteria
 
-- README explains the project clearly
-- upstream nano-vLLM attribution is preserved
-- exact frozen findings are presented accurately
-- detailed v1 report exists
-- reproduction guide exists
-- limitations are explicit
-- anomaly handling is documented
-- figures/results are linked correctly
-- raw data is unchanged
-- scheduler code is unchanged
-- formal traces are unchanged
+- repository structure is complete
+- source and frozen artifacts are internally consistent
+- reported results match frozen analysis
+- reproduction commands are valid
+- documentation links work
+- CPU tests pass
+- raw formal artifacts remain unchanged
+- no experimental parameters changed
+- release summary exists
+- no scheduling behavior changed
 - git diff --check passes
 
 Do not create a Git commit.
+Do not create a Git tag.
 
 ## Completion Report
 
 Report:
 
-- README changes
-- v1 report path
-- reproduction guide path
-- headline results included
-- figures linked
-- limitations documented
-- anomaly documentation
+- current HEAD
+- repository audit result
+- scheduler audit result
+- frozen experiment validation
+- result/documentation validation
+- anomaly validation
+- reproduction validation
+- CPU test results
+- raw-artifact integrity result
 - files modified
-- validation results
-- recommended final release step
+- proposed Git tag
+- release blockers, if any
