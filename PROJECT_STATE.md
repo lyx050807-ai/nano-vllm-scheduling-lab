@@ -6,12 +6,14 @@ Last updated: 2026-09-21
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002, AGING-001/002, BENCH-003/004 and ANALYSIS-001 complete. The formal-mixed-v1 traces and
+POLICY-001/002, AGING-001/002, BENCH-003/004, ANALYSIS-001 and FINAL-001
+complete. The formal-mixed-v1 traces and
 baseline capacity gate are validated. Baseline, short_prompt and
 aged_short_prompt are implemented and passed CPU and 12-request GPU functional
 smoke. The frozen 45-run formal benchmark and offline paired analysis are
-complete; raw results remain under artifacts/formal-benchmark/ and analysis
-outputs under artifacts/analysis/formal-v1/.
+complete. Scheduling-lab v1 is documented and ready for a final repository
+release audit/tag; raw results remain under artifacts/formal-benchmark/ and
+analysis outputs under artifacts/analysis/formal-v1/.
 
 ## Current Git Branch
 
@@ -65,6 +67,19 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- FINAL-001 packaged the frozen v1 study without changing code, policies,
+  traces, dependencies, or raw measurements. README.md now introduces the
+  scheduling lab near the top, preserves and labels upstream nano-vLLM content,
+  presents exact class-level results, and links figures and the reproduction
+  path. docs/v1-report.md explains architecture, policy mechanisms, frozen
+  protocol, paired results, long-request fairness, aging interpretation,
+  throughput, the preserved timing anomaly/sensitivity, limits and an
+  engineering interview summary. docs/reproduce-v1.md distinguishes direct
+  inspection of archived artifacts from a separate 45-run reproduction and
+  documents the existing CLI commands and evidence paths. Relative links and
+  nine class rows in both README/report were validated against the frozen
+  analysis CSV. Next task: FINAL-002 release audit and tag decision.
 
 - ANALYSIS-001 re-read and hashed all 45 formal run metadata/request records,
   progress files and logs, verified 15 complete paired seed/repetition blocks,

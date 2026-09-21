@@ -2,20 +2,20 @@
 
 ## Task ID
 
-ANALYSIS-001
+FINAL-001
 
 ## Title
 
-Analyze the frozen formal scheduling benchmark.
+Package scheduling-lab v1 as a complete reproducible project.
 
 ## Goal
 
-Perform offline analysis of the completed frozen 45-run benchmark.
+Finalize the existing v1 scheduling study for presentation and reproducibility.
 
-Do not modify scheduling policies, traces, benchmark measurements, or raw run
-artifacts.
+Do not modify scheduling behavior, benchmark data, formal traces, aging
+parameters, dependencies, or raw artifacts.
 
-The analysis must preserve the paired structure of the experiment.
+This task is documentation and project packaging only.
 
 ## Required Reads
 
@@ -23,242 +23,276 @@ Read:
 
 - AGENTS.md
 - PROJECT_STATE.md
-- docs/benchmark-protocol.md
+- README.md
+- docs/architecture.md
 - docs/scheduling-policy-design.md
 - docs/aging-policy-design.md
-- scripts/aggregate_formal.py
-- artifacts/formal-benchmark/manifest.json
-- all frozen formal benchmark run metadata and request records
+- docs/benchmark-protocol.md
+- artifacts/analysis/formal-v1/report.md
+- artifacts/analysis/formal-v1/anomaly-analysis.md
+- artifacts/analysis/formal-v1/class-summary.csv
+- artifacts/analysis/formal-v1/paired-results.csv
+- artifacts/formal-benchmark/summary.json
 
-## Data Integrity
+Use only frozen v1 results.
 
-Treat the completed BENCH-004 artifacts as immutable raw data.
+## V1 Scope
 
-Verify:
+Clearly define v1 as a scheduling experiment comparing:
 
-- 45/45 run records exist
-- 15 seed/repetition paired blocks exist
-- each block contains baseline, short_prompt, aged_short_prompt
-- all successful runs contain 60/60 requests
-- request IDs and trace hashes match within each paired block
+- baseline
+- short_prompt
+- aged_short_prompt
 
-Do not rewrite raw artifacts.
+The v1 workload is the frozen formal-mixed-v1 workload.
 
-## Primary Analysis
+Do not introduce or discuss new experimental results from a v2 workload.
 
-For each policy compute descriptive statistics for:
+## Root README
+
+Update README.md carefully.
+
+Preserve useful upstream nano-vLLM information rather than deleting it.
+
+Add a clear scheduling-lab section near the top explaining:
+
+- project objective
+- what was changed
+- three scheduling policies
+- experimental setup
+- headline findings
+- repository structure
+- reproduction entry point
+- link to detailed v1 report
+
+Clearly distinguish this project work from upstream nano-vLLM.
+
+Do not claim ownership of upstream nano-vLLM.
+
+## Headline Results
+
+Use the frozen ANALYSIS-001 results.
+
+Present the main findings accurately:
+
+- short requests receive substantially lower TTFT under short-oriented policies
+- medium requests also improve
+- long requests experience materially higher waiting/TTFT
+- throughput remains approximately unchanged
+- overall E2E effects are small and not robust in sensitivity analysis
+- aged_short_prompt did not materially alter observed first-selection order
+  relative to short_prompt in this frozen workload
+
+Do not say one policy is universally better.
+
+Do not claim aging is generally ineffective.
+
+State that aging was not strongly activated by the frozen workload.
+
+## Core Algorithm Explanation
+
+Explain the policies concisely.
+
+baseline:
+
+candidate = waiting head
+
+short_prompt:
+
+argmin(prompt_tokens)
+
+aged_short_prompt:
+
+argmin(prompt_tokens - 320 * age_seconds)
+
+where age is time since first scheduler enqueue and is preserved across
+preemption/requeue.
+
+Explain:
+
+- O(n) candidate selection
+- stable tie-breaking
+- existing KV-cache/resource checks remain unchanged
+- running/decode scheduling remains unchanged
+
+## Results Table
+
+Include a concise table using frozen v1 class-level means for at least:
 
 - TTFT
-- queue_wait
-- E2E latency
-
-Analyze:
-
-- overall
-- short
-- medium
-- long
-
-Report at least:
-
-- mean
-- median
-- standard deviation
-- minimum
-- maximum
-- p90/p95 where supported by the pooled request-level data
-
-Keep run-level and request-level summaries distinct.
-
-## Paired Policy Comparison
-
-For every (trace_seed, repeat_index) block compute paired deltas:
-
-short_prompt - baseline
-
-aged_short_prompt - baseline
-
-aged_short_prompt - short_prompt
-
-For TTFT, queue_wait, and E2E.
-
-Report:
-
-- absolute paired differences
-- percentage paired differences
-- mean and median paired differences
-- direction consistency across the 15 pairs
-
-Do not infer superiority from aggregate means alone.
-
-## Prompt-Class Analysis
-
-Perform paired analysis separately for:
-
-- short
-- medium
-- long
-
-Quantify the latency/fairness trade-off.
-
-Explicitly examine whether improvements for short/medium correspond to
-degradation for long requests.
-
-## Fairness Analysis
-
-For long requests analyze:
-
-- mean queue wait
-- median queue wait
-- p90/p95 queue wait
-- maximum queue wait
-- TTFT
+- queue wait
 - E2E
-- worst observed requests
 
-Define a transparent near-starvation diagnostic using the frozen data.
+for:
 
-Do not choose a threshold to make one policy look favorable.
+- baseline
+- short_prompt
+- aged_short_prompt
 
-If possible, report the count/fraction of long requests exceeding fixed
-queue-wait thresholds such as:
+Include short, medium, and long classes.
 
-- 100 ms
-- 250 ms
-- 500 ms
+Also summarize paired effects in prose.
 
-These thresholds are descriptive only.
-
-## Aging Effectiveness
-
-Directly compare short_prompt and aged_short_prompt.
-
-Determine:
-
-- how often their request service/order behavior differs
-- in which traces/runs differences occur
-- whether aging materially changes long-request queue wait
-- whether requests cross the intended 0.2 / 0.3 / 0.5 second priority
-  crossover conditions
-
-Where available, reconstruct candidate/order evidence from recorded artifacts.
-
-If exact scheduler-decision traces are unavailable, state that limitation and
-use observable service-order/timestamp differences without inventing decisions.
-
-Explain mathematically that for:
-
-score_i = L_i - alpha * (now - first_enqueue_i)
-
-the common -alpha*now term cancels during a single selection, so relative
-ranking depends on prompt length and first-enqueue time.
-
-Discuss what this implies for the frozen workload.
-
-Do not change the aging rate based on these results.
-
-## Throughput Analysis
-
-Compare run throughput across policies.
-
-Determine whether the policies mainly redistribute latency or materially
-change throughput.
-
-## Timing Anomaly Investigation
-
-Investigate the baseline run reported with approximately:
-
-- 615.544 s UTC wall duration
-- 21.875 s monotonic observation duration
-
-Identify the run_id.
-
-Inspect:
-
-- request timestamps
-- progress records
-- runner log
-- run metadata
-- latency distribution relative to other baseline runs
-
-Do not delete or replace this run.
-
-Produce:
-
-1. primary analysis including the run
-2. sensitivity analysis excluding the anomalous run
-
-Only exclude it from a sensitivity view; the frozen primary dataset remains
-unchanged.
-
-Do not assert a cause unless supported by artifacts.
-
-## Statistical Analysis
-
-Because the design is paired, use paired analysis where appropriate.
-
-Provide confidence intervals for important paired effects if practical.
-
-If formal significance tests are used, state:
-
-- unit of analysis
-- assumptions
-- exact test
-- sample size
-
-Prefer transparent effect sizes and confidence intervals over relying only on
-p-values.
-
-Do not treat individual requests as independent replicates when the comparison
-unit should be the 15 paired runs.
+Do not manually invent or approximate values when exact frozen values exist.
 
 ## Figures
 
-Create offline figures for at least:
+Embed or link the existing frozen analysis figures where appropriate:
 
-1. TTFT by prompt class and policy
-2. queue wait by prompt class and policy
-3. E2E by prompt class and policy
-4. paired TTFT change vs baseline
-5. long-request fairness / queue-wait comparison
+- TTFT by class
+- queue wait by class
+- long-request fairness
+- paired TTFT change
 
-Use clear labels and units.
+Do not regenerate results unless needed only for file-format presentation.
 
-Do not modify raw benchmark artifacts.
+Do not alter the underlying analysis data.
 
-## Outputs
-
-Create a dedicated directory such as:
-
-artifacts/analysis/formal-v1/
+## Detailed V1 Report
 
 Create:
 
-- analysis-summary.json
-- paired-results.csv
-- class-summary.csv
-- anomaly-analysis.md
-- figures
-- concise markdown analysis report
+docs/v1-report.md
 
-The report must distinguish:
+Structure it approximately as:
+
+1. Motivation
+2. System architecture
+3. Baseline scheduler
+4. short_prompt design
+5. aged_short_prompt design
+6. Experimental protocol
+7. Reproducibility controls
+8. Formal results
+9. Paired analysis
+10. Long-request fairness
+11. Aging interpretation
+12. Throughput
+13. Timing anomaly and sensitivity analysis
+14. Limitations
+15. Main conclusions
+16. Future work
+
+Separate:
 
 - measured facts
 - mathematical interpretation
 - limitations
-- exploratory implications
+- future hypotheses
 
-## Restrictions
+## Reproduction Guide
+
+Create:
+
+docs/reproduce-v1.md
+
+Document the existing workflow required to reproduce v1, including:
+
+- environment assumptions
+- WSL/Linux setup at a high level
+- Python environment
+- validated model
+- formal trace locations
+- benchmark manifest
+- dry-run validation
+- formal benchmark command
+- aggregation command
+- offline analysis command
+- expected artifact locations
+
+Use commands that actually exist in the repository.
+
+Do not invent commands.
+
+Do not require users to regenerate frozen raw artifacts merely to inspect the
+existing results.
+
+## Repository Map
+
+Provide a concise map for:
+
+- nanovllm/
+- scripts/
+- workloads/
+- tests/
+- docs/
+- artifacts/formal-benchmark/
+- artifacts/analysis/formal-v1/
+
+Explain what is source, input, raw measurement, and derived analysis.
+
+## Experimental Integrity
+
+Document that v1 used:
+
+- 3 policies
+- 3 frozen trace seeds
+- 5 repetitions
+- 45 formal runs
+- 60 requests per run
+- 2700 measured requests total
+- paired (seed, repetition) comparisons
+- precomputed rotated policy order
+- frozen trace hashes
+- immutable raw formal artifacts
+
+Mention that all 45 formal runs completed successfully.
+
+## Timing Anomaly
+
+Document the preserved anomalous baseline run:
+
+- large UTC-wall vs monotonic-observation discrepancy
+- cause was not established by artifacts
+- primary analysis retains it
+- sensitivity analysis excludes its paired block
+- core short-vs-long trade-off remains
+- small overall E2E direction is not robust
+
+Do not speculate about the cause.
+
+## Limitations
+
+Explicitly include:
+
+- single laptop RTX 4050 environment
+- one model size/model configuration
+- synthetic frozen workload
+- limited concurrency/load regime
+- no sustained-arrival starvation workload in v1
+- aged policy was not strongly activated by observed first-selection order
+- findings should not be generalized to all LLM serving workloads
+
+## Resume / Interview Summary
+
+Add a concise section to docs/v1-report.md describing the project in
+engineering terms, suitable as source material for a resume or interview.
+
+It should emphasize:
+
+- scheduler architecture analysis
+- policy/mechanism separation
+- reproducible workload/replay infrastructure
+- telemetry
+- paired benchmark design
+- latency/fairness trade-off analysis
+
+Do not exaggerate performance claims.
+
+## No V2 Work
 
 Do not:
 
-- modify scheduling code
-- modify formal traces
-- modify raw benchmark runs
+- create a new workload
 - retune aging
-- rerun failed or unfavorable results
-- run a new policy benchmark
-- overwrite formal artifacts
+- implement a new scheduler
+- rerun formal measurements
+- modify frozen raw data
+- modify scheduling source
+- modify dependencies
+
+Future sustained-arrival aging experiments may be mentioned only as future
+work.
 
 ## Validation
 
@@ -267,31 +301,32 @@ Run:
 git diff --check
 git status --short
 
-Source scheduling behavior must remain unchanged.
+Check all relative README/report links.
+
+Confirm no scheduling source, formal trace, or raw benchmark artifact changed.
 
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- ANALYSIS-001 status
-- main descriptive findings
-- anomaly status
-- artifact paths
-- recommended next task
+- FINAL-001 completion
+- v1 documentation paths
+- v1 status as complete pending final repository audit/tag
+- recommended next task: FINAL-002 release audit
 
 ## Acceptance Criteria
 
-- all 15 paired blocks are analyzed
-- overall and class-specific results are reported
-- paired deltas are computed
-- long-request fairness is analyzed
-- aging effectiveness is directly examined
-- throughput is analyzed
-- timing anomaly is investigated
-- sensitivity analysis is provided
-- figures are produced
-- raw formal artifacts remain unchanged
-- no scheduling code changes
+- README explains the project clearly
+- upstream nano-vLLM attribution is preserved
+- exact frozen findings are presented accurately
+- detailed v1 report exists
+- reproduction guide exists
+- limitations are explicit
+- anomaly handling is documented
+- figures/results are linked correctly
+- raw data is unchanged
+- scheduler code is unchanged
+- formal traces are unchanged
 - git diff --check passes
 
 Do not create a Git commit.
@@ -300,15 +335,13 @@ Do not create a Git commit.
 
 Report:
 
-- dataset validation
-- main overall findings
-- short/medium/long findings
-- paired effect sizes
-- long-request fairness findings
-- aging effectiveness
-- throughput findings
-- anomaly investigation
-- sensitivity-analysis result
-- output files
-- limitations
-- recommended next step
+- README changes
+- v1 report path
+- reproduction guide path
+- headline results included
+- figures linked
+- limitations documented
+- anomaly documentation
+- files modified
+- validation results
+- recommended final release step
