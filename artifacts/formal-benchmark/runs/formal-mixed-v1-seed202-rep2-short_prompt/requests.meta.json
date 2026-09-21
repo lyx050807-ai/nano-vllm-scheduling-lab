@@ -1,0 +1,246 @@
+{
+  "aging_rate_tokens_per_second": 320,
+  "capture_outcome": "completed",
+  "clock": "time.perf_counter_ns",
+  "clock_origin": "after engine initialization and one telemetry-disabled warmup",
+  "clock_resolution_s": 1e-09,
+  "completion_count": 60,
+  "dirty": true,
+  "engine_config": {
+    "aging_rate_tokens_per_second": 320,
+    "enforce_eager": true,
+    "gpu_memory_utilization": 0.6,
+    "max_model_len": 256,
+    "max_num_batched_tokens": 256,
+    "max_num_seqs": 1,
+    "scheduling_policy": "short_prompt",
+    "tensor_parallel_size": 1
+  },
+  "environment": {
+    "cuda_runtime": "12.4",
+    "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "torch": "2.6.0+cu124"
+  },
+  "finished_at_utc": "2026-09-21T06:29:40.121515+00:00",
+  "gpu_memory_bytes": {
+    "end_allocated": 2630891520,
+    "end_reserved": 2707423232,
+    "peak_allocated": 2636926464,
+    "peak_reserved": 2707423232
+  },
+  "incomplete_request_ids": [],
+  "latency_diagnostics_ms": {
+    "by_prompt_class": {
+      "long": {
+        "admission_overhead_ms": {
+          "count": 20,
+          "max": 23.458948,
+          "mean": 10.989179799999999,
+          "median": 10.840276
+        },
+        "e2e_latency_ms": {
+          "count": 20,
+          "max": 16341.15906,
+          "mean": 10308.75292085,
+          "median": 10595.4774625
+        },
+        "engine_ttft_ms": {
+          "count": 20,
+          "max": 740.337843,
+          "mean": 119.55799225000001,
+          "median": 78.7957225
+        },
+        "queue_wait_ms": {
+          "count": 20,
+          "max": 712.946594,
+          "mean": 91.98819165,
+          "median": 52.098234500000004
+        },
+        "replay_error_ms": {
+          "count": 20,
+          "max": 7.696707,
+          "mean": 6.7479086,
+          "median": 7.148878
+        },
+        "ttft_ms": {
+          "count": 20,
+          "max": 741.154185,
+          "mean": 130.54717205,
+          "median": 86.852012
+        }
+      },
+      "medium": {
+        "admission_overhead_ms": {
+          "count": 20,
+          "max": 23.468289,
+          "mean": 13.382538199999999,
+          "median": 13.06452
+        },
+        "e2e_latency_ms": {
+          "count": 20,
+          "max": 15705.093876,
+          "mean": 10157.81976075,
+          "median": 10421.496265000002
+        },
+        "engine_ttft_ms": {
+          "count": 20,
+          "max": 87.164773,
+          "mean": 48.61573575,
+          "median": 51.3271525
+        },
+        "queue_wait_ms": {
+          "count": 20,
+          "max": 60.671152,
+          "mean": 22.499027599999998,
+          "median": 25.906281999999997
+        },
+        "replay_error_ms": {
+          "count": 20,
+          "max": 7.699057,
+          "mean": 6.6789106,
+          "median": 7.1572815
+        },
+        "ttft_ms": {
+          "count": 20,
+          "max": 104.626101,
+          "mean": 61.99827395,
+          "median": 60.6939925
+        }
+      },
+      "short": {
+        "admission_overhead_ms": {
+          "count": 20,
+          "max": 20.85696,
+          "mean": 12.9011336,
+          "median": 15.3169625
+        },
+        "e2e_latency_ms": {
+          "count": 20,
+          "max": 14976.761239,
+          "mean": 6561.03294725,
+          "median": 5502.285643499999
+        },
+        "engine_ttft_ms": {
+          "count": 20,
+          "max": 82.967248,
+          "mean": 40.5170367,
+          "median": 26.97549
+        },
+        "queue_wait_ms": {
+          "count": 20,
+          "max": 56.069122,
+          "mean": 14.1955299,
+          "median": 0.0484445
+        },
+        "replay_error_ms": {
+          "count": 20,
+          "max": 7.68567,
+          "mean": 5.02811535,
+          "median": 4.6052695
+        },
+        "ttft_ms": {
+          "count": 20,
+          "max": 95.207215,
+          "mean": 53.4181703,
+          "median": 44.087230500000004
+        }
+      }
+    },
+    "overall": {
+      "admission_overhead_ms": {
+        "count": 60,
+        "max": 23.468289,
+        "mean": 12.424283866666666,
+        "median": 12.898185
+      },
+      "e2e_latency_ms": {
+        "count": 60,
+        "max": 16341.15906,
+        "mean": 9009.201876283334,
+        "median": 9144.8711325
+      },
+      "engine_ttft_ms": {
+        "count": 60,
+        "max": 740.337843,
+        "mean": 69.56358823333333,
+        "median": 52.452298
+      },
+      "queue_wait_ms": {
+        "count": 60,
+        "max": 712.946594,
+        "mean": 42.894249716666664,
+        "median": 26.514563
+      },
+      "replay_error_ms": {
+        "count": 60,
+        "max": 7.699057,
+        "mean": 6.151644849999999,
+        "median": 7.0926605
+      },
+      "ttft_ms": {
+        "count": 60,
+        "max": 741.154185,
+        "mean": 81.9878721,
+        "median": 68.6046705
+      }
+    }
+  },
+  "lifecycle_invariants": "passed",
+  "metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
+  "mode": "formal-measurement",
+  "model": {
+    "files_sha256": {
+      "config.json": "660db3b73d788119c04535e48cf9be5f55bc3100841a718637ae695b442f27dd",
+      "model.safetensors": "f47f71177f32bcd101b7573ec9171e6a57f4f4d31148d38e382306f42996874b"
+    },
+    "repository": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca"
+  },
+  "observation_end_s": 21.1013973,
+  "policy": "short_prompt",
+  "project_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+  "request_count": 60,
+  "run_id": "formal-mixed-v1-seed202-rep2-short_prompt",
+  "sampling": {
+    "ignore_eos": false,
+    "inference_seed": 42,
+    "temperature": 0.6
+  },
+  "source_sha256": {
+    "nanovllm/config.py": "7a06c15b687439e9c54ba50fe01e7017fcec447eb5b7125327d57f3c59ea0894",
+    "nanovllm/engine/scheduler.py": "c43f2f00ae57aafd8320637564ed6398967221b9e0f77fbe316bd4793d1d62dc",
+    "nanovllm/engine/waiting_policy.py": "785678daed9633ca05c2460a7c04b9fb911d1e617fb13fd86aa062881d5d329d",
+    "nanovllm/telemetry.py": "9cdc4d404b6e69922ca432f5099ba01ca09a53bc5c5684b70fee1306e1f5ca2c",
+    "scripts/replay_trace.py": "4fcc55ec31c22fa54bfc1121190be21122e95827b8c5b464bb12c4dd9c6a7795",
+    "scripts/run_replay.py": "ebba5804e5a6697986e1c1e7e9a032f5265052945812e23fdee0af4f1abf25e3"
+  },
+  "started_at_utc": "2026-09-21T06:29:14.734439+00:00",
+  "t0_ns": 59634469895947,
+  "timeout_s": 90.0,
+  "timing_note": "Host/OS and GIL scheduling affect release; calibration/development data, not final benchmark.",
+  "tokenizer": {
+    "class": "Qwen2TokenizerFast",
+    "files_sha256": {
+      "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+      "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+      "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+    },
+    "repository": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "tokenizers_version": "0.22.2",
+    "transformers_version": "4.57.6"
+  },
+  "trace_sha256": "e3c82a96d5b7295b7e98d4d4884476ddd9cc5ee1701831f4d5e63e8872e94078",
+  "tracked_diff_sha256": "f4648a22e92aa2400541563c1f8825351e89852654f0bbaa54aea46822d13e42",
+  "upstream_commit": "bb823b3e06983d71485a8e1f23715ebd87d98ef8",
+  "warmup": {
+    "cache_state": "engine constructor plus one request warmup",
+    "max_new_tokens": 4,
+    "output_tokens": 4,
+    "requests": 1,
+    "telemetry_enabled": false
+  }
+}

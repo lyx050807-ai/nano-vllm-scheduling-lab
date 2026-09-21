@@ -6,11 +6,11 @@ Last updated: 2026-09-21
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002, AGING-001/002 and BENCH-003 complete. The formal-mixed-v1 traces and
+POLICY-001/002, AGING-001/002 and BENCH-003/004 complete. The formal-mixed-v1 traces and
 baseline capacity gate are validated. Baseline, short_prompt and
 aged_short_prompt are implemented and passed CPU and 12-request GPU functional
-smoke. The 45-run formal plan is frozen and dry-run validated; formal policy
-measurement has not run.
+smoke. The frozen 45-run formal benchmark is complete; its raw results and
+paired per-run summary are preserved under artifacts/formal-benchmark/.
 
 ## Current Git Branch
 
@@ -64,6 +64,43 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- BENCH-004 executed the unchanged 45-entry formal manifest in its precomputed
+  order: 15 runs each for baseline, short_prompt and aged_short_prompt, with
+  five repetitions for each policy/seed combination. All 45 independent
+  attempts exited successfully; 2700/2700 measured requests completed,
+  including 20 short, 20 medium and 20 long requests per run. There were no
+  timeout, OOM, runner or lifecycle failures and no retries. The first run
+  started 2026-09-21 06:07:08 UTC and the last finished 07:01:09 UTC,
+  for 3240.755 s elapsed wall time. Execution used project commit
+  f582364e1248a3b1f9ec241c07c4895eac75783f; the manifest's frozen
+  plan-creation commit remains 86d088d1ec6243cbed71fcb9c94bed47727005d6.
+  Source and workload content were unchanged between those commits.
+- Preflight provenance is in artifacts/formal-benchmark/preflight.json. Raw
+  requests, progress, logs and metadata are retained in 45 unique
+  artifacts/formal-benchmark/runs/<run_id>/ directories; terminal outcomes
+  are checkpointed in manifest.json. The independent validation record is
+  artifacts/formal-benchmark/validation.json. It confirms run order, unique
+  IDs/paths, one attempt per run, all request identities and counts, exclusion
+  of the telemetry-disabled warm-up, correct policy/aging metadata, unchanged
+  trace/sidecar and source hashes, and passed lifecycle invariants.
+- Frozen aggregation produced artifacts/formal-benchmark/summary.json with
+  all 45 per-run summaries, 45 outcomes and 15 complete `(trace_seed,
+  repeat_index)` paired keys. Mean of the 15 run-level overall means by
+  baseline/short_prompt/aged_short_prompt respectively: TTFT
+  86.432/84.776/83.265 ms, queue wait 49.038/46.942/45.775 ms, and E2E
+  9013.483/9027.648/9080.995 ms. These are descriptive summaries, not a
+  policy superiority claim. Full short/medium/long, engine TTFT, admission
+  overhead, ITL, completion and throughput values remain in the summary.
+- One timing anomaly is preserved: seed303/rep4/baseline took 615.544 s by
+  UTC wall timestamps versus 21.875 s recorded monotonic observation time.
+  It still completed 60/60 and passed lifecycle audit; the cause of the
+  wall/monotonic discrepancy has not been established. Formal runner metadata
+  also retains a generic timing note mentioning calibration/development data
+  despite `mode=formal-measurement`; the mode and provenance fields are
+  correct. No measurement or metadata was rewritten. Next task: offline
+  paired analysis of the frozen 15 keys, including class-specific latency,
+  long-request fairness and sensitivity to the timing anomaly.
 
 - BENCH-003 added scripts/formal_benchmark.py and
   scripts/aggregate_formal.py. The orchestrator freezes 45 measured runs:

@@ -25,10 +25,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep0-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep0-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:07:41.307961+00:00",
+          "gap_from_previous_process_exit_s": null,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:07:41.299023+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:07:08.576082+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 0,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -50,7 +67,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed101-rep0-baseline",
       "run_order_index": 0,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -61,10 +78,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep0-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep0-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:08:42.810051+00:00",
+          "gap_from_previous_process_exit_s": 28.774501,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:08:42.808163+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:08:10.073524+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 0,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -86,7 +120,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed101-rep0-short_prompt",
       "run_order_index": 1,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -97,10 +131,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep0-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep0-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:09:42.312789+00:00",
+          "gap_from_previous_process_exit_s": 29.169424,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:09:42.310589+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:09:11.977587+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 0,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -122,7 +173,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed101-rep0-aged_short_prompt",
       "run_order_index": 2,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -133,10 +184,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep0-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep0-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:10:41.935311+00:00",
+          "gap_from_previous_process_exit_s": 29.105347,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:10:41.933018+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:10:11.415936+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 1,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -158,7 +226,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed202-rep0-short_prompt",
       "run_order_index": 3,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -169,10 +237,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep0-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep0-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:11:41.519167+00:00",
+          "gap_from_previous_process_exit_s": 29.159777,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:11:41.517867+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:11:11.092795+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 1,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -194,7 +279,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed202-rep0-aged_short_prompt",
       "run_order_index": 4,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -205,10 +290,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep0-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep0-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:12:44.431841+00:00",
+          "gap_from_previous_process_exit_s": 30.014205,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:12:44.427411+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:12:11.532072+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 1,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -230,7 +332,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed202-rep0-baseline",
       "run_order_index": 5,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -241,10 +343,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep0-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep0-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:13:45.979564+00:00",
+          "gap_from_previous_process_exit_s": 29.166655,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:13:45.978569+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:13:13.594066+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 2,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -266,7 +385,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed303-rep0-aged_short_prompt",
       "run_order_index": 6,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -277,10 +396,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep0-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep0-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:14:45.902345+00:00",
+          "gap_from_previous_process_exit_s": 29.085882,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:14:45.900797+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:14:15.064451+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 2,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -302,7 +438,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed303-rep0-baseline",
       "run_order_index": 7,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -313,10 +449,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep0-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep0-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:15:44.480541+00:00",
+          "gap_from_previous_process_exit_s": 28.740246,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:15:44.478933+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:15:14.641043+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 2,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -338,7 +491,7 @@
       "repeat_index": 0,
       "run_id": "formal-mixed-v1-seed303-rep0-short_prompt",
       "run_order_index": 8,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -349,10 +502,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep1-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep1-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:16:43.940879+00:00",
+          "gap_from_previous_process_exit_s": 29.180451,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:16:43.938549+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:16:13.659384+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 3,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -374,7 +544,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed101-rep1-short_prompt",
       "run_order_index": 9,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -385,10 +555,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep1-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep1-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:17:43.891084+00:00",
+          "gap_from_previous_process_exit_s": 30.013892,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:17:43.888693+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:17:13.952441+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 3,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -410,7 +597,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed101-rep1-aged_short_prompt",
       "run_order_index": 10,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -421,10 +608,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep1-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep1-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:18:44.187324+00:00",
+          "gap_from_previous_process_exit_s": 29.136697,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:18:44.185046+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:18:13.025390+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 3,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -446,7 +650,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed101-rep1-baseline",
       "run_order_index": 11,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -457,10 +661,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep1-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep1-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:19:43.781193+00:00",
+          "gap_from_previous_process_exit_s": 29.118444,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:19:43.779929+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:19:13.303490+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 4,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -482,7 +703,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed202-rep1-aged_short_prompt",
       "run_order_index": 12,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -493,10 +714,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep1-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep1-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:20:43.155737+00:00",
+          "gap_from_previous_process_exit_s": 29.123439,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:20:43.154737+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:20:12.903368+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 4,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -518,7 +756,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed202-rep1-baseline",
       "run_order_index": 13,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -529,10 +767,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep1-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep1-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:21:43.951890+00:00",
+          "gap_from_previous_process_exit_s": 29.127607,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:21:43.950235+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:21:12.282344+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 4,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -554,7 +809,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed202-rep1-short_prompt",
       "run_order_index": 14,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -565,10 +820,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep1-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep1-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:22:44.760812+00:00",
+          "gap_from_previous_process_exit_s": 29.071876,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:22:44.759613+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:22:13.022111+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 5,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -590,7 +862,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed303-rep1-baseline",
       "run_order_index": 15,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -601,10 +873,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep1-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep1-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:23:45.510197+00:00",
+          "gap_from_previous_process_exit_s": 30.028624,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:23:45.508438+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:23:14.788237+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 5,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -626,7 +915,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed303-rep1-short_prompt",
       "run_order_index": 16,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -637,10 +926,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep1-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep1-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:24:44.530308+00:00",
+          "gap_from_previous_process_exit_s": 29.118591,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:24:44.529332+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:24:14.627029+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 5,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -662,7 +968,7 @@
       "repeat_index": 1,
       "run_id": "formal-mixed-v1-seed303-rep1-aged_short_prompt",
       "run_order_index": 17,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -673,10 +979,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep2-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep2-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:25:43.781079+00:00",
+          "gap_from_previous_process_exit_s": 29.106011,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:25:43.779849+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:25:13.635343+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 6,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -698,7 +1021,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed101-rep2-aged_short_prompt",
       "run_order_index": 18,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -709,10 +1032,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep2-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep2-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:26:42.977531+00:00",
+          "gap_from_previous_process_exit_s": 29.091666,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:26:42.975745+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:26:12.871515+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 6,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -734,7 +1074,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed101-rep2-baseline",
       "run_order_index": 19,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -745,10 +1085,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep2-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep2-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:27:42.153059+00:00",
+          "gap_from_previous_process_exit_s": 29.079438,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:27:42.152064+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:27:12.055183+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 6,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -770,7 +1127,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed101-rep2-short_prompt",
       "run_order_index": 20,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -781,10 +1138,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep2-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep2-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:28:41.520728+00:00",
+          "gap_from_previous_process_exit_s": 29.110967,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:28:41.519768+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:28:11.263031+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 7,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -806,7 +1180,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed202-rep2-baseline",
       "run_order_index": 21,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -817,10 +1191,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep2-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep2-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:29:40.744257+00:00",
+          "gap_from_previous_process_exit_s": 29.088597,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:29:40.741290+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:29:10.608365+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 7,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -842,7 +1233,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed202-rep2-short_prompt",
       "run_order_index": 22,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -853,10 +1244,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep2-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep2-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:30:39.579684+00:00",
+          "gap_from_previous_process_exit_s": 29.061997,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:30:39.577248+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:30:09.803287+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 7,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -878,7 +1286,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed202-rep2-aged_short_prompt",
       "run_order_index": 23,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -889,10 +1297,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep2-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep2-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:31:40.749550+00:00",
+          "gap_from_previous_process_exit_s": 30.014386,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:31:40.748310+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:31:09.591634+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 8,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -914,7 +1339,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed303-rep2-short_prompt",
       "run_order_index": 24,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -925,10 +1350,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep2-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep2-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:32:39.312858+00:00",
+          "gap_from_previous_process_exit_s": 28.173372,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:32:39.311868+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:32:08.921682+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 8,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -950,7 +1392,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed303-rep2-aged_short_prompt",
       "run_order_index": 25,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -961,10 +1403,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep2-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep2-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:33:38.799114+00:00",
+          "gap_from_previous_process_exit_s": 29.079067,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:33:38.797193+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:33:08.390935+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 8,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -986,7 +1445,7 @@
       "repeat_index": 2,
       "run_id": "formal-mixed-v1-seed303-rep2-baseline",
       "run_order_index": 26,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -997,10 +1456,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep3-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep3-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:34:37.962362+00:00",
+          "gap_from_previous_process_exit_s": 29.141347,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:34:37.960642+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:34:07.938540+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 9,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1022,7 +1498,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed101-rep3-baseline",
       "run_order_index": 27,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -1033,10 +1509,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep3-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep3-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:35:36.978417+00:00",
+          "gap_from_previous_process_exit_s": 29.073214,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:35:36.977306+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:35:07.033856+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 9,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1058,7 +1551,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed101-rep3-short_prompt",
       "run_order_index": 28,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -1069,10 +1562,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep3-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep3-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:36:36.863516+00:00",
+          "gap_from_previous_process_exit_s": 30.015569,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:36:36.861944+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:36:06.992875+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 9,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1094,7 +1604,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed101-rep3-aged_short_prompt",
       "run_order_index": 29,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -1105,10 +1615,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep3-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep3-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:37:37.793792+00:00",
+          "gap_from_previous_process_exit_s": 29.169656,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:37:37.792694+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:37:06.031600+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 10,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1130,7 +1657,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed202-rep3-short_prompt",
       "run_order_index": 30,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -1141,10 +1668,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep3-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep3-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:38:38.464265+00:00",
+          "gap_from_previous_process_exit_s": 29.128461,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:38:38.463322+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:38:06.921155+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 10,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1166,7 +1710,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed202-rep3-aged_short_prompt",
       "run_order_index": 31,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -1177,10 +1721,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep3-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep3-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:39:37.819559+00:00",
+          "gap_from_previous_process_exit_s": 29.087236,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:39:37.818673+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:39:07.550558+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 10,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1202,7 +1763,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed202-rep3-baseline",
       "run_order_index": 32,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -1213,10 +1774,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep3-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep3-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:40:37.676698+00:00",
+          "gap_from_previous_process_exit_s": 29.10707,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:40:37.675673+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:40:06.925743+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 11,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1238,7 +1816,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed303-rep3-aged_short_prompt",
       "run_order_index": 33,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -1249,10 +1827,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep3-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep3-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:41:36.397898+00:00",
+          "gap_from_previous_process_exit_s": 29.131339,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:41:36.396937+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:41:06.807012+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 11,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1274,7 +1869,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed303-rep3-baseline",
       "run_order_index": 34,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -1285,10 +1880,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep3-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep3-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:42:35.565331+00:00",
+          "gap_from_previous_process_exit_s": 29.092699,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:42:35.563469+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:42:05.489636+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 11,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1310,7 +1922,7 @@
       "repeat_index": 3,
       "run_id": "formal-mixed-v1-seed303-rep3-short_prompt",
       "run_order_index": 35,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -1321,10 +1933,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep4-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep4-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:43:34.721635+00:00",
+          "gap_from_previous_process_exit_s": 29.06554,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:43:34.720430+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:43:04.629009+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 12,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1346,7 +1975,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed101-rep4-short_prompt",
       "run_order_index": 36,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -1357,10 +1986,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep4-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep4-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:44:33.877206+00:00",
+          "gap_from_previous_process_exit_s": 29.10216,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:44:33.876347+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:44:03.822590+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 12,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1382,7 +2028,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed101-rep4-aged_short_prompt",
       "run_order_index": 37,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -1393,10 +2039,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed101-rep4-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed101-rep4-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:45:32.848754+00:00",
+          "gap_from_previous_process_exit_s": 29.079069,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:45:32.847089+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:45:02.955416+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 12,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1418,7 +2081,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed101-rep4-baseline",
       "run_order_index": 38,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed101.meta.json",
       "trace_metadata_sha256": "fb298e8ba8019d86e54c62487eb5906e0a59d9889ca5ca73881560f53e0b1476",
       "trace_path": "workloads/formal_trace_seed101.jsonl",
@@ -1429,10 +2092,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep4-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep4-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:46:31.738041+00:00",
+          "gap_from_previous_process_exit_s": 29.095186,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:46:31.737080+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:46:01.942275+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 13,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1454,7 +2134,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed202-rep4-aged_short_prompt",
       "run_order_index": 39,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -1465,10 +2145,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep4-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep4-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:47:28.969376+00:00",
+          "gap_from_previous_process_exit_s": 29.09778,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:47:28.968408+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:47:00.834860+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 13,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1490,7 +2187,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed202-rep4-baseline",
       "run_order_index": 40,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -1501,10 +2198,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed202-rep4-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed202-rep4-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:48:25.392634+00:00",
+          "gap_from_previous_process_exit_s": 30.023194,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:48:25.355847+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:47:58.991602+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 13,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1526,7 +2240,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed202-rep4-short_prompt",
       "run_order_index": 41,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed202.meta.json",
       "trace_metadata_sha256": "8603718474005a5dc3f18fac2b76cd4e37d23252dd19ea124c5f34734d95ebfc",
       "trace_path": "workloads/formal_trace_seed202.jsonl",
@@ -1537,10 +2251,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep4-baseline",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep4-baseline",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T06:59:10.002725+00:00",
+          "gap_from_previous_process_exit_s": 29.102981,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T06:59:09.993343+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:48:54.458828+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 14,
       "block_position": 0,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1562,7 +2293,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed303-rep4-baseline",
       "run_order_index": 42,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -1573,10 +2304,27 @@
     {
       "aging_rate_tokens_per_second": null,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep4-short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep4-short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T07:00:09.413264+00:00",
+          "gap_from_previous_process_exit_s": 28.995476,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T07:00:09.412247+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T06:59:38.988819+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 14,
       "block_position": 1,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1598,7 +2346,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed303-rep4-short_prompt",
       "run_order_index": 43,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",
@@ -1609,10 +2357,27 @@
     {
       "aging_rate_tokens_per_second": 320,
       "artifact_directory": "runs/formal-mixed-v1-seed303-rep4-aged_short_prompt",
-      "attempts": [],
+      "attempts": [
+        {
+          "artifact_directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/formal-benchmark/runs/formal-mixed-v1-seed303-rep4-aged_short_prompt",
+          "attempt": 1,
+          "audit_error": null,
+          "capture_outcome": "completed",
+          "completion_count": 60,
+          "executed_project_git_commit": "f582364e1248a3b1f9ec241c07c4895eac75783f",
+          "exit_code": 0,
+          "finished_at_utc": "2026-09-21T07:01:09.330706+00:00",
+          "gap_from_previous_process_exit_s": 28.781759,
+          "lifecycle_invariants": "passed",
+          "process_exited_at_utc": "2026-09-21T07:01:09.329641+00:00",
+          "process_watchdog_timeout": false,
+          "started_at_utc": "2026-09-21T07:00:38.194006+00:00",
+          "status": "success"
+        }
+      ],
       "block_index": 14,
       "block_position": 2,
-      "completion_count": null,
+      "completion_count": 60,
       "engine_configuration": {
         "enforce_eager": true,
         "gpu_memory_utilization": 0.6,
@@ -1634,7 +2399,7 @@
       "repeat_index": 4,
       "run_id": "formal-mixed-v1-seed303-rep4-aged_short_prompt",
       "run_order_index": 44,
-      "status": "pending",
+      "status": "success",
       "trace_metadata_path": "workloads/formal_trace_seed303.meta.json",
       "trace_metadata_sha256": "af6d5affaf40cbd7e72a0961d37d10dcdbe59664ce8a563e954ec844862d4526",
       "trace_path": "workloads/formal_trace_seed303.jsonl",

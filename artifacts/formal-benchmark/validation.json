@@ -1,0 +1,26 @@
+{
+  "artifact_inventory_valid": true,
+  "completion_count": 2700,
+  "elapsed_wall_seconds": 3240.754624,
+  "first_started_at_utc": "2026-09-21T06:07:08.576082+00:00",
+  "last_finished_at_utc": "2026-09-21T07:01:09.330706+00:00",
+  "lifecycle_valid": true,
+  "longest_wall_run_id": "formal-mixed-v1-seed303-rep4-baseline",
+  "manifest_order_valid": true,
+  "metadata_and_warmup_valid": true,
+  "non_overwriting_attempts_valid": true,
+  "per_run_wall_seconds": {
+    "max": 615.543897,
+    "median": 30.281495,
+    "min": 26.401032
+  },
+  "request_count": 2700,
+  "request_identity_and_completion_valid": true,
+  "run_count": 45,
+  "schema": "bench004-validation-v1",
+  "source_hashes_valid": true,
+  "status_counts": {
+    "success": 45
+  },
+  "trace_and_sidecar_hashes_valid": true
+}
