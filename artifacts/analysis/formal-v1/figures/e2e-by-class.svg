@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="950" height="520" viewBox="0 0 950 520">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>text{font-family:Arial,sans-serif;fill:#27313b} .title{font-size:22px;font-weight:700} .sub{font-size:13px;fill:#586575} .axis{font-size:12px;fill:#586575} .tick{font-size:12px;fill:#586575}</style>
+<text x="70" y="38" class="title">E2E latency</text>
+<text x="70" y="60" class="sub">Points: mean of 15 run means; whiskers: ±1 run-level SD</text>
+<line x1="95" y1="425.0" x2="910" y2="425.0" stroke="#e2e7eb"/>
+<text x="83" y="429.0" text-anchor="end" class="tick">0</text>
+<line x1="95" y1="361.0" x2="910" y2="361.0" stroke="#e2e7eb"/>
+<text x="83" y="365.0" text-anchor="end" class="tick">2582</text>
+<line x1="95" y1="297.0" x2="910" y2="297.0" stroke="#e2e7eb"/>
+<text x="83" y="301.0" text-anchor="end" class="tick">5165</text>
+<line x1="95" y1="233.0" x2="910" y2="233.0" stroke="#e2e7eb"/>
+<text x="83" y="237.0" text-anchor="end" class="tick">7747</text>
+<line x1="95" y1="169.0" x2="910" y2="169.0" stroke="#e2e7eb"/>
+<text x="83" y="173.0" text-anchor="end" class="tick">10330</text>
+<line x1="95" y1="105.0" x2="910" y2="105.0" stroke="#e2e7eb"/>
+<text x="83" y="109.0" text-anchor="end" class="tick">12912</text>
+<text x="20" y="265.0" transform="rotate(-90 20 265.0)" class="axis">E2E latency (ms)</text>
+<text x="230.8" y="456" text-anchor="middle" class="axis">Short</text>
+<line x1="178.8" y1="178.8" x2="178.8" y2="248.7" stroke="#305b9a" stroke-width="2"/>
+<line x1="171.8" y1="178.8" x2="185.8" y2="178.8" stroke="#305b9a" stroke-width="2"/>
+<line x1="171.8" y1="248.7" x2="185.8" y2="248.7" stroke="#305b9a" stroke-width="2"/>
+<circle cx="178.8" cy="213.8" r="6" fill="#305b9a"/>
+<line x1="230.8" y1="182.0" x2="230.8" y2="254.7" stroke="#c45a37" stroke-width="2"/>
+<line x1="223.8" y1="182.0" x2="237.8" y2="182.0" stroke="#c45a37" stroke-width="2"/>
+<line x1="223.8" y1="254.7" x2="237.8" y2="254.7" stroke="#c45a37" stroke-width="2"/>
+<circle cx="230.8" cy="218.3" r="6" fill="#c45a37"/>
+<line x1="282.8" y1="182.8" x2="282.8" y2="251.4" stroke="#238469" stroke-width="2"/>
+<line x1="275.8" y1="182.8" x2="289.8" y2="182.8" stroke="#238469" stroke-width="2"/>
+<line x1="275.8" y1="251.4" x2="289.8" y2="251.4" stroke="#238469" stroke-width="2"/>
+<circle cx="282.8" cy="217.1" r="6" fill="#238469"/>
+<text x="502.5" y="456" text-anchor="middle" class="axis">Medium</text>
+<line x1="450.5" y1="153.8" x2="450.5" y2="212.1" stroke="#305b9a" stroke-width="2"/>
+<line x1="443.5" y1="153.8" x2="457.5" y2="153.8" stroke="#305b9a" stroke-width="2"/>
+<line x1="443.5" y1="212.1" x2="457.5" y2="212.1" stroke="#305b9a" stroke-width="2"/>
+<circle cx="450.5" cy="182.9" r="6" fill="#305b9a"/>
+<line x1="502.5" y1="158.3" x2="502.5" y2="208.0" stroke="#c45a37" stroke-width="2"/>
+<line x1="495.5" y1="158.3" x2="509.5" y2="158.3" stroke="#c45a37" stroke-width="2"/>
+<line x1="495.5" y1="208.0" x2="509.5" y2="208.0" stroke="#c45a37" stroke-width="2"/>
+<circle cx="502.5" cy="183.1" r="6" fill="#c45a37"/>
+<line x1="554.5" y1="159.9" x2="554.5" y2="203.5" stroke="#238469" stroke-width="2"/>
+<line x1="547.5" y1="159.9" x2="561.5" y2="159.9" stroke="#238469" stroke-width="2"/>
+<line x1="547.5" y1="203.5" x2="561.5" y2="203.5" stroke="#238469" stroke-width="2"/>
+<circle cx="554.5" cy="181.7" r="6" fill="#238469"/>
+<text x="774.2" y="456" text-anchor="middle" class="axis">Long</text>
+<line x1="722.2" y1="176.5" x2="722.2" y2="239.8" stroke="#305b9a" stroke-width="2"/>
+<line x1="715.2" y1="176.5" x2="729.2" y2="176.5" stroke="#305b9a" stroke-width="2"/>
+<line x1="715.2" y1="239.8" x2="729.2" y2="239.8" stroke="#305b9a" stroke-width="2"/>
+<circle cx="722.2" cy="208.1" r="6" fill="#305b9a"/>
+<line x1="774.2" y1="173.8" x2="774.2" y2="230.8" stroke="#c45a37" stroke-width="2"/>
+<line x1="767.2" y1="173.8" x2="781.2" y2="173.8" stroke="#c45a37" stroke-width="2"/>
+<line x1="767.2" y1="230.8" x2="781.2" y2="230.8" stroke="#c45a37" stroke-width="2"/>
+<circle cx="774.2" cy="202.3" r="6" fill="#c45a37"/>
+<line x1="826.2" y1="172.4" x2="826.2" y2="229.7" stroke="#238469" stroke-width="2"/>
+<line x1="819.2" y1="172.4" x2="833.2" y2="172.4" stroke="#238469" stroke-width="2"/>
+<line x1="819.2" y1="229.7" x2="833.2" y2="229.7" stroke="#238469" stroke-width="2"/>
+<circle cx="826.2" cy="201.1" r="6" fill="#238469"/>
+<circle cx="250" cy="480" r="6" fill="#305b9a"/>
+<text x="264" y="484" class="axis">baseline</text>
+<circle cx="470" cy="480" r="6" fill="#c45a37"/>
+<text x="484" y="484" class="axis">short_prompt</text>
+<circle cx="690" cy="480" r="6" fill="#238469"/>
+<text x="704" y="484" class="axis">aged_short_prompt</text>
+</svg>

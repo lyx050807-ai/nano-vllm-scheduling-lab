@@ -6,11 +6,12 @@ Last updated: 2026-09-21
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002, AGING-001/002 and BENCH-003/004 complete. The formal-mixed-v1 traces and
+POLICY-001/002, AGING-001/002, BENCH-003/004 and ANALYSIS-001 complete. The formal-mixed-v1 traces and
 baseline capacity gate are validated. Baseline, short_prompt and
 aged_short_prompt are implemented and passed CPU and 12-request GPU functional
-smoke. The frozen 45-run formal benchmark is complete; its raw results and
-paired per-run summary are preserved under artifacts/formal-benchmark/.
+smoke. The frozen 45-run formal benchmark and offline paired analysis are
+complete; raw results remain under artifacts/formal-benchmark/ and analysis
+outputs under artifacts/analysis/formal-v1/.
 
 ## Current Git Branch
 
@@ -64,6 +65,34 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- ANALYSIS-001 re-read and hashed all 45 formal run metadata/request records,
+  progress files and logs, verified 15 complete paired seed/repetition blocks,
+  2700/2700 completed request IDs, trace/sidecar hashes, metric formulas and
+  agreement with the frozen aggregation. Raw benchmark bytes were unchanged.
+  The reproducible stdlib-only analysis, `analysis-summary.json`, paired and
+  class CSVs, long-request order CSV, anomaly note, report and five SVG figures
+  are under artifacts/analysis/formal-v1/.
+- Mean paired short_prompt/aged_short_prompt changes versus baseline were
+  −22.848/−25.959 ms for short TTFT and +31.370/+32.058 ms for long TTFT;
+  short queue wait fell 23.475/26.603 ms while long queue wait rose
+  31.937/32.924 ms. All long requests completed, with zero >10 s or
+  unselected/unfinished near-starvation flags; pooled long wait p95 was
+  111.046/475.568/622.061 ms for baseline/short_prompt/aged_short_prompt.
+  Throughput means were 2.827/2.854/2.826 requests/s. These are descriptive
+  paired effects, not a superiority claim.
+- Observed first-selection order was identical for short_prompt and
+  aged_short_prompt in all 15 paired blocks. No admission-time proxy overlap
+  reached the frozen 0.2/0.3/0.5 s age crossover gaps; exact first-enqueue
+  clocks and decision traces were not recorded. The anomalous
+  seed303/rep4/baseline run remains in the primary data. It shows a 615.544 s
+  UTC duration versus 21.875 s monotonic observation and unusually low
+  same-seed baseline latency; its cause is unestablished. A 14-block paired
+  sensitivity view excludes the entire block, preserving the short/long
+  initial-wait trade-off while changing the sign of small overall E2E mean
+  differences. Recommended next task: review the frozen analysis and decide
+  whether to finalize the study or design a separately versioned sustained-
+  arrival workload to test aging activation; do not retune formal-mixed-v1.
 
 - BENCH-004 executed the unchanged 45-entry formal manifest in its precomputed
   order: 15 runs each for baseline, short_prompt and aged_short_prompt, with
