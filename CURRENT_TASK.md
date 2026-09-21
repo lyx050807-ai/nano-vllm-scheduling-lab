@@ -2,17 +2,18 @@
 
 ## Task ID
 
-AGING-002
+BENCH-003
 
 ## Title
 
-Implement aged_short_prompt scheduling.
+Freeze and implement the formal benchmark orchestrator.
 
 ## Goal
 
-Implement the aged_short_prompt policy exactly as defined in
-docs/aging-policy-design.md while preserving baseline, short_prompt, resource
-checks, decode behavior, KV-cache behavior, and telemetry independence.
+Implement a deterministic, non-overwriting runner for the frozen 45-run formal
+benchmark without executing the full benchmark yet.
+
+Do not modify any scheduling policy.
 
 ## Required Reads
 
@@ -20,232 +21,245 @@ Read:
 
 - AGENTS.md
 - PROJECT_STATE.md
+- docs/benchmark-protocol.md
 - docs/scheduling-policy-design.md
 - docs/aging-policy-design.md
-- docs/benchmark-protocol.md
-- nanovllm/config.py
-- nanovllm/engine/scheduler.py
-- nanovllm/engine/sequence.py
-- nanovllm/engine/waiting_policy.py
+- scripts/run_replay.py
+- workloads/formal_trace_seed101.meta.json
+- workloads/formal_trace_seed202.meta.json
+- workloads/formal_trace_seed303.meta.json
 
-Inspect current source before editing.
+## Formal Matrix
 
-## Configuration
+The frozen comparison matrix is:
 
-Support:
-
+Policies:
 - baseline
 - short_prompt
 - aged_short_prompt
 
-Default remains:
+Trace seeds:
+- 101
+- 202
+- 303
 
-baseline
+Measured repetitions:
+- 5 per policy/trace combination
 
-Use the frozen aging rate defined by AGING-001:
+Total:
+45 measured runs
 
-320 tokens/second
+Do not change this matrix.
 
-Do not tune this parameter using policy performance.
+## Run Identity
 
-Invalid policies or invalid aging parameters must fail clearly.
+Every run must have explicit:
 
-## Aging Score
+- policy
+- trace_seed
+- repeat_index
+- run_id
 
-For aged_short_prompt:
+Run identity must not depend only on timestamps.
 
-score =
-num_prompt_tokens
--
-aging_rate_tokens_per_second * age_seconds
+No run may overwrite another run.
 
-where:
+## Precomputed Run Order
 
-age_seconds =
-(now_ns - first_enqueue_ns) / 1_000_000_000
+Generate and persist the complete 45-run order before formal measurements.
 
-Select the request with the smallest score.
+Use a deterministic balanced/rotated ordering so policy execution time is not
+systematically confounded with GPU thermal or power drift.
 
-Do not use output length or any future information.
+Do not adapt run order based on observed performance.
 
-## Scheduler-Owned Age State
+Save the frozen order as a manifest before execution.
 
-The scheduler must own the timing state used for aging.
+## Run Isolation
 
-Use a monotonic clock.
+Each measured run must:
 
-Record a request's first enqueue time the first time it enters the scheduler
-waiting queue.
+1. start from a fresh engine/process state
+2. load the frozen model
+3. perform the frozen warm-up
+4. exclude warm-up from measured results
+5. execute exactly one formal trace
+6. write to a unique output directory
+7. preserve raw artifacts and metadata
 
-Do not reset that origin during preemption/requeue.
+## Formal Metadata
 
-Do not depend on telemetry timestamps.
+Each run record must include:
 
-Clean up scheduler-owned age state when a request permanently finishes so
-state does not leak indefinitely.
+- policy
+- trace seed
+- repetition
+- run order index
+- trace path
+- trace SHA256
+- project Git commit
+- upstream commit
+- model revision
+- engine configuration
+- generation configuration
+- aging rate where applicable
+- completion count
+- run status
+- artifact directory
 
-## Preemption Semantics
+## Failure Rules
 
-If a request:
+Do not silently replace failed runs.
 
-- first enters waiting
-- later runs
-- is later preempted back into waiting
+Distinguish at least:
 
-its original first_enqueue timestamp must be preserved.
+- success
+- timeout
+- OOM
+- runner/infrastructure failure
+- lifecycle invariant failure
 
-Its age therefore reflects time since original scheduler admission, as
-documented in AGING-001.
+Preserve partial diagnostics for failed runs.
 
-Do not silently redefine this as current-waiting-episode time.
+A timeout, OOM, or policy/runtime failure remains part of the formal experiment
+record and must not be silently rerun into a successful observation.
 
-## Selector
+If an explicitly external infrastructure failure is retried, preserve the
+original attempt and record the retry relationship.
 
-Preserve O(n) selection.
+## Resume Behavior
 
-Do not globally sort the waiting deque.
+The orchestrator must be safely resumable.
 
-For equal effective scores, preserve current waiting deque order.
+Already successful runs must not be rerun or overwritten by default.
 
-Use strict comparison rather than replacing an existing winner on equal score.
+A resumed benchmark should continue only missing/pending work according to the
+manifest.
 
-## Existing Policies
+## Output Structure
 
-baseline must remain exactly equivalent to current baseline behavior.
+Use a structure such as:
 
-short_prompt must remain exactly equivalent to POLICY-002 behavior.
+artifacts/formal-benchmark/
+    manifest.json
+    runs/
+        <run_id>/
+            requests.jsonl
+            requests.meta.json
+            progress.jsonl
+            runner.log
 
-Do not add clock/aging behavior that changes their selection results.
+Exact naming may differ, but it must be deterministic and non-overwriting.
 
-Avoid unnecessary aging-clock work when policy is not aged_short_prompt where
-practical.
+## Aggregation
 
-## Resource Checks
+Implement an aggregation utility that reads completed formal run artifacts
+without modifying them.
 
-After candidate selection, execute the existing scheduler checks unchanged.
+Prepare summaries for:
 
-If the selected aged candidate fails a resource/allocation condition that
-currently stops the scheduling pass, preserve that behavior.
+Primary:
+- TTFT
+- queue_wait
+- E2E
 
-Do not fall through to another candidate.
+Secondary:
+- engine TTFT
+- admission overhead
+- ITL where available
+- completion rate
+- throughput
 
-## Waiting Removal / Lifecycle
+Summarize overall and by:
+- short
+- medium
+- long
 
-Preserve:
+Preserve per-run values; do not collapse everything into one number.
 
-- chunked-prefill semantics
-- waiting-to-running transitions
-- remaining deque relative order
-- preemption behavior
-- running/decode order
+## Paired Comparison
 
-No request may be lost or duplicated.
+Prepare future aggregation by matching policies on:
 
-## Deterministic CPU Tests
+- trace_seed
+- repeat_index
 
-Use an injectable/fake monotonic clock where practical.
+Do not compute or claim final policy superiority in this task.
 
-Test at least:
+## Dry Run
 
-1. default policy remains baseline
-2. short_prompt behavior remains unchanged
-3. aged_short_prompt at zero age ranks requests like short_prompt
-4. aging score improves monotonically as age increases
-5. medium vs new short crossover is approximately 0.2 s
-6. long vs new medium crossover is approximately 0.3 s
-7. long vs new short crossover is approximately 0.5 s
-8. an old long request eventually outranks a newly arrived short request
-9. equal-score ties preserve deque order
-10. first enqueue timestamp is recorded once
-11. preemption/requeue does not reset first enqueue timestamp
-12. completed request age state is cleaned up
-13. candidate failure does not fall through
-14. no request loss or duplication
-15. telemetry on/off does not affect decisions
-16. baseline and short_prompt regression tests still pass
+Provide a dry-run/list mode that prints the full 45-run plan without loading
+the model or using the GPU.
 
-Do not use real sleeps for policy unit tests.
+Use it to verify:
+- exactly 45 runs
+- each policy/seed has exactly 5 repetitions
+- no duplicate run IDs
+- all trace hashes match the frozen registry
+- run order is deterministic
 
-## GPU Functional Smoke
+## Tests
 
-After CPU tests pass, run the existing 12-request development workload with:
+Add CPU tests for:
 
-- baseline
-- short_prompt
-- aged_short_prompt
+- 45-run matrix construction
+- run-ID uniqueness
+- deterministic run order
+- correct policy/seed/repetition counts
+- output-path uniqueness
+- manifest serialization
+- resume behavior
+- failure-state recording
+- paired-key construction
+- no artifact overwrite
 
-This is functional validation only.
-
-All policies must:
-
-- complete 12/12
-- have no OOM
-- have no timeout
-- satisfy lifecycle invariants
-- produce valid policy metadata
-
-It is acceptable if aged_short_prompt behaves similarly to short_prompt on a
-development workload where request age never reaches meaningful crossover
-thresholds.
-
-Do not claim performance superiority.
-
-## Targeted Aging Validation
-
-Add a deterministic CPU scenario that clearly causes aging to change the
-winner.
-
-For example, demonstrate that a sufficiently old 192-token request can outrank
-a newly arrived 32-token request according to the frozen crossover rule.
-
-This validation must not depend on GPU timing.
+Do not require GPU for these tests.
 
 ## Restrictions
 
 Do not:
 
-- change formal benchmark traces
-- run the final 45-run benchmark
-- change KV-cache policy
-- add resource-aware bypass selection
-- change running/decode ordering
-- change model execution
-- change sampling
+- run the complete 45-run formal benchmark
+- modify scheduling algorithms
+- modify formal traces
+- change aging rate
 - change dependencies
+- change benchmark metric definitions
 
 ## Validation
+
+Run CPU tests.
 
 Run:
 
 git diff --check
 git status --short
 
-Review all nanovllm/ source changes carefully.
+Confirm nanovllm/ policy behavior is unchanged.
 
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- AGING-002 status
-- implementation files
-- aging-state semantics
-- CPU tests
-- GPU smoke results
+- BENCH-003 completion
+- frozen run matrix
+- manifest/orchestrator paths
+- dry-run validation result
 - next recommended task
 
 ## Acceptance Criteria
 
-- aged_short_prompt is implemented
-- frozen 320 tokens/s rate is used
-- first enqueue age survives preemption
-- telemetry is not required
-- O(n) stable selection is preserved
-- baseline is unchanged
-- short_prompt is unchanged
-- existing resource checks are unchanged
+- exactly 45 formal runs are planned
+- run order is frozen before measurement
+- run IDs are unique
+- output directories cannot overwrite each other
+- metadata is reproducible
+- resume behavior works
+- failure handling is explicit
+- aggregation supports paired comparison
+- dry run validates the full matrix
 - CPU tests pass
-- all three GPU smoke runs complete 12/12
-- lifecycle invariants pass
+- no scheduling behavior changes
 - git diff --check passes
 
 Do not create a Git commit.
@@ -254,18 +268,15 @@ Do not create a Git commit.
 
 Report:
 
-- files modified
-- age state representation
-- clock design
-- score implementation
-- aging rate
-- tie behavior
-- preemption behavior
-- cleanup behavior
+- orchestrator files
+- aggregation files
+- total planned runs
+- run-order rule
+- run-ID format
+- artifact layout
+- resume semantics
+- failure semantics
 - CPU test count/results
-- baseline smoke result
-- short_prompt smoke result
-- aged_short_prompt smoke result
-- targeted crossover validation
-- warnings/errors
+- dry-run validation
+- files modified
 - recommended next step

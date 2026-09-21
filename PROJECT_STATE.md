@@ -6,10 +6,11 @@ Last updated: 2026-09-21
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002 and AGING-001/002 complete. The formal-mixed-v1 traces and
+POLICY-001/002, AGING-001/002 and BENCH-003 complete. The formal-mixed-v1 traces and
 baseline capacity gate are validated. Baseline, short_prompt and
 aged_short_prompt are implemented and passed CPU and 12-request GPU functional
-smoke. Formal policy measurement has not run.
+smoke. The 45-run formal plan is frozen and dry-run validated; formal policy
+measurement has not run.
 
 ## Current Git Branch
 
@@ -63,6 +64,43 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- BENCH-003 added scripts/formal_benchmark.py and
+  scripts/aggregate_formal.py. The orchestrator freezes 45 measured runs:
+  three policies by seeds 101/202/303 by five repetitions. It uses the
+  benchmark protocol's repetition-major, seed-order blocks and rotates policy
+  order by `(repeat_index + seed_index) mod 3`, placing each policy in each
+  block position five times. Deterministic run IDs have the form
+  `formal-mixed-v1-seed<seed>-rep<0..4>-<policy>`. The precomputed manifest is
+  artifacts/formal-benchmark/manifest.json; all 45 entries include explicit
+  identity, frozen trace and sidecar hashes, project/upstream/model/config provenance,
+  policy parameter, status, completion placeholder and unique artifact path.
+- The formal orchestrator creates the manifest and run directories
+  exclusively, starts one fresh run_replay process per pending entry, retains
+  progress/log/request metadata, enforces the frozen 90 s coordinator and
+  150 s process cutoffs plus 30 s cooldown measured from the previous process
+  exit, records the actual inter-run gap, and checkpoints terminal results.
+  Resume skips all terminal success/failure entries by default; an interrupted
+  running entry is recorded as runner failure and stops automatic launching
+  until its child process and partial artifacts are inspected. Failure states
+  distinguish timeout, OOM, runner/infrastructure failure and lifecycle
+  failure. Explicit external-infrastructure retries use non-overwriting
+  attempt directories with retry relationships; failures are never silently
+  replaced. run_replay only gained the formal-measurement mode label; scheduler
+  and policy source are unchanged.
+- The read-only aggregation utility retains per-run latency values and
+  mean/median/p95/max summaries overall and by short/medium/long for TTFT,
+  queue wait, E2E, engine TTFT and admission overhead; it also prepares ITL,
+  completion, full-run throughput and `(trace_seed, repeat_index)` paired keys.
+  No policy comparison or superiority claim was produced. Dry-run/list mode
+  validated exactly 45 pending runs, five for every policy/seed pair, unique
+  IDs/paths, deterministic order and all frozen hashes without importing the
+  model, using the GPU or creating run directories. The full CPU suite passed
+  71/71. Additional tests cover interrupted-run reconciliation and safe stop,
+  cooldown timing, frozen
+  success identity/completion audit, failed-run outcome denominators and
+  loading the original plan after a later project commit. No formal GPU run
+  was executed.
 
 - AGING-002 implemented the AGING-001 design in nanovllm/config.py,
   nanovllm/engine/waiting_policy.py and nanovllm/engine/scheduler.py. The
@@ -204,9 +242,9 @@ Ubuntu 24.04
 ## In Progress
 
 No measured formal performance comparison has run. The three-seed baseline
-capacity gate passed, and all three policies are functionally validated.
-Formal measurement orchestration and offline analysis remain separately
-scoped.
+capacity gate passed, all policies are functionally validated, and the frozen
+45-run manifest/orchestrator is dry-run validated. Formal GPU execution and
+offline analysis remain separately scoped.
 
 ## Not Started
 
@@ -406,10 +444,11 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, prepare formal measurement orchestration for
-the frozen 45-run protocol. Validate policy/config identity and source hashes
-before comparing latency, preserve all failed and prior runs, then run the
-specified paired comparison without changing traces or the fixed aging rate.
+In a separately scoped task, execute the frozen manifest on the GPU exactly
+as recorded. Preserve terminal failures and partial artifacts, resume only
+pending entries, and do not change traces, run order, policy behavior or the
+fixed aging rate after inspecting results. Aggregate only after the required
+valid run set is available.
 
 ## SMOKE-001 Attempt
 

@@ -1,8 +1,8 @@
-"""Baseline development integration: producer replay + coordinator-owned engine.
+"""Producer replay with a coordinator-owned engine for development or formal runs.
 
 Run: .venv/bin/python scripts/run_replay.py
 Only the main/coordinator thread calls engine methods. No policy changes.
-The 12-request run is an integration diagnostic, not a performance benchmark.
+The default 12-request run is an integration diagnostic, not a benchmark.
 """
 import argparse
 import atexit
@@ -275,7 +275,7 @@ def main():
     parser.add_argument('--timeout-s', type=float, default=90.0)
     parser.add_argument('--progress', type=Path, default=None)
     parser.add_argument('--mode', choices=('development-baseline-only', 'capacity-calibration-only',
-                                           'development-smoke-only'),
+                                           'development-smoke-only', 'formal-measurement'),
                         default='development-baseline-only')
     parser.add_argument('--policy', choices=('baseline', 'short_prompt', 'aged_short_prompt'),
                         default='baseline')
