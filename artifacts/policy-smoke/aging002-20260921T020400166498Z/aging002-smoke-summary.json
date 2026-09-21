@@ -1,0 +1,58 @@
+{
+  "runs": [
+    {
+      "capture_outcome": "completed",
+      "completed": 12,
+      "directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/policy-smoke/aging002-20260921T020400166498Z/baseline",
+      "engine_policy": "baseline",
+      "exit_code": 0,
+      "lifecycle": "passed",
+      "manifest_policy": "baseline",
+      "policy": "baseline",
+      "process_timeout": false,
+      "rate": 320,
+      "record_policies_valid": true,
+      "request_count": 12,
+      "timestamps_valid": true,
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+      "unique_ids": 12,
+      "warning_error_lines": []
+    },
+    {
+      "capture_outcome": "completed",
+      "completed": 12,
+      "directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/policy-smoke/aging002-20260921T020400166498Z/short_prompt",
+      "engine_policy": "short_prompt",
+      "exit_code": 0,
+      "lifecycle": "passed",
+      "manifest_policy": "short_prompt",
+      "policy": "short_prompt",
+      "process_timeout": false,
+      "rate": 320,
+      "record_policies_valid": true,
+      "request_count": 12,
+      "timestamps_valid": true,
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+      "unique_ids": 12,
+      "warning_error_lines": []
+    },
+    {
+      "capture_outcome": "completed",
+      "completed": 12,
+      "directory": "/home/luoyuxuan/projects/nano-vllm-scheduling-lab/artifacts/policy-smoke/aging002-20260921T020400166498Z/aged_short_prompt",
+      "engine_policy": "aged_short_prompt",
+      "exit_code": 0,
+      "lifecycle": "passed",
+      "manifest_policy": "aged_short_prompt",
+      "policy": "aged_short_prompt",
+      "process_timeout": false,
+      "rate": 320,
+      "record_policies_valid": true,
+      "request_count": 12,
+      "timestamps_valid": true,
+      "trace_sha256": "28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041",
+      "unique_ids": 12,
+      "warning_error_lines": []
+    }
+  ]
+}

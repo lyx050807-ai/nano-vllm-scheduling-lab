@@ -2,21 +2,17 @@
 
 ## Task ID
 
-AGING-001
+AGING-002
 
 ## Title
 
-Design the aged_short_prompt scheduling policy.
+Implement aged_short_prompt scheduling.
 
 ## Goal
 
-Design an aging-based extension of short_prompt that preserves the latency
-benefit of short prompts while reducing starvation risk for requests that wait
-unusually long.
-
-This is a design task only.
-
-Do not implement aged_short_prompt yet.
+Implement the aged_short_prompt policy exactly as defined in
+docs/aging-policy-design.md while preserving baseline, short_prompt, resource
+checks, decode behavior, KV-cache behavior, and telemetry independence.
 
 ## Required Reads
 
@@ -25,170 +21,196 @@ Read:
 - AGENTS.md
 - PROJECT_STATE.md
 - docs/scheduling-policy-design.md
+- docs/aging-policy-design.md
 - docs/benchmark-protocol.md
-- artifacts/calibration/formal-mixed-v1/capacity-summary.json
+- nanovllm/config.py
 - nanovllm/engine/scheduler.py
 - nanovllm/engine/sequence.py
 - nanovllm/engine/waiting_policy.py
 
-Inspect the exact current preemption and waiting-queue lifecycle.
+Inspect current source before editing.
 
-## Problem
+## Configuration
 
-Explain why pure short_prompt can cause priority starvation when shorter
-requests continue to arrive.
+Support:
 
-Distinguish:
+- baseline
+- short_prompt
+- aged_short_prompt
 
-- priority starvation
-- resource infeasibility
-- preemption/requeue behavior
+Default remains:
 
-Aging should address priority starvation only.
+baseline
 
-## Candidate Aging Score
+Use the frozen aging rate defined by AGING-001:
 
-Analyze:
+320 tokens/second
 
-score_i = num_prompt_tokens_i - aging_rate * waiting_seconds_i
+Do not tune this parameter using policy performance.
 
-Select the waiting request with the smallest score.
+Invalid policies or invalid aging parameters must fail clearly.
 
-Units:
+## Aging Score
 
-- num_prompt_tokens: tokens
-- waiting_seconds: seconds
-- aging_rate: tokens/second
-- score: token-equivalent priority
+For aged_short_prompt:
 
-Do not use future output length or other future information.
+score =
+num_prompt_tokens
+-
+aging_rate_tokens_per_second * age_seconds
 
-## Aging Parameter
+where:
 
-Use the frozen prompt classes:
+age_seconds =
+(now_ns - first_enqueue_ns) / 1_000_000_000
 
-- short = 32 tokens
-- medium = 96 tokens
-- long = 192 tokens
+Select the request with the smallest score.
 
-Use only baseline/calibration evidence when choosing the aging parameter.
+Do not use output length or any future information.
 
-Analyze an interpretable candidate where:
+## Scheduler-Owned Age State
 
-A 192-token long request that has waited about 0.5 seconds reaches priority
-parity with a newly arrived 32-token short request.
-
-Derive:
-
-- aging_rate
-- medium vs short crossover
-- long vs medium crossover
-- long vs short crossover
-
-Do not tune aging_rate using future aged_short_prompt performance.
-
-## Waiting-Time Semantics
-
-Compare:
-
-1. time since original engine admission
-2. time since current entry into waiting
-
-Inspect the current preemption behavior and choose one explicitly.
-
-Explain how a preempted request should behave.
-
-Do not depend on telemetry for scheduler correctness.
-
-## Scheduler-Owned State
-
-Define the minimum scheduler-owned timing state needed for aging.
+The scheduler must own the timing state used for aging.
 
 Use a monotonic clock.
 
-Telemetry may observe aging behavior but must not supply the scheduler's age.
+Record a request's first enqueue time the first time it enters the scheduler
+waiting queue.
 
-## Tie Breaking
+Do not reset that origin during preemption/requeue.
 
-If effective scores are equal, preserve the existing waiting deque order.
+Do not depend on telemetry timestamps.
 
-## Complexity
+Clean up scheduler-owned age state when a request permanently finishes so
+state does not leak indefinitely.
 
-Preserve O(n) candidate selection.
+## Preemption Semantics
 
-Do not sort the waiting deque globally.
+If a request:
+
+- first enters waiting
+- later runs
+- is later preempted back into waiting
+
+its original first_enqueue timestamp must be preserved.
+
+Its age therefore reflects time since original scheduler admission, as
+documented in AGING-001.
+
+Do not silently redefine this as current-waiting-episode time.
+
+## Selector
+
+Preserve O(n) selection.
+
+Do not globally sort the waiting deque.
+
+For equal effective scores, preserve current waiting deque order.
+
+Use strict comparison rather than replacing an existing winner on equal score.
+
+## Existing Policies
+
+baseline must remain exactly equivalent to current baseline behavior.
+
+short_prompt must remain exactly equivalent to POLICY-002 behavior.
+
+Do not add clock/aging behavior that changes their selection results.
+
+Avoid unnecessary aging-clock work when policy is not aged_short_prompt where
+practical.
 
 ## Resource Checks
 
-After candidate selection, preserve all current allocation and budget checks.
+After candidate selection, execute the existing scheduler checks unchanged.
 
-Do not add fallback to another candidate when the selected request fails an
-existing resource check.
+If the selected aged candidate fails a resource/allocation condition that
+currently stops the scheduling pass, preserve that behavior.
 
-## Starvation Reasoning
+Do not fall through to another candidate.
 
-Explain whether an old request eventually gains priority over newly arriving
-finite-length requests.
+## Waiting Removal / Lifecycle
 
-State assumptions and limitations.
+Preserve:
 
-Do not claim starvation freedom under resource infeasibility or unlimited
-preemption.
+- chunked-prefill semantics
+- waiting-to-running transitions
+- remaining deque relative order
+- preemption behavior
+- running/decode order
 
-## Evaluation Plan
+No request may be lost or duplicated.
 
-Define tests for:
+## Deterministic CPU Tests
 
-- zero waiting reproduces short_prompt ranking
-- score improves monotonically with waiting time
-- stable equal-score ties
-- old long request eventually outranks new short request
-- baseline unchanged
-- short_prompt unchanged
-- telemetry on/off does not affect decisions
-- preemption/requeue aging semantics
-- no future information used
+Use an injectable/fake monotonic clock where practical.
 
-Define later fairness diagnostics:
+Test at least:
 
-- long-request queue wait
-- long-request TTFT
-- long-request E2E
-- maximum queue wait
-- near-starvation count
+1. default policy remains baseline
+2. short_prompt behavior remains unchanged
+3. aged_short_prompt at zero age ranks requests like short_prompt
+4. aging score improves monotonically as age increases
+5. medium vs new short crossover is approximately 0.2 s
+6. long vs new medium crossover is approximately 0.3 s
+7. long vs new short crossover is approximately 0.5 s
+8. an old long request eventually outranks a newly arrived short request
+9. equal-score ties preserve deque order
+10. first enqueue timestamp is recorded once
+11. preemption/requeue does not reset first enqueue timestamp
+12. completed request age state is cleaned up
+13. candidate failure does not fall through
+14. no request loss or duplication
+15. telemetry on/off does not affect decisions
+16. baseline and short_prompt regression tests still pass
 
-## Output
+Do not use real sleeps for policy unit tests.
 
-Create:
+## GPU Functional Smoke
 
-docs/aging-policy-design.md
+After CPU tests pass, run the existing 12-request development workload with:
 
-Include:
+- baseline
+- short_prompt
+- aged_short_prompt
 
-1. starvation problem
-2. score formula
-3. units
-4. crossover derivation
-5. proposed aging parameter
-6. waiting-time origin
-7. preemption semantics
-8. scheduler-owned state
-9. tie-breaking
-10. complexity
-11. assumptions and limitations
-12. implementation locations
-13. CPU test plan
-14. GPU validation plan
+This is functional validation only.
+
+All policies must:
+
+- complete 12/12
+- have no OOM
+- have no timeout
+- satisfy lifecycle invariants
+- produce valid policy metadata
+
+It is acceptable if aged_short_prompt behaves similarly to short_prompt on a
+development workload where request age never reaches meaningful crossover
+thresholds.
+
+Do not claim performance superiority.
+
+## Targeted Aging Validation
+
+Add a deterministic CPU scenario that clearly causes aging to change the
+winner.
+
+For example, demonstrate that a sufficiently old 192-token request can outrank
+a newly arrived 32-token request according to the frozen crossover rule.
+
+This validation must not depend on GPU timing.
 
 ## Restrictions
 
 Do not:
 
-- implement aged_short_prompt
-- modify scheduler behavior
-- change formal traces
-- run formal policy benchmarks
-- modify KV-cache behavior
+- change formal benchmark traces
+- run the final 45-run benchmark
+- change KV-cache policy
+- add resource-aware bypass selection
+- change running/decode ordering
+- change model execution
+- change sampling
 - change dependencies
 
 ## Validation
@@ -198,29 +220,32 @@ Run:
 git diff --check
 git status --short
 
-Confirm nanovllm/ is unchanged.
+Review all nanovllm/ source changes carefully.
 
 ## PROJECT_STATE
 
 Update PROJECT_STATE.md with:
 
-- AGING-001 completion
-- aging semantics
-- proposed parameter
+- AGING-002 status
+- implementation files
+- aging-state semantics
+- CPU tests
+- GPU smoke results
 - next recommended task
 
 ## Acceptance Criteria
 
-- starvation is clearly defined
-- formula and units are explicit
-- aging parameter has an interpretable crossover meaning
-- waiting-time semantics are explicit
-- preemption semantics are explicit
-- telemetry is not required for correctness
-- stable ties are preserved
-- O(n) selection is preserved
-- limitations are documented
-- no scheduler behavior changed
+- aged_short_prompt is implemented
+- frozen 320 tokens/s rate is used
+- first enqueue age survives preemption
+- telemetry is not required
+- O(n) stable selection is preserved
+- baseline is unchanged
+- short_prompt is unchanged
+- existing resource checks are unchanged
+- CPU tests pass
+- all three GPU smoke runs complete 12/12
+- lifecycle invariants pass
 - git diff --check passes
 
 Do not create a Git commit.
@@ -229,13 +254,18 @@ Do not create a Git commit.
 
 Report:
 
-- score formula
-- aging rate and crossover interpretation
-- waiting-time origin
-- preemption/requeue semantics
-- tie-breaking
-- complexity
-- starvation guarantee and limitations
-- proposed implementation files
 - files modified
+- age state representation
+- clock design
+- score implementation
+- aging rate
+- tie behavior
+- preemption behavior
+- cleanup behavior
+- CPU test count/results
+- baseline smoke result
+- short_prompt smoke result
+- aged_short_prompt smoke result
+- targeted crossover validation
+- warnings/errors
 - recommended next step

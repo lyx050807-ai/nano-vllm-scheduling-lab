@@ -1,15 +1,22 @@
 from collections import deque
+from time import perf_counter_ns
 
 from nanovllm.config import Config
 from nanovllm.engine.sequence import Sequence, SequenceStatus
 from nanovllm.engine.block_manager import BlockManager
-from nanovllm.engine.waiting_policy import choose_waiting_index, validate_policy
+from nanovllm.engine.waiting_policy import (AGING_RATE_TOKENS_PER_SECOND,
+                                           choose_waiting_index, validate_aging_rate,
+                                           validate_policy)
 
 
 class Scheduler:
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, *, clock_ns=None):
         self.scheduling_policy = validate_policy(getattr(config, "scheduling_policy", "baseline"))
+        self.aging_rate_tokens_per_second = validate_aging_rate(
+            getattr(config, "aging_rate_tokens_per_second", AGING_RATE_TOKENS_PER_SECOND))
+        self._clock_ns = (clock_ns or perf_counter_ns) if self.scheduling_policy == "aged_short_prompt" else None
+        self.first_enqueue_ns = {} if self.scheduling_policy == "aged_short_prompt" else None
         self.max_num_seqs = config.max_num_seqs
         self.max_num_batched_tokens = config.max_num_batched_tokens
         self.eos = config.eos
@@ -23,6 +30,8 @@ class Scheduler:
         return not self.waiting and not self.running
 
     def add(self, seq: Sequence):
+        if self.first_enqueue_ns is not None and seq.seq_id not in self.first_enqueue_ns:
+            self.first_enqueue_ns[seq.seq_id] = self._clock_ns()
         self.waiting.append(seq)
         if self.telemetry is not None:
             self.telemetry.admitted(seq.seq_id)
@@ -33,8 +42,15 @@ class Scheduler:
 
         # prefill
         while self.waiting and len(scheduled_seqs) < self.max_num_seqs:
-            index = 0 if self.scheduling_policy == "baseline" else choose_waiting_index(
-                self.waiting, self.scheduling_policy)
+            if self.scheduling_policy == "baseline":
+                index = 0
+            elif self.scheduling_policy == "aged_short_prompt":
+                index = choose_waiting_index(
+                    self.waiting, self.scheduling_policy, now_ns=self._clock_ns(),
+                    first_enqueue_ns=self.first_enqueue_ns,
+                    aging_rate_tokens_per_second=self.aging_rate_tokens_per_second)
+            else:
+                index = choose_waiting_index(self.waiting, self.scheduling_policy)
             seq = self.waiting[index]
             remaining = self.max_num_batched_tokens - num_batched_tokens
             if remaining == 0:
@@ -102,5 +118,7 @@ class Scheduler:
                 seq.status = SequenceStatus.FINISHED
                 self.block_manager.deallocate(seq)
                 self.running.remove(seq)
+                if self.first_enqueue_ns is not None:
+                    del self.first_enqueue_ns[seq.seq_id]
                 if self.telemetry is not None:
                     self.telemetry.finished(seq.seq_id)

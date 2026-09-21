@@ -1,7 +1,8 @@
 import os
 from dataclasses import dataclass
 from transformers import AutoConfig
-from nanovllm.engine.waiting_policy import validate_policy
+from nanovllm.engine.waiting_policy import (AGING_RATE_TOKENS_PER_SECOND,
+                                           validate_aging_rate, validate_policy)
 
 
 @dataclass(slots=True)
@@ -18,9 +19,11 @@ class Config:
     kvcache_block_size: int = 256
     num_kvcache_blocks: int = -1
     scheduling_policy: str = "baseline"
+    aging_rate_tokens_per_second: int = AGING_RATE_TOKENS_PER_SECOND
 
     def __post_init__(self):
         validate_policy(self.scheduling_policy)
+        validate_aging_rate(self.aging_rate_tokens_per_second)
         assert os.path.isdir(self.model)
         assert self.kvcache_block_size % 256 == 0
         assert 1 <= self.tensor_parallel_size <= 8

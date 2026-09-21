@@ -10,10 +10,11 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def scheduler(policy="baseline", *, budget=256, batch=1, blocks=16):
+def scheduler(policy="baseline", *, budget=256, batch=1, blocks=16, clock_ns=None):
     return Scheduler(SimpleNamespace(scheduling_policy=policy, max_num_seqs=batch,
                      max_num_batched_tokens=budget, eos=999,
-                     num_kvcache_blocks=blocks, kvcache_block_size=256))
+                     num_kvcache_blocks=blocks, kvcache_block_size=256),
+                     clock_ns=clock_ns)
 
 
 def sequences(lengths):
@@ -56,10 +57,162 @@ class WaitingPolicyTests(unittest.TestCase):
             self.assertEqual(Config(str(ROOT / "models/Qwen3-0.6B"),
                                     scheduling_policy="short_prompt").scheduling_policy,
                              "short_prompt")
-            for invalid in ("aged_short_prompt", "unknown", "BASELINE", None, 1):
+            aged = Config(str(ROOT / "models/Qwen3-0.6B"),
+                         scheduling_policy="aged_short_prompt")
+            self.assertEqual(aged.aging_rate_tokens_per_second, 320)
+            for invalid in ("unknown", "BASELINE", None, 1):
                 with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError,
                                                                             "scheduling_policy"):
                     Config(str(ROOT / "models/Qwen3-0.6B"), scheduling_policy=invalid)
+            for invalid in (0, 319, 321, 320.0, True, None):
+                with self.subTest(rate=invalid), self.assertRaisesRegex(ValueError,
+                                                                         "aging_rate"):
+                    Config(str(ROOT / "models/Qwen3-0.6B"),
+                           aging_rate_tokens_per_second=invalid)
+
+    def test_aged_selector_crossovers_and_stable_ties(self):
+        from nanovllm.engine.waiting_policy import choose_waiting_index
+        for older_len, newer_len, parity_ns in ((96, 32, 200_000_000),
+                                                 (192, 96, 300_000_000),
+                                                 (192, 32, 500_000_000)):
+            with self.subTest(older=older_len, newer=newer_len):
+                older, newer = sequences([older_len, newer_len])
+                waiting = deque([older, newer])
+                first = {older.seq_id: 0, newer.seq_id: parity_ns - 1}
+                self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+                    now_ns=parity_ns - 1, first_enqueue_ns=first), 1)
+                first[newer.seq_id] = parity_ns
+                self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+                    now_ns=parity_ns, first_enqueue_ns=first), 0)
+                first[newer.seq_id] = parity_ns + 1
+                self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+                    now_ns=parity_ns + 1, first_enqueue_ns=first), 0)
+                waiting.reverse()
+                first[newer.seq_id] = parity_ns
+                self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+                    now_ns=parity_ns, first_enqueue_ns=first), 0)
+
+    def test_aged_zero_age_matches_short_prompt_and_score_falls_with_age(self):
+        from nanovllm.engine.waiting_policy import choose_waiting_index, aging_score_ns
+        seqs = sequences([192, 32, 96, 32])
+        waiting = deque(seqs)
+        first = {seq.seq_id: 1_000_000_000 for seq in seqs}
+        self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+            now_ns=1_000_000_000, first_enqueue_ns=first), 1)
+        self.assertEqual(choose_waiting_index(waiting, "short_prompt"), 1)
+        self.assertEqual(aging_score_ns(192, 1_000_000_000, 1_100_000_000),
+                         192_000_000_000 - 32_000_000_000)
+        self.assertLess(aging_score_ns(192, 1_000_000_000, 1_200_000_000),
+                        aging_score_ns(192, 1_000_000_000, 1_100_000_000))
+
+    def test_aged_first_enqueue_survives_preemption_and_cleans_on_finish(self):
+        clock = [0]
+        sched = scheduler("aged_short_prompt", clock_ns=lambda: clock[0])
+        old_long = sequences([192])[0]
+        sched.add(old_long)
+        self.assertEqual(sched.first_enqueue_ns[old_long.seq_id], 0)
+        batch, prefill = sched.schedule()
+        self.assertEqual(batch, [old_long])
+        sched.postprocess(batch, [7], prefill)
+        clock[0] = 600_000_000
+        sched.preempt(sched.running.pop())  # decode removes it before preempt()
+        new_short = sequences([32])[0]
+        sched.add(new_short)
+        self.assertEqual(sched.first_enqueue_ns[old_long.seq_id], 0)
+        self.assertEqual(sched.first_enqueue_ns[new_short.seq_id], 600_000_000)
+        batch, prefill = sched.schedule()
+        self.assertEqual(batch, [old_long])
+        self.assertEqual(list(sched.waiting), [new_short])
+        self.assertEqual(list(sched.running), [old_long])
+        sched.postprocess(batch, [7], prefill)
+        self.assertNotIn(old_long.seq_id, sched.first_enqueue_ns)
+        batch, prefill = sched.schedule()
+        self.assertEqual(batch, [new_short])
+        sched.postprocess(batch, [7], prefill)
+        batch, prefill = sched.schedule()
+        self.assertFalse(prefill)
+        sched.postprocess(batch, [7], prefill)
+        self.assertFalse(sched.first_enqueue_ns)
+        self.assertTrue(sched.is_finished())
+
+    def test_aged_selected_allocation_failure_never_backfills(self):
+        clock = [0]
+        sched = scheduler("aged_short_prompt", clock_ns=lambda: clock[0])
+        old_long, new_short = sequences([192, 32])
+        sched.add(old_long)
+        clock[0] = 600_000_000
+        sched.add(new_short)
+        seen = []
+        def can_allocate(seq):
+            seen.append(seq)
+            return -1 if seq is old_long else 0
+        with patch.object(sched.block_manager, "can_allocate", side_effect=can_allocate):
+            with self.assertRaises(AssertionError):
+                sched.schedule()
+        self.assertEqual(seen, [old_long])
+        self.assertEqual(list(sched.waiting), [old_long, new_short])
+
+    def test_aged_telemetry_does_not_change_selection(self):
+        def chosen(enabled):
+            clock = [0]
+            sched = scheduler("aged_short_prompt", clock_ns=lambda: clock[0])
+            old_long, new_short = sequences([192, 32])
+            if enabled:
+                capture = Telemetry(0, clock_ns=lambda: 1_000_000_000)
+                for seq in (old_long, new_short):
+                    capture.register(seq.seq_id, str(seq.seq_id),
+                                     seq.num_prompt_tokens, seq.max_tokens)
+                sched.telemetry = capture
+            sched.add(old_long)
+            clock[0] = 600_000_000
+            sched.add(new_short)
+            batch, _ = sched.schedule()
+            return batch[0] is old_long, len(sched.waiting), len(sched.running)
+        self.assertEqual(chosen(False), (True, 1, 1))
+        self.assertEqual(chosen(True), (True, 1, 1))
+
+    def test_aged_partial_prefill_retains_age_and_moves_once(self):
+        clock = [0]
+        sched = scheduler("aged_short_prompt", budget=128, clock_ns=lambda: clock[0])
+        old_long, new_short = sequences([192, 32])
+        sched.add(old_long)
+        clock[0] = 600_000_000
+        sched.add(new_short)
+        first, prefill = sched.schedule()
+        self.assertTrue(prefill)
+        self.assertEqual(first, [old_long])
+        self.assertEqual(list(sched.waiting), [old_long, new_short])
+        self.assertEqual(sched.first_enqueue_ns[old_long.seq_id], 0)
+        sched.postprocess(first, [7], prefill)
+        second, prefill = sched.schedule()
+        self.assertEqual(second, [old_long])
+        self.assertEqual(list(sched.waiting), [new_short])
+        self.assertEqual(list(sched.running), [old_long])
+        self.assertEqual(sched.first_enqueue_ns[old_long.seq_id], 0)
+
+    def test_aged_priority_ignores_output_history_and_future_arrivals(self):
+        from nanovllm.engine.waiting_policy import choose_waiting_index
+        old_long, new_short, future_medium = sequences([192, 32, 96])
+        waiting = deque([old_long, new_short])
+        first = {old_long.seq_id: 0, new_short.seq_id: 600_000_000}
+        old_long.max_tokens = 100
+        old_long.append_token(7)
+        self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+            now_ns=600_000_000, first_enqueue_ns=first), 0)
+        first[future_medium.seq_id] = 1_000_000_000
+        self.assertEqual(choose_waiting_index(waiting, "aged_short_prompt",
+            now_ns=600_000_000, first_enqueue_ns=first), 0)
+
+    def test_non_aged_policies_never_read_aging_clock(self):
+        def forbidden_clock():
+            raise AssertionError("non-aged policy read aging clock")
+        for policy in ("baseline", "short_prompt"):
+            with self.subTest(policy=policy):
+                sched = scheduler(policy, clock_ns=forbidden_clock)
+                sched.add(sequences([32])[0])
+                batch, prefill = sched.schedule()
+                self.assertTrue(prefill)
+                sched.postprocess(batch, [7], prefill)
 
     def test_selector_is_stable_and_does_not_mutate_waiting(self):
         from nanovllm.engine.waiting_policy import choose_waiting_index

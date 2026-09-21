@@ -277,7 +277,8 @@ def main():
     parser.add_argument('--mode', choices=('development-baseline-only', 'capacity-calibration-only',
                                            'development-smoke-only'),
                         default='development-baseline-only')
-    parser.add_argument('--policy', choices=('baseline', 'short_prompt'), default='baseline')
+    parser.add_argument('--policy', choices=('baseline', 'short_prompt', 'aged_short_prompt'),
+                        default='baseline')
     args = parser.parse_args()
     if not math.isfinite(args.timeout_s) or args.timeout_s <= 0:
         parser.error('--timeout-s must be positive and finite')
@@ -296,7 +297,8 @@ def main():
     started_at = datetime.now(timezone.utc).isoformat()
     run_id = args.run_id or ('dev-baseline-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'))
     torch.manual_seed(meta['sampling']['inference_seed'])
-    engine_options = dict(OPTIONS, scheduling_policy=args.policy)
+    engine_options = dict(OPTIONS, scheduling_policy=args.policy,
+                          aging_rate_tokens_per_second=320)
     engine = LLM(str(args.model.resolve()), **engine_options)
     try:
         token_ids = {r['request_id']:engine.tokenizer.encode(r['prompt_text'],
@@ -344,6 +346,7 @@ def main():
         completed = sum(r['status']=='completed' for r in joined)
         diagnostic = diagnostics(joined)
         summary = dict(run_id=run_id,mode=args.mode,policy=args.policy,
+                       aging_rate_tokens_per_second=engine_options['aging_rate_tokens_per_second'],
                        request_count=len(requests),completion_count=completed,
                        incomplete_request_ids=[r['request_id'] for r in joined if r['status']!='completed'],
                        lifecycle_invariants='passed' if outcome=='completed' else 'partial',
@@ -366,7 +369,9 @@ def main():
                         upstream_commit=(ROOT/'artifacts/environment/upstream-commit.txt').read_text().strip(),
                         dirty=bool(make_trace.git_output('status','--porcelain')),
                         source_sha256={name:make_trace.file_hash(ROOT/name) for name in
-                                       ('scripts/run_replay.py','scripts/replay_trace.py','nanovllm/telemetry.py')},
+                                       ('scripts/run_replay.py','scripts/replay_trace.py','nanovllm/telemetry.py',
+                                        'nanovllm/config.py','nanovllm/engine/scheduler.py',
+                                        'nanovllm/engine/waiting_policy.py')},
                         tracked_diff_sha256=make_trace.sha256(make_trace.git_output('diff','--binary','HEAD')),
                         timeout_s=args.timeout_s,
                         timing_note='Host/OS and GIL scheduling affect release; calibration/development data, not final benchmark.')

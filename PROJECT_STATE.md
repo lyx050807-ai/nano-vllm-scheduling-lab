@@ -6,10 +6,10 @@ Last updated: 2026-09-21
 
 ENV-001 through ENV-007, MODEL-001, SMOKE-001, ARCH-001, TRACE-001/002 and
 REPLAY-001/002, TELEMETRY-001/002, BASELINE-001, BENCH-001/002 and
-POLICY-001/002 and AGING-001 complete. The formal-mixed-v1 traces and baseline
-capacity gate are validated. Default baseline and stable short_prompt waiting selection are
-implemented and passed CPU and 12-request GPU functional smoke. The aging
-policy is specified but unimplemented; formal policy measurement has not run.
+POLICY-001/002 and AGING-001/002 complete. The formal-mixed-v1 traces and
+baseline capacity gate are validated. Baseline, short_prompt and
+aged_short_prompt are implemented and passed CPU and 12-request GPU functional
+smoke. Formal policy measurement has not run.
 
 ## Current Git Branch
 
@@ -63,6 +63,40 @@ WSL2
 Ubuntu 24.04
 
 ## Completed
+
+- AGING-002 implemented the AGING-001 design in nanovllm/config.py,
+  nanovllm/engine/waiting_policy.py and nanovllm/engine/scheduler.py. The
+  accepted policies are baseline, short_prompt and aged_short_prompt, with
+  baseline still the default. Invalid policy names and any aging rate other
+  than the frozen integer 320 tokens/second fail clearly. The aged selector
+  scans the waiting deque once, compares exact integer nanosecond-scaled
+  scores, and keeps the leftmost entry on ties. Scheduler-owned
+  `seq_id -> first_enqueue_ns` state uses perf_counter_ns (injectable in CPU
+  tests), is recorded at first waiting enqueue, survives partial prefill and
+  preemption/requeue, and is deleted on permanent finish. Age includes running
+  time before a later preemption and is separate from telemetry queue_wait_ms.
+  Baseline and short_prompt do not read the aging clock or use this state.
+  Resource failure still stops without backfill; running/decode, KV cache,
+  model execution and sampling logic were not changed.
+- AGING-002 runner integration in scripts/run_replay.py accepts the aged
+  policy and records the policy, fixed rate, and scheduler/selector/config
+  source hashes in development smoke manifests. The full CPU suite passed
+  59/59, including deterministic 0.2/0.3/0.5 s crossover boundaries, stable
+  ties, preemption age retention, cleanup, partial prefill, no backfill,
+  telemetry independence, no future information, and baseline/short_prompt
+  regressions. The targeted 192-token vs 32-token scenario selected the old
+  long request after a 0.6 s first-enqueue gap without using GPU timing.
+- Three independent fresh-process development GPU smoke runs on the unchanged
+  12-request trace completed 12/12 each for baseline, short_prompt and
+  aged_short_prompt. All exited 0 with no timeout, OOM, lifecycle violation,
+  duplicate/missing request ID or observed warning/error. Records and
+  manifests had the expected policy labels, fixed 320 rate, valid timestamp
+  order, and the same trace SHA256
+  28f070031f63d3e0fc4d79accc25cd5df75c5b2e370e62e78da0c6822718d041.
+  Logs, joined records and summary are preserved under
+  artifacts/policy-smoke/aging002-20260921T020400166498Z/. These are
+  functional diagnostics, not a policy performance comparison; no formal
+  45-run benchmark was executed.
 
 - AGING-001 completed as design only: docs/aging-policy-design.md defines
   `aged_short_prompt` score as original prompt tokens minus 320 tokens/second
@@ -170,13 +204,12 @@ Ubuntu 24.04
 ## In Progress
 
 No measured formal performance comparison has run. The three-seed baseline
-capacity gate passed; baseline and short_prompt are functionally validated.
-Aged-short-prompt implementation and formal measurement orchestration remain
-separately scoped.
+capacity gate passed, and all three policies are functionally validated.
+Formal measurement orchestration and offline analysis remain separately
+scoped.
 
 ## Not Started
 
-- aged_short_prompt policy and tests
 - formal experiments and offline analysis
 - final report
 
@@ -373,12 +406,10 @@ Model directory is ignored by Git.
 
 ## Next Task
 
-In a separately scoped task, implement the fixed AGING-001 design in
-docs/aging-policy-design.md, with scheduler-owned first-enqueue age independent
-of telemetry. Preserve baseline and short_prompt behavior; run CPU and
-development GPU regressions before any formal 45-run comparison. Formal run
-metadata should also fingerprint policy-selection source and validate
-policy/config identity and the 320 tokens/second rate.
+In a separately scoped task, prepare formal measurement orchestration for
+the frozen 45-run protocol. Validate policy/config identity and source hashes
+before comparing latency, preserve all failed and prior runs, then run the
+specified paired comparison without changing traces or the fixed aging rate.
 
 ## SMOKE-001 Attempt
 
